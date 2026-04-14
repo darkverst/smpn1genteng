@@ -41,19 +41,20 @@ export default function AgendaDetailModal({ item, onClose }: AgendaDetailModalPr
       aria-modal="true"
       aria-labelledby="agenda-detail-title"
     >
-      <div className="min-h-full flex items-center justify-center px-4 py-6 sm:px-6 sm:py-10">
+      <div className="min-h-dvh flex items-end justify-center px-0 py-0 sm:min-h-full sm:items-center sm:px-6 sm:py-10">
         <div
-          className="relative w-full max-w-2xl bg-white rounded-[28px] shadow-2xl border border-white/70 overflow-hidden max-h-[calc(100vh-3rem)] sm:max-h-[min(90vh,48rem)] flex flex-col"
+          className="relative w-full bg-white rounded-t-[28px] sm:rounded-[28px] shadow-2xl overflow-hidden max-h-[92dvh] sm:max-h-[min(90vh,48rem)] sm:max-w-2xl sm:border sm:border-white/70 flex flex-col"
           onClick={(event) => event.stopPropagation()}
         >
-          <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-primary-500 px-5 sm:px-7 py-5 sm:py-6 text-white">
+          <div className="sm:hidden mx-auto mt-2.5 mb-1 h-1.5 w-14 rounded-full bg-slate-200" />
+          <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-primary-500 px-4 sm:px-7 py-4 sm:py-6 text-white">
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${CATEGORY_COLORS[item.type] || 'bg-white/20 text-white'}`}>
+              <div className="min-w-0">
+                <span className={`inline-flex max-w-full px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold ${CATEGORY_COLORS[item.type] || 'bg-white/20 text-white'}`}>
                   {item.type}
                 </span>
-                <h2 id="agenda-detail-title" className="mt-3 text-xl sm:text-2xl font-extrabold leading-tight">{item.title}</h2>
-                <p className="mt-2 text-sm text-primary-100">Klik di luar popup atau tekan `Esc` untuk menutup.</p>
+                <h2 id="agenda-detail-title" className="mt-3 text-lg sm:text-2xl font-extrabold leading-snug break-words">{item.title}</h2>
+                <p className="mt-2 text-xs sm:text-sm text-primary-100">Klik di luar popup atau tekan `Esc` untuk menutup.</p>
               </div>
               <button
                 type="button"
@@ -66,7 +67,7 @@ export default function AgendaDetailModal({ item, onClose }: AgendaDetailModalPr
             </div>
           </div>
 
-          <div className="p-5 sm:p-7 space-y-5 overflow-y-auto">
+          <div className="p-4 sm:p-7 space-y-4 sm:space-y-5 overflow-y-auto pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tanggal Mulai</p>

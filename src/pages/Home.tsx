@@ -12,6 +12,12 @@ export default function Home() {
   const { news, agenda, sliderItems, profileData, statsData, instagramSettings } = useApp();
   const latestNews = news.slice(0, 3);
   const upcomingAgenda = agenda.slice(0, 3);
+  const shouldShowInstagramSection =
+    instagramSettings.showSection &&
+    (
+      (instagramSettings.embedType === 'widget' && !!instagramSettings.widgetCode.trim()) ||
+      instagramSettings.posts.length > 0
+    );
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedAgenda, setSelectedAgenda] = useState<AgendaItem | null>(null);
 
@@ -131,15 +137,15 @@ export default function Home() {
           )}
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+        <div className="absolute bottom-[-1px] left-0 right-0 leading-none">
+          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="block w-full">
             <path d="M0 80V40C240 0 480 0 720 20C960 40 1200 60 1440 40V80H0Z" fill="#f8fafc"/>
           </svg>
         </div>
       </section>
 
       {/* Stats */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-slate-50 -mt-1">
+      <section className="py-8 sm:py-12 lg:py-16 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {[
@@ -305,7 +311,7 @@ export default function Home() {
       </section>
 
       {/* Instagram Feed */}
-      {instagramSettings.showSection && instagramSettings.posts.length > 0 && (
+      {shouldShowInstagramSection && (
         <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-pink-50 via-white to-purple-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-6 sm:mb-10 animate-fadeInUp">

@@ -13,6 +13,12 @@ export default function Galeri() {
   const { gallery, instagramSettings } = useApp();
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const shouldShowInstagramSection =
+    instagramSettings.showSection &&
+    (
+      (instagramSettings.embedType === 'widget' && !!instagramSettings.widgetCode.trim()) ||
+      instagramSettings.posts.length > 0
+    );
 
   const filtered = activeCategory === 'Semua'
     ? gallery
@@ -96,7 +102,7 @@ export default function Galeri() {
       </section>
 
       {/* Instagram Feed Section */}
-      {instagramSettings.showSection && instagramSettings.posts.length > 0 && (
+      {shouldShowInstagramSection && (
         <section className="py-10 sm:py-14 lg:py-16 bg-gradient-to-br from-pink-50 via-white to-purple-50 border-t border-pink-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-6 sm:mb-8 animate-fadeInUp">

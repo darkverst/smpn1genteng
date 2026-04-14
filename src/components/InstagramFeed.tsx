@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Instagram, Heart, ExternalLink, Image, Play } from 'lucide-react';
 import { InstagramPost, InstagramSettings, GRADIENTS } from '../types';
 
@@ -24,6 +24,34 @@ function processEmbeds() {
   if (typeof (window as any).instgrm !== 'undefined') {
     (window as any).instgrm.Embeds.process();
   }
+}
+
+function buildWidgetMarkup(widgetCode: string): string {
+  return widgetCode.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').trim();
+}
+
+function injectWidgetCode(container: HTMLDivElement, widgetCode: string) {
+  container.innerHTML = '';
+
+  const template = document.createElement('template');
+  template.innerHTML = widgetCode.trim();
+
+  Array.from(template.content.childNodes).forEach((node) => {
+    if (node.nodeName.toLowerCase() === 'script') {
+      const sourceScript = node as HTMLScriptElement;
+      const script = document.createElement('script');
+
+      Array.from(sourceScript.attributes).forEach((attribute) => {
+        script.setAttribute(attribute.name, attribute.value);
+      });
+
+      script.text = sourceScript.text;
+      container.appendChild(script);
+      return;
+    }
+
+    container.appendChild(node.cloneNode(true));
+  });
 }
 
 /* Extract shortcode from Instagram URL */
@@ -159,44 +187,17 @@ function InstagramEmbedCard({ post }: { post: InstagramPost }) {
 }
 
 export default function InstagramFeed({ settings, maxPosts = 6, compact = false }: InstagramFeedProps) {
-  if (!settings.showSection) return null;
-
-  if (settings.embedType === 'widget') {
-    if (!settings.widgetCode) return null;
-    return (
-      <div className="w-full">
-        {/* Header */}
-        <div className={`flex items-center justify-between mb-4 sm:mb-6 ${compact ? '' : ''}`}>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
-              <Instagram className="h-5 w-5 sm:h-5 sm:w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-bold text-gray-900">{settings.sectionTitle || 'Instagram Sekolah'}</h3>
-              <a
-                href={settings.profileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs sm:text-sm text-pink-500 hover:text-pink-600 font-medium transition-colors"
-              >
-                {settings.username}
-              </a>
-            </div>
-          </div>
-        </div>
-        <div 
-          className="instagram-widget-container min-h-[300px] w-full bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 p-2"
-          dangerouslySetInnerHTML={{ __html: settings.widgetCode }} 
-        />
-      </div>
-    );
-  }
-
+  const widgetMarkup = useMemo(() => buildWidgetMarkup(settings.widgetCode || ''), [settings.widgetCode]);
+  const widgetContainerRef = useRef<HTMLDivElement>(null);
+  const widgetEnabled = settings.embedType === 'widget' && !!settings.widgetCode.trim();
   const visiblePosts = settings.posts.slice(0, maxPosts);
-  if (visiblePosts.length === 0) return null;
-
-  // Check if any post uses embed
+  const hasManualContent = visiblePosts.length > 0;
   const hasEmbeds = visiblePosts.some(p => p.isEmbed);
+
+  useEffect(() => {
+    if (!widgetEnabled || !widgetContainerRef.current) return;
+    injectWidgetCode(widgetContainerRef.current, settings.widgetCode);
+  }, [widgetEnabled, settings.widgetCode]);
 
   useEffect(() => {
     if (hasEmbeds) {
@@ -205,6 +206,8 @@ export default function InstagramFeed({ settings, maxPosts = 6, compact = false 
       return () => clearTimeout(timer);
     }
   }, [hasEmbeds]);
+
+  if (!settings.showSection || (!widgetEnabled && !hasManualContent)) return null;
 
   return (
     <div className="w-full">
@@ -239,7 +242,16 @@ export default function InstagramFeed({ settings, maxPosts = 6, compact = false 
       </div>
 
       {/* Posts Grid */}
-      {hasEmbeds ? (
+      {widgetEnabled ? (
+        <div className="instagram-widget-container min-h-[320px] w-full bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 p-2 sm:p-3">
+          {widgetMarkup ? (
+            <div
+              ref={widgetContainerRef}
+              className="[&_iframe]:!max-w-full [&_iframe]:!w-full [&_.elfsight-app]:min-h-[300px] [&_[class*='elfsight-app-']]:min-h-[300px]"
+            />
+          ) : null}
+        </div>
+      ) : hasEmbeds ? (
         /* Embed layout - single column or 2 cols */
         <div className="grid sm:grid-cols-2 gap-4">
           {visiblePosts.map((post, i) => (

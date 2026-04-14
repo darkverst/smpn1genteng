@@ -57,11 +57,11 @@ export default function BottomNav() {
       )}
 
       {/* Bottom Nav Container - only visible below md */}
-      <div ref={moreRef} className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+      <div ref={moreRef} className="fixed bottom-0 left-0 right-0 z-50 md:hidden pointer-events-none">
 
         {/* Expandable "Lainnya" panel */}
         {showMore && (
-          <div className="mx-0 rounded-t-[28px] border-t border-slate-200 bg-white animate-slideUp overflow-hidden shadow-[0_-12px_35px_rgba(15,23,42,0.08)]">
+          <div className="pointer-events-auto mx-3 mb-2 rounded-[28px] border border-white/70 bg-white/95 animate-slideUp overflow-hidden shadow-[0_18px_45px_rgba(15,23,42,0.16)] backdrop-blur-xl">
             <div className="max-w-md mx-auto px-4 pt-3 pb-3">
               <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-slate-200" />
               <div className="flex items-center justify-between mb-3">
@@ -84,7 +84,7 @@ export default function BottomNav() {
                       className={`flex flex-col items-center justify-center py-3 px-2 rounded-2xl border transition-all ${
                         active
                           ? 'bg-primary-50 text-primary-600 border-primary-100 shadow-sm'
-                          : 'text-gray-500 border-slate-100 bg-slate-50 hover:bg-gray-50 active:bg-gray-100'
+                          : 'text-gray-500 border-slate-100 bg-slate-50/80 hover:bg-gray-50 active:bg-gray-100'
                       }`}
                     >
                       <div className={`flex items-center justify-center w-10 h-10 rounded-2xl mb-1.5 transition-all ${
@@ -104,7 +104,7 @@ export default function BottomNav() {
                   <Link
                     to="/dashboard"
                     onClick={() => setShowMore(false)}
-                    className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border border-slate-100 bg-slate-50 text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-all"
+                    className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border border-slate-100 bg-slate-50/80 text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-all"
                   >
                     <div className="flex items-center justify-center w-10 h-10 rounded-2xl mb-1.5 bg-primary-500">
                       <LayoutDashboard className="h-5 w-5 text-white stroke-[1.5px]" />
@@ -115,7 +115,7 @@ export default function BottomNav() {
                   <Link
                     to="/login"
                     onClick={() => setShowMore(false)}
-                    className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border border-slate-100 bg-slate-50 text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-all"
+                    className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border border-slate-100 bg-slate-50/80 text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-all"
                   >
                     <div className="flex items-center justify-center w-10 h-10 rounded-2xl mb-1.5 bg-white border border-slate-100">
                       <LogIn className="h-5 w-5 stroke-[1.5px]" />
@@ -129,9 +129,9 @@ export default function BottomNav() {
         )}
 
         {/* Main bottom bar */}
-        <nav className="border-t border-slate-200 bg-white/95 backdrop-blur-xl pb-[max(0.35rem,env(safe-area-inset-bottom))]">
-          <div className="max-w-md mx-auto px-4 pt-3">
-            <div className="relative rounded-[22px] border border-slate-200 bg-slate-50 px-2 pt-1 pb-7">
+        <nav className="pointer-events-auto bg-transparent px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <div className="max-w-md mx-auto">
+            <div className="relative rounded-[24px] border border-white/70 bg-white/92 px-2 pt-1 pb-7 shadow-[0_18px_45px_rgba(15,23,42,0.16)] backdrop-blur-xl">
               <div className="flex items-start justify-around">
                 {mainItems.map(item => {
                   const active = isActive(item.path);
@@ -146,7 +146,7 @@ export default function BottomNav() {
                       </div>
                       {active && (
                         <div className="absolute -top-6 flex flex-col items-center">
-                          <div className="flex h-14 w-14 items-center justify-center rounded-full border-[6px] border-slate-50 bg-white text-primary-500 shadow-[0_8px_20px_rgba(15,23,42,0.12)]">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-full border-[6px] border-slate-100 bg-white text-primary-500 shadow-[0_10px_24px_rgba(15,23,42,0.14)]">
                             <item.icon className="h-6 w-6 stroke-[2px]" />
                           </div>
                         </div>
@@ -167,7 +167,7 @@ export default function BottomNav() {
                   </div>
                   {(showMore || isMoreActive) && (
                     <div className="absolute -top-6 flex flex-col items-center">
-                      <div className={`flex h-14 w-14 items-center justify-center rounded-full border-[6px] border-slate-50 bg-white text-primary-500 shadow-[0_8px_20px_rgba(15,23,42,0.12)] ${showMore ? 'rotate-45' : ''}`}>
+                      <div className={`flex h-14 w-14 items-center justify-center rounded-full border-[6px] border-slate-100 bg-white text-primary-500 shadow-[0_10px_24px_rgba(15,23,42,0.14)] ${showMore ? 'rotate-45' : ''}`}>
                         <LayoutGrid className="h-6 w-6 stroke-[2px]" />
                       </div>
                     </div>
