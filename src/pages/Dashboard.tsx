@@ -13,13 +13,14 @@ import {
   InstagramPost, InstagramSettings, Sponsor,
   NEWS_CATEGORIES, AGENDA_TYPES, GALLERY_CATEGORIES, CATEGORY_COLORS, getYoutubeThumbnail,
   initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData,
-  initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings
+  initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings,
+  initialAuthSettings
 } from '../types';
 import RichTextEditor from '../components/RichTextEditor';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
-import { loadSettings, saveSetting } from '../services/settingsRepository';
+import { getDatabaseStorageStats, loadSettings, saveSetting, type DatabaseStorageStats } from '../services/settingsRepository';
 
-type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'seo' | 'instagram' | 'sponsors' | 'security' | 'backup';
+type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'seo' | 'instagram' | 'sponsors' | 'security' | 'database';
 
 const emptyInstagramPost: Omit<InstagramPost, 'id'> = { postUrl: '', caption: '', thumbnail: '', likes: '', date: new Date().toISOString().split('T')[0], isEmbed: false, embedCode: '' };
 
@@ -383,7 +384,7 @@ export default function Dashboard() {
     { id: 'sponsors' as Tab, label: 'Sponsor/Mitra', icon: Link2 },
     { id: 'security' as Tab, label: 'Keamanan', icon: Shield },
     { id: 'contact' as Tab, label: 'Kontak', icon: Phone },
-    { id: 'backup' as Tab, label: 'Backup', icon: Database },
+    { id: 'database' as Tab, label: 'Database', icon: Database },
   ];
 
   const inputCls = "w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-300 bg-white";
@@ -1153,7 +1154,7 @@ export default function Dashboard() {
           )}
 
           {/* ======= BACKUP & RESTORE ======= */}
-          {activeTab === 'backup' && <BackupRestoreTab />}
+          {activeTab === 'database' && <DatabaseSettingsTab />}
 
           {/* ======= CONTACT ======= */}
           {activeTab === 'contact' && (
@@ -1935,7 +1936,7 @@ function SEOAnalyticsTab({
 }
 
 /* ============================================
-   BACKUP & RESTORE TAB
+   DATABASE TAB (Storage + Backup/Restore)
    ============================================ */
 const BACKUP_DATABASE_KEYS = [
   { key: SETTINGS_DB_KEYS.news, label: 'Berita', icon: '📰' },
@@ -1951,6 +1952,7 @@ const BACKUP_DATABASE_KEYS = [
   { key: SETTINGS_DB_KEYS.instagram, label: 'Instagram', icon: '📸' },
   { key: SETTINGS_DB_KEYS.sponsors, label: 'Sponsor/Mitra', icon: '🤝' },
   { key: SETTINGS_DB_KEYS.smpbButton, label: 'Tombol SMPB', icon: '🎓' },
+  { key: SETTINGS_DB_KEYS.auth, label: 'Keamanan Admin', icon: '🔐' },
 ] as const;
 
 const DEFAULT_SETTINGS_BY_KEY: Record<string, unknown> = {
@@ -1967,9 +1969,10 @@ const DEFAULT_SETTINGS_BY_KEY: Record<string, unknown> = {
   [SETTINGS_DB_KEYS.instagram]: initialInstagramSettings,
   [SETTINGS_DB_KEYS.sponsors]: initialSponsorsData,
   [SETTINGS_DB_KEYS.smpbButton]: initialSmpbButtonSettings,
+  [SETTINGS_DB_KEYS.auth]: initialAuthSettings,
 };
 
-function BackupRestoreTab() {
+function DatabaseSettingsTab() {
   const [restoreStatus, setRestoreStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [restoreMessage, setRestoreMessage] = useState('');
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
@@ -1977,6 +1980,9 @@ function BackupRestoreTab() {
   const [backupInfo, setBackupInfo] = useState<{ date: string; size: string } | null>(null);
   const [showResetAllConfirm, setShowResetAllConfirm] = useState(false);
   const [settingsSnapshot, setSettingsSnapshot] = useState<Record<string, unknown>>({});
+  const [databaseStats, setDatabaseStats] = useState<DatabaseStorageStats | null>(null);
+  const [databaseStatsError, setDatabaseStatsError] = useState('');
+  const [isLoadingDatabaseStats, setIsLoadingDatabaseStats] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refreshSettingsSnapshot = useCallback(async () => {
@@ -1985,9 +1991,22 @@ function BackupRestoreTab() {
     setSettingsSnapshot(data);
   }, []);
 
+  const refreshDatabaseStats = useCallback(async () => {
+    setIsLoadingDatabaseStats(true);
+    const stats = await getDatabaseStorageStats();
+    if (!stats) {
+      setDatabaseStatsError('Statistik database belum tersedia. Jalankan SQL schema terbaru di Supabase.');
+    } else {
+      setDatabaseStats(stats);
+      setDatabaseStatsError('');
+    }
+    setIsLoadingDatabaseStats(false);
+  }, []);
+
   useEffect(() => {
     void refreshSettingsSnapshot();
-  }, [refreshSettingsSnapshot]);
+    void refreshDatabaseStats();
+  }, [refreshSettingsSnapshot, refreshDatabaseStats]);
 
   // Calculate storage usage
   const storageData = useMemo(() => {
@@ -2104,6 +2123,7 @@ function BackupRestoreTab() {
           });
         await Promise.all(restoreOperations);
         await refreshSettingsSnapshot();
+        await refreshDatabaseStats();
 
         setRestoreStatus('success');
         setRestoreMessage(`Berhasil! ${restoredCount} data berhasil dipulihkan dari backup tanggal ${new Date(data._meta.date).toLocaleString('id-ID')}. Halaman akan dimuat ulang...`);
@@ -2131,6 +2151,7 @@ function BackupRestoreTab() {
       );
       await Promise.all(resetOperations);
       await refreshSettingsSnapshot();
+      await refreshDatabaseStats();
       setShowResetAllConfirm(false);
       setRestoreStatus('success');
       setRestoreMessage('Semua data berhasil direset ke default database. Halaman akan dimuat ulang...');
@@ -2140,7 +2161,7 @@ function BackupRestoreTab() {
 
   return (
     <div className="animate-fadeIn space-y-4 sm:space-y-6">
-      <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Backup & Restore</h2>
+      <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Database</h2>
 
       {/* Status Banner */}
       {restoreStatus !== 'idle' && (
@@ -2171,10 +2192,50 @@ function BackupRestoreTab() {
 
       {/* Storage Overview */}
       <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
-        <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2 mb-4">
-          <HardDrive className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />
-          Penggunaan Penyimpanan
-        </h3>
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+            <HardDrive className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />
+            Penggunaan Penyimpanan
+          </h3>
+          <button
+            type="button"
+            onClick={() => void refreshDatabaseStats()}
+            disabled={isLoadingDatabaseStats}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-200 text-[11px] sm:text-xs font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-60"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isLoadingDatabaseStats ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
+
+        <div className="bg-primary-50 rounded-xl p-3 sm:p-4 border border-primary-100 mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs sm:text-sm font-semibold text-primary-800">Ukuran Database Supabase</p>
+            <span className="text-[10px] sm:text-xs text-primary-600">
+              {isLoadingDatabaseStats ? 'Memuat...' : 'Realtime'}
+            </span>
+          </div>
+          {databaseStats ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+              <div className="rounded-lg bg-white/80 border border-primary-100 p-2.5">
+                <p className="text-[10px] text-primary-600">Total Database</p>
+                <p className="text-sm font-bold text-primary-800">{databaseStats.databaseSize}</p>
+              </div>
+              <div className="rounded-lg bg-white/80 border border-primary-100 p-2.5">
+                <p className="text-[10px] text-primary-600">Tabel Settings</p>
+                <p className="text-sm font-bold text-primary-800">{databaseStats.settingsSize}</p>
+              </div>
+              <div className="rounded-lg bg-white/80 border border-primary-100 p-2.5">
+                <p className="text-[10px] text-primary-600">Jumlah Baris</p>
+                <p className="text-sm font-bold text-primary-800">{databaseStats.settingsRows} rows</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-[11px] sm:text-xs text-primary-700">
+              {databaseStatsError || 'Statistik database belum tersedia.'}
+            </p>
+          )}
+        </div>
 
         {/* Total usage bar */}
         <div className="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100 mb-4">
@@ -2224,7 +2285,7 @@ function BackupRestoreTab() {
             <Info className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
             <div className="text-xs text-green-700 leading-relaxed">
               <p className="font-semibold mb-1">Yang termasuk dalam backup:</p>
-              <p>Berita, Agenda, Galeri, Slider, Profil, Statistik, Kontak, Footer, SEO, Analitik, dan Instagram.</p>
+              <p>Berita, Agenda, Galeri, Slider, Profil, Statistik, Kontak, Footer, SEO, Analitik, Instagram, SMPB, dan keamanan admin.</p>
               <p className="mt-1 text-green-600">⚠️ File gambar yang diupload (base64) juga termasuk, sehingga ukuran file bisa cukup besar.</p>
             </div>
           </div>

@@ -28,6 +28,30 @@ before update on public.settings
 for each row
 execute function public.set_updated_at();
 
+-- Fungsi untuk membaca ukuran database dari frontend dashboard.
+create or replace function public.get_database_storage_stats()
+returns table (
+  database_bytes bigint,
+  database_size text,
+  settings_bytes bigint,
+  settings_size text,
+  settings_rows bigint
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select
+    pg_database_size(current_database())::bigint as database_bytes,
+    pg_size_pretty(pg_database_size(current_database()))::text as database_size,
+    pg_total_relation_size('public.settings')::bigint as settings_bytes,
+    pg_size_pretty(pg_total_relation_size('public.settings'))::text as settings_size,
+    (select count(*) from public.settings)::bigint as settings_rows;
+$$;
+
+revoke all on function public.get_database_storage_stats() from public;
+grant execute on function public.get_database_storage_stats() to anon, authenticated;
+
 -- Seed key awal agar semua modul langsung jalan saat pertama deploy
 insert into public.settings (key, value)
 values
