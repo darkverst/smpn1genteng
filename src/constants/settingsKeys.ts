@@ -1,0 +1,15 @@
+export const SETTINGS_DB_KEYS = {
+  news: 'news_items',
+  agenda: 'agenda_items',
+  gallery: 'gallery_items',
+  contact: 'contact_info',
+  slider: 'slider_items',
+  profile: 'profile_data',
+  stats: 'stats_data',
+  footer: 'footer_credit',
+  seo: 'seo_data',
+  analytics: 'analytics_data',
+  instagram: 'instagram_settings',
+  sponsors: 'sponsors_data',
+  smpbButton: 'smpb_button',
+} as const;
