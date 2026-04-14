@@ -51,7 +51,7 @@ export default function BottomNav() {
       {/* Backdrop when more panel is open */}
       {showMore && (
         <div
-          className="fixed inset-0 z-40 bg-black/20 md:hidden animate-fadeIn"
+          className="fixed inset-0 z-40 bg-slate-950/20 md:hidden animate-fadeIn"
           onClick={() => setShowMore(false)}
         />
       )}
@@ -61,18 +61,19 @@ export default function BottomNav() {
 
         {/* Expandable "Lainnya" panel */}
         {showMore && (
-          <div className="bg-white border-t border-x border-gray-200 rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] mx-2 mb-0 animate-slideUp overflow-hidden">
-            <div className="px-2 pt-3 pb-2">
-              <div className="flex items-center justify-between px-3 mb-2">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Menu Lainnya</span>
+          <div className="mx-0 rounded-t-[28px] border-t border-slate-200 bg-white animate-slideUp overflow-hidden shadow-[0_-12px_35px_rgba(15,23,42,0.08)]">
+            <div className="max-w-md mx-auto px-4 pt-3 pb-3">
+              <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-slate-200" />
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.22em]">Menu Lainnya</span>
                 <button
                   onClick={() => setShowMore(false)}
-                  className="text-[10px] text-primary-500 font-semibold"
+                  className="rounded-full bg-primary-50 px-3 py-1 text-[10px] text-primary-600 font-semibold"
                 >
                   Tutup
                 </button>
               </div>
-              <div className="grid grid-cols-3 gap-1">
+              <div className="grid grid-cols-3 gap-2">
                 {moreItems.map(item => {
                   const active = isActive(item.path);
                   return (
@@ -80,14 +81,14 @@ export default function BottomNav() {
                       key={item.path}
                       to={item.path}
                       onClick={() => setShowMore(false)}
-                      className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all ${
+                      className={`flex flex-col items-center justify-center py-3 px-2 rounded-2xl border transition-all ${
                         active
-                          ? 'bg-primary-50 text-primary-600'
-                          : 'text-gray-500 hover:bg-gray-50 active:bg-gray-100'
+                          ? 'bg-primary-50 text-primary-600 border-primary-100 shadow-sm'
+                          : 'text-gray-500 border-slate-100 bg-slate-50 hover:bg-gray-50 active:bg-gray-100'
                       }`}
                     >
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-xl mb-1 transition-all ${
-                        active ? 'bg-primary-100' : 'bg-gray-100'
+                      <div className={`flex items-center justify-center w-10 h-10 rounded-2xl mb-1.5 transition-all ${
+                        active ? 'bg-primary-100' : 'bg-white border border-slate-100'
                       }`}>
                         <item.icon className={`h-5 w-5 ${active ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
                       </div>
@@ -103,9 +104,9 @@ export default function BottomNav() {
                   <Link
                     to="/dashboard"
                     onClick={() => setShowMore(false)}
-                    className="flex flex-col items-center justify-center py-3 px-2 rounded-xl text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-all"
+                    className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border border-slate-100 bg-slate-50 text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-all"
                   >
-                    <div className="flex items-center justify-center w-10 h-10 rounded-xl mb-1 bg-primary-500">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-2xl mb-1.5 bg-primary-500">
                       <LayoutDashboard className="h-5 w-5 text-white stroke-[1.5px]" />
                     </div>
                     <span className="text-[11px] font-medium">Dashboard</span>
@@ -114,9 +115,9 @@ export default function BottomNav() {
                   <Link
                     to="/login"
                     onClick={() => setShowMore(false)}
-                    className="flex flex-col items-center justify-center py-3 px-2 rounded-xl text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-all"
+                    className="flex flex-col items-center justify-center py-3 px-2 rounded-2xl border border-slate-100 bg-slate-50 text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-all"
                   >
-                    <div className="flex items-center justify-center w-10 h-10 rounded-xl mb-1 bg-gray-100">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-2xl mb-1.5 bg-white border border-slate-100">
                       <LogIn className="h-5 w-5 stroke-[1.5px]" />
                     </div>
                     <span className="text-[11px] font-medium">Login</span>
@@ -128,55 +129,56 @@ export default function BottomNav() {
         )}
 
         {/* Main bottom bar */}
-        <nav className="bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-          <div className="flex items-center justify-around px-2 h-16 max-w-lg mx-auto">
-            {mainItems.map(item => {
-              const active = isActive(item.path);
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex flex-col items-center justify-center flex-1 h-full relative transition-all duration-200 ${
-                    active ? 'text-primary-600' : 'text-gray-400'
-                  }`}
-                >
-                  {active && (
-                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary-500 rounded-full" />
-                  )}
-                  <div className={`flex items-center justify-center w-10 h-7 rounded-2xl transition-all duration-200 ${
-                    active ? 'bg-primary-50 scale-105' : ''
-                  }`}>
-                    <item.icon className={`h-5 w-5 transition-all ${active ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-                  </div>
-                  <span className={`text-[10px] mt-0.5 leading-tight ${active ? 'font-bold' : 'font-medium'}`}>
-                    {item.label}
-                  </span>
-                </Link>
-              );
-            })}
+        <nav className="border-t border-slate-200 bg-white/95 backdrop-blur-xl pb-[max(0.35rem,env(safe-area-inset-bottom))]">
+          <div className="max-w-md mx-auto px-4 pt-3">
+            <div className="relative rounded-[22px] border border-slate-200 bg-slate-50 px-2 pt-1 pb-7">
+              <div className="flex items-start justify-around">
+                {mainItems.map(item => {
+                  const active = isActive(item.path);
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`relative flex flex-1 min-w-0 flex-col items-center transition-colors ${active ? 'text-primary-500' : 'text-slate-400'}`}
+                    >
+                      <div className="h-10 flex items-center justify-center">
+                        {!active && <item.icon className="h-5 w-5 stroke-[1.75px]" />}
+                      </div>
+                      {active && (
+                        <div className="absolute -top-6 flex flex-col items-center">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-full border-[6px] border-slate-50 bg-white text-primary-500 shadow-[0_8px_20px_rgba(15,23,42,0.12)]">
+                            <item.icon className="h-6 w-6 stroke-[2px]" />
+                          </div>
+                        </div>
+                      )}
+                      <span className={`absolute -bottom-4 text-[11px] leading-none ${active ? 'font-bold text-primary-500' : 'font-medium text-slate-400'}`}>
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
 
-            {/* Lainnya button */}
-            <button
-              onClick={() => setShowMore(!showMore)}
-              className={`flex flex-col items-center justify-center flex-1 h-full relative transition-all duration-200 ${
-                showMore || isMoreActive ? 'text-primary-600' : 'text-gray-400'
-              }`}
-            >
-              {isMoreActive && !showMore && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary-500 rounded-full" />
-              )}
-              <div className={`flex items-center justify-center w-10 h-7 rounded-2xl transition-all duration-200 ${
-                showMore ? 'bg-primary-50 scale-105 rotate-45' : isMoreActive ? 'bg-primary-50 scale-105' : ''
-              }`}>
-                <LayoutGrid className={`h-5 w-5 transition-all ${showMore || isMoreActive ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+                <button
+                  onClick={() => setShowMore(!showMore)}
+                  className={`relative flex flex-1 min-w-0 flex-col items-center transition-colors ${showMore || isMoreActive ? 'text-primary-500' : 'text-slate-400'}`}
+                >
+                  <div className="h-10 flex items-center justify-center">
+                    {!(showMore || isMoreActive) && <LayoutGrid className="h-5 w-5 stroke-[1.75px]" />}
+                  </div>
+                  {(showMore || isMoreActive) && (
+                    <div className="absolute -top-6 flex flex-col items-center">
+                      <div className={`flex h-14 w-14 items-center justify-center rounded-full border-[6px] border-slate-50 bg-white text-primary-500 shadow-[0_8px_20px_rgba(15,23,42,0.12)] ${showMore ? 'rotate-45' : ''}`}>
+                        <LayoutGrid className="h-6 w-6 stroke-[2px]" />
+                      </div>
+                    </div>
+                  )}
+                  <span className={`absolute -bottom-4 text-[11px] leading-none ${showMore || isMoreActive ? 'font-bold text-primary-500' : 'font-medium text-slate-400'}`}>
+                    Lainnya
+                  </span>
+                </button>
               </div>
-              <span className={`text-[10px] mt-0.5 leading-tight ${showMore || isMoreActive ? 'font-bold' : 'font-medium'}`}>
-                Lainnya
-              </span>
-            </button>
+            </div>
           </div>
-          {/* Safe area spacer for notched phones */}
-          <div className="h-[env(safe-area-inset-bottom)]" />
         </nav>
       </div>
     </>

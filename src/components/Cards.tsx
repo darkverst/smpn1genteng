@@ -78,50 +78,64 @@ export function NewsCard({ item, index = 0 }: { item: NewsItem; index?: number }
 }
 
 // ============ AGENDA CARD ============
-export function AgendaCard({ item }: { item: AgendaItem }) {
+export function AgendaCard({ item, onClick }: { item: AgendaItem; onClick?: () => void }) {
   const colorClass = CATEGORY_COLORS[item.type] || 'bg-gray-100 text-gray-700';
-
-  return (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg active:scale-[0.99] transition-all duration-300 border border-gray-100 overflow-hidden group">
-      <div className="flex">
-        <div className="w-16 sm:w-20 bg-gradient-to-b from-primary-500 to-primary-600 flex flex-col items-center justify-center text-white shrink-0 py-3 sm:py-4">
-          <span className="text-xl sm:text-2xl font-extrabold leading-none">{getDay(item.date)}</span>
-          <span className="text-[10px] sm:text-xs font-semibold mt-0.5 opacity-90">{getMonthShort(item.date)}</span>
+  const isClickable = typeof onClick === 'function';
+  const containerClass = `bg-white rounded-2xl shadow-sm hover:shadow-lg active:scale-[0.99] transition-all duration-300 border border-gray-100 overflow-hidden group ${isClickable ? 'w-full text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-300' : ''}`;
+  const content = (
+    <div className="flex">
+      <div className="w-16 sm:w-20 bg-gradient-to-b from-primary-500 to-primary-600 flex flex-col items-center justify-center text-white shrink-0 py-3 sm:py-4">
+        <span className="text-xl sm:text-2xl font-extrabold leading-none">{getDay(item.date)}</span>
+        <span className="text-[10px] sm:text-xs font-semibold mt-0.5 opacity-90">{getMonthShort(item.date)}</span>
+      </div>
+      <div className="flex-1 p-3 sm:p-4 min-w-0">
+        <div className="flex items-start justify-between gap-2 mb-1.5">
+          <h3 className="text-sm sm:text-base font-bold text-gray-900 group-hover:text-primary-600 transition-colors leading-snug line-clamp-2">
+            {item.title}
+          </h3>
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap shrink-0 ${colorClass}`}>
+            {item.type}
+          </span>
         </div>
-        <div className="flex-1 p-3 sm:p-4 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-1.5">
-            <h3 className="text-sm sm:text-base font-bold text-gray-900 group-hover:text-primary-600 transition-colors leading-snug line-clamp-2">
-              {item.title}
-            </h3>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap shrink-0 ${colorClass}`}>
-              {item.type}
+        <p className="text-xs sm:text-sm text-gray-500 mb-2 line-clamp-2">{item.description}</p>
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-400">
+          {item.time !== '-' && (
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {item.time}
             </span>
-          </div>
-          <p className="text-xs sm:text-sm text-gray-500 mb-2 line-clamp-2">{item.description}</p>
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-400">
-            {item.time !== '-' && (
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {item.time}
-              </span>
-            )}
-            {item.location !== '-' && (
-              <span className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {item.location}
-              </span>
-            )}
-            {item.endDate && (
-              <span className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                s/d {formatDate(item.endDate)}
-              </span>
-            )}
-          </div>
+          )}
+          {item.location !== '-' && (
+            <span className="flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              {item.location}
+            </span>
+          )}
+          {item.endDate && (
+            <span className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              s/d {formatDate(item.endDate)}
+            </span>
+          )}
         </div>
+        {isClickable && (
+          <p className="mt-3 text-[11px] sm:text-xs font-semibold text-primary-500">
+            Klik untuk melihat detail agenda
+          </p>
+        )}
       </div>
     </div>
   );
+
+  if (isClickable) {
+    return (
+      <button type="button" onClick={onClick} className={containerClass}>
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={containerClass}>{content}</div>;
 }
 
 // ============ GALLERY CARD ============

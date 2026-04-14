@@ -56,6 +56,40 @@ export async function loadSettings(keys: string[]): Promise<Record<string, unkno
   return result;
 }
 
+export async function ensureDefaultSettings(defaultSettings: Record<string, unknown>): Promise<Record<string, unknown>> {
+  const keys = Object.keys(defaultSettings);
+  if (keys.length === 0) return {};
+
+  if (!isSupabaseConfigured || !supabase) {
+    console.error('[DB] Supabase belum dikonfigurasi. Menggunakan default lokal untuk settings.');
+    return { ...defaultSettings };
+  }
+
+  const existingSettings = await loadSettings(keys);
+  const missingPayload = keys
+    .filter((key) => existingSettings[key] === undefined)
+    .map((key) => ({
+      key,
+      value: defaultSettings[key],
+      updated_at: new Date().toISOString(),
+    }));
+
+  if (missingPayload.length > 0) {
+    const { error } = await supabase
+      .from(SETTINGS_TABLE)
+      .upsert(missingPayload, { onConflict: 'key' });
+
+    if (error) {
+      console.error('[DB] Gagal membuat key settings yang belum ada:', error);
+    }
+  }
+
+  return {
+    ...defaultSettings,
+    ...existingSettings,
+  };
+}
+
 export async function saveSetting(key: string, value: unknown): Promise<boolean> {
   if (!isSupabaseConfigured || !supabase) {
     console.error(`[DB] Supabase belum dikonfigurasi. Setting "${key}" tidak tersimpan.`);
@@ -68,7 +102,7 @@ export async function saveSetting(key: string, value: unknown): Promise<boolean>
       key,
       value,
       updated_at: new Date().toISOString(),
-    });
+    }, { onConflict: 'key' });
 
   if (error) {
     console.error(`[DB] Gagal menyimpan setting "${key}":`, error);
@@ -87,9 +121,10 @@ export async function checkDatabaseConnection(): Promise<DatabaseConnectionStatu
     };
   }
 
-  const { error, count } = await supabase
+  const { data, error, count } = await supabase
     .from(SETTINGS_TABLE)
-    .select('key', { count: 'exact', head: true });
+    .select('key, value', { count: 'exact' })
+    .limit(1);
 
   if (error) {
     return {
@@ -99,10 +134,60 @@ export async function checkDatabaseConnection(): Promise<DatabaseConnectionStatu
     };
   }
 
+  const existingRow = data?.[0];
+
+  if (existingRow?.key && typeof existingRow.key === 'string') {
+    const { error: writeError } = await supabase
+      .from(SETTINGS_TABLE)
+      .upsert({
+        key: existingRow.key,
+        value: existingRow.value ?? {},
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'key' });
+
+    if (writeError) {
+      return {
+        isConnected: false,
+        source: 'supabase',
+        message: `Koneksi baca berhasil, tetapi hak tulis ke tabel settings gagal: ${writeError.message}`,
+      };
+    }
+  } else {
+    const probeKey = '__connection_probe__';
+    const { error: insertError } = await supabase
+      .from(SETTINGS_TABLE)
+      .upsert({
+        key: probeKey,
+        value: { checkedAt: new Date().toISOString() },
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'key' });
+
+    if (insertError) {
+      return {
+        isConnected: false,
+        source: 'supabase',
+        message: `Tabel settings terbaca, tetapi gagal membuat data uji tulis: ${insertError.message}`,
+      };
+    }
+
+    const { error: deleteProbeError } = await supabase
+      .from(SETTINGS_TABLE)
+      .delete()
+      .eq('key', probeKey);
+
+    if (deleteProbeError) {
+      return {
+        isConnected: false,
+        source: 'supabase',
+        message: `Hak tulis tersedia, tetapi cleanup data uji gagal: ${deleteProbeError.message}`,
+      };
+    }
+  }
+
   return {
     isConnected: true,
     source: 'supabase',
-    message: `Terhubung ke Supabase. Tabel settings aktif (${count ?? 0} baris).`,
+    message: `Terhubung ke Supabase. Baca/tulis tabel settings aktif (${count ?? 0} baris).`,
   };
 }
 

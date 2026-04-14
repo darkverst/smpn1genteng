@@ -58,16 +58,74 @@ values
   ('news_items', '[]'::jsonb),
   ('agenda_items', '[]'::jsonb),
   ('gallery_items', '[]'::jsonb),
-  ('contact_info', '{}'::jsonb),
+  ('contact_info', '{
+    "address": "Jl. Raya Genteng No. 01, Genteng, Kabupaten Banyuwangi, Jawa Timur 68465",
+    "phone": "(0333) 845123",
+    "email": "info@smpn1genteng.sch.id",
+    "hours": "Senin - Sabtu: 07:00 - 14:00 WIB",
+    "mapQuery": "SMP+Negeri+1+Genteng+Banyuwangi",
+    "mapEmbedUrl": "",
+    "mapDirectionsUrl": "",
+    "facebook": "https://facebook.com",
+    "instagram": "https://instagram.com",
+    "youtube": "https://youtube.com"
+  }'::jsonb),
   ('slider_items', '[]'::jsonb),
   ('profile_data', '{}'::jsonb),
-  ('stats_data', '{}'::jsonb),
-  ('footer_credit', '{}'::jsonb),
-  ('seo_data', '{}'::jsonb),
-  ('analytics_data', '{}'::jsonb),
-  ('instagram_settings', '{}'::jsonb),
-  ('sponsors_data', '{}'::jsonb),
-  ('smpb_button', '{}'::jsonb),
+  ('stats_data', '{
+    "siswaAktif": "720+",
+    "tenagaPendidik": "48",
+    "prestasi": "150+",
+    "akreditasi": "A"
+  }'::jsonb),
+  ('footer_credit', '{
+    "copyrightText": "",
+    "rightText": "Dibuat dengan ❤️ untuk pendidikan Indonesia",
+    "showYear": true,
+    "schoolName": "SMP Negeri 1 Genteng",
+    "developerName": "",
+    "developerUrl": ""
+  }'::jsonb),
+  ('seo_data', '{
+    "metaTitle": "SMP Negeri 1 Genteng - Website Resmi",
+    "metaDescription": "Website resmi SMP Negeri 1 Genteng, Kabupaten Banyuwangi, Jawa Timur. Unggul dalam Prestasi, Santun dalam Budi Pekerti. Informasi pendaftaran, berita kegiatan, agenda sekolah, dan galeri.",
+    "metaKeywords": "SMPN 1 Genteng, SMP Negeri 1 Genteng, sekolah Banyuwangi, pendidikan Genteng, sekolah menengah pertama, PPDB Banyuwangi",
+    "ogImage": "",
+    "ogType": "website",
+    "robots": "index, follow",
+    "canonicalUrl": "",
+    "googleVerification": "",
+    "bingVerification": "",
+    "googleAnalyticsId": ""
+  }'::jsonb),
+  ('analytics_data', '{
+    "totalPageViews": 0,
+    "totalSessions": 0,
+    "dailyViews": [],
+    "pageViews": {},
+    "referrers": {},
+    "lastUpdated": "2026-01-01T00:00:00.000Z"
+  }'::jsonb),
+  ('instagram_settings', '{
+    "username": "@smpn1genteng",
+    "profileUrl": "https://www.instagram.com/smpn1genteng",
+    "showSection": true,
+    "sectionTitle": "Instagram Sekolah",
+    "embedType": "widget",
+    "widgetCode": "<div class=\"elfsight-app-xxxxxx-xxxx-xxxx-xxxx-xxxxxxx\"></div>\n<!-- Dapatkan kode ini gratis di elfsight.com atau curator.io -->",
+    "posts": []
+  }'::jsonb),
+  ('sponsors_data', '{
+    "showSection": true,
+    "title": "Didukung Oleh",
+    "sponsors": []
+  }'::jsonb),
+  ('smpb_button', '{
+    "isActive": false,
+    "year": "2026",
+    "link": "",
+    "openInNewTab": true
+  }'::jsonb),
   ('auth_settings', '{"username":"admin","password":"admin123","showDemoCredentials":true}'::jsonb)
 on conflict (key) do nothing;
 

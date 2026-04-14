@@ -100,10 +100,10 @@ body {
 /* ====== BOTTOM NAV SPACING - only mobile (< 768px) ====== */
 @media (max-width: 767px) {
   .main-content {
-    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
   }
   .footer-wrapper {
-    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
   }
 }
 

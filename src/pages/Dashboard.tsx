@@ -18,6 +18,7 @@ import {
 } from '../types';
 import RichTextEditor from '../components/RichTextEditor';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
+import { DEFAULT_SETTINGS_BY_KEY } from '../constants/defaultSettings';
 import {
   checkDatabaseConnection,
   getDatabaseStorageStats,
@@ -1180,7 +1181,35 @@ export default function Dashboard() {
                 </div>
                 <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                   <div><label className={labelCls}><Clock className="inline h-3.5 w-3.5 mr-1" />Jam Operasional</label><input type="text" value={contactForm.hours} onChange={e => setContactForm({ ...contactForm, hours: e.target.value })} className={inputCls} /></div>
-                  <div><label className={labelCls}><Globe className="inline h-3.5 w-3.5 mr-1" />Google Maps Query</label><input type="text" value={contactForm.mapQuery} onChange={e => setContactForm({ ...contactForm, mapQuery: e.target.value })} className={inputCls} /></div>
+                  <div><label className={labelCls}><Globe className="inline h-3.5 w-3.5 mr-1" />Google Maps Query</label><input type="text" value={contactForm.mapQuery} onChange={e => setContactForm({ ...contactForm, mapQuery: e.target.value })} className={inputCls} placeholder="SMP Negeri 1 Genteng Banyuwangi" /></div>
+                </div>
+                <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 sm:p-4 space-y-3">
+                  <div>
+                    <h4 className="text-sm font-bold text-blue-900">Pengaturan Google Maps</h4>
+                    <p className="text-[11px] sm:text-xs text-blue-700 mt-1">
+                      Gunakan query untuk mode sederhana, atau isi URL embed agar peta yang tampil sesuai titik lokasi sekolah.
+                    </p>
+                  </div>
+                  <div>
+                    <label className={labelCls}>URL Embed Google Maps</label>
+                    <input
+                      type="url"
+                      value={contactForm.mapEmbedUrl}
+                      onChange={e => setContactForm({ ...contactForm, mapEmbedUrl: e.target.value })}
+                      className={inputCls}
+                      placeholder="https://www.google.com/maps/embed?pb=..."
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Link Buka Google Maps</label>
+                    <input
+                      type="url"
+                      value={contactForm.mapDirectionsUrl}
+                      onChange={e => setContactForm({ ...contactForm, mapDirectionsUrl: e.target.value })}
+                      className={inputCls}
+                      placeholder="https://maps.app.goo.gl/... atau https://www.google.com/maps/search/?api=1..."
+                    />
+                  </div>
                 </div>
               </div>
               <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-3 sm:space-y-4">
@@ -1962,23 +1991,6 @@ const BACKUP_DATABASE_KEYS = [
   { key: SETTINGS_DB_KEYS.smpbButton, label: 'Tombol SMPB', icon: '🎓' },
   { key: SETTINGS_DB_KEYS.auth, label: 'Keamanan Admin', icon: '🔐' },
 ] as const;
-
-const DEFAULT_SETTINGS_BY_KEY: Record<string, unknown> = {
-  [SETTINGS_DB_KEYS.news]: initialNews,
-  [SETTINGS_DB_KEYS.agenda]: initialAgenda,
-  [SETTINGS_DB_KEYS.gallery]: initialGallery,
-  [SETTINGS_DB_KEYS.contact]: initialContactInfo,
-  [SETTINGS_DB_KEYS.slider]: initialSliderItems,
-  [SETTINGS_DB_KEYS.profile]: initialProfileData,
-  [SETTINGS_DB_KEYS.stats]: initialStatsData,
-  [SETTINGS_DB_KEYS.footer]: initialFooterCredit,
-  [SETTINGS_DB_KEYS.seo]: initialSEOData,
-  [SETTINGS_DB_KEYS.analytics]: initialAnalyticsData,
-  [SETTINGS_DB_KEYS.instagram]: initialInstagramSettings,
-  [SETTINGS_DB_KEYS.sponsors]: initialSponsorsData,
-  [SETTINGS_DB_KEYS.smpbButton]: initialSmpbButtonSettings,
-  [SETTINGS_DB_KEYS.auth]: initialAuthSettings,
-};
 
 function DatabaseSettingsTab() {
   const [restoreStatus, setRestoreStatus] = useState<'idle' | 'success' | 'error'>('idle');

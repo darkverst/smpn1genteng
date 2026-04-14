@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle, MessageSquare } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { getGoogleMapsDirectionsUrl, getGoogleMapsEmbedUrl } from '../types';
 
 export default function Kontak() {
   const { contactInfo } = useApp();
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const mapEmbedUrl = getGoogleMapsEmbedUrl(contactInfo);
+  const mapDirectionsUrl = getGoogleMapsDirectionsUrl(contactInfo);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,14 +100,25 @@ export default function Kontak() {
             </div>
 
             <div className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-gray-100 h-[300px] sm:h-[400px] lg:h-auto">
-              <iframe
-                src={`https://maps.google.com/maps?q=${contactInfo.mapQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                className="w-full h-full border-0"
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Lokasi SMPN 1 Genteng"
-              />
+              <div className="h-full flex flex-col">
+                <iframe
+                  src={mapEmbedUrl}
+                  className="w-full flex-1 border-0 min-h-[240px]"
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Lokasi SMPN 1 Genteng"
+                />
+                <a
+                  href={mapDirectionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-primary-500 text-white text-sm font-semibold hover:bg-primary-600 transition-colors"
+                >
+                  <MapPin className="h-4 w-4" />
+                  Buka di Google Maps
+                </a>
+              </div>
             </div>
           </div>
         </div>

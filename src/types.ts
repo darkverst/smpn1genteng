@@ -36,6 +36,8 @@ export interface ContactInfo {
   email: string;
   hours: string;
   mapQuery: string;
+  mapEmbedUrl: string;
+  mapDirectionsUrl: string;
   facebook: string;
   instagram: string;
   youtube: string;
@@ -202,10 +204,30 @@ export const initialContactInfo: ContactInfo = {
   email: 'info@smpn1genteng.sch.id',
   hours: 'Senin - Sabtu: 07:00 - 14:00 WIB',
   mapQuery: 'SMP+Negeri+1+Genteng+Banyuwangi',
+  mapEmbedUrl: '',
+  mapDirectionsUrl: '',
   facebook: 'https://facebook.com',
   instagram: 'https://instagram.com',
   youtube: 'https://youtube.com',
 };
+
+export function getGoogleMapsEmbedUrl(contactInfo: Pick<ContactInfo, 'mapEmbedUrl' | 'mapQuery' | 'address'>): string {
+  if (contactInfo.mapEmbedUrl?.trim()) {
+    return contactInfo.mapEmbedUrl.trim();
+  }
+
+  const fallbackQuery = contactInfo.mapQuery?.trim() || contactInfo.address?.trim() || 'SMP Negeri 1 Genteng Banyuwangi';
+  return `https://maps.google.com/maps?q=${encodeURIComponent(fallbackQuery)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+}
+
+export function getGoogleMapsDirectionsUrl(contactInfo: Pick<ContactInfo, 'mapDirectionsUrl' | 'mapQuery' | 'address'>): string {
+  if (contactInfo.mapDirectionsUrl?.trim()) {
+    return contactInfo.mapDirectionsUrl.trim();
+  }
+
+  const destination = contactInfo.mapQuery?.trim() || contactInfo.address?.trim() || 'SMP Negeri 1 Genteng Banyuwangi';
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
+}
 
 export const initialSliderItems: SliderItem[] = [
   {

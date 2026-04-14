@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { GraduationCap, MapPin, Phone, Mail, Clock, ExternalLink } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { getGoogleMapsEmbedUrl } from '../types';
 
 export default function Footer() {
   const { contactInfo, footerCredit } = useApp();
+  const mapEmbedUrl = getGoogleMapsEmbedUrl(contactInfo);
 
   const copyrightLine = (() => {
     const year = footerCredit.showYear ? `© ${new Date().getFullYear()} ` : '';
@@ -109,7 +111,7 @@ export default function Footer() {
             <h4 className="text-accent-400 font-semibold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4">Lokasi</h4>
             <div className="rounded-xl overflow-hidden shadow-lg border border-primary-800 h-36 sm:h-44">
               <iframe
-                src={`https://maps.google.com/maps?q=${contactInfo.mapQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                src={mapEmbedUrl}
                 className="w-full h-full border-0"
                 allowFullScreen
                 loading="lazy"

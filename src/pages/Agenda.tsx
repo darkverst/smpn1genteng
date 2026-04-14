@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Calendar } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { AgendaCard } from '../components/Cards';
-import { AGENDA_TYPES } from '../types';
+import AgendaDetailModal from '../components/AgendaDetailModal';
+import { AgendaItem, AGENDA_TYPES } from '../types';
 
 export default function Agenda() {
   const { agenda } = useApp();
   const [activeType, setActiveType] = useState('Semua');
+  const [selectedAgenda, setSelectedAgenda] = useState<AgendaItem | null>(null);
 
   const filtered = activeType === 'Semua' ? agenda : agenda.filter(a => a.type === activeType);
 
@@ -60,7 +62,7 @@ export default function Agenda() {
             <div className="space-y-3 sm:space-y-4">
               {filtered.map((item, i) => (
                 <div key={item.id} className="animate-fadeInUp" style={{ animationDelay: `${i * 0.08}s` }}>
-                  <AgendaCard item={item} />
+                  <AgendaCard item={item} onClick={() => setSelectedAgenda(item)} />
                 </div>
               ))}
             </div>
@@ -73,6 +75,7 @@ export default function Agenda() {
           )}
         </div>
       </section>
+      <AgendaDetailModal item={selectedAgenda} onClose={() => setSelectedAgenda(null)} />
     </div>
   );
 }

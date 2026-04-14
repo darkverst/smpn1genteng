@@ -5,8 +5,9 @@ import {
   initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings, initialAuthSettings
 } from '../types';
 import { addSponsorRecord, deleteSponsorRecord, normalizeSponsorsData, updateSponsorRecord } from '../utils/sponsors';
-import { loadSettings, saveSetting } from '../services/settingsRepository';
+import { ensureDefaultSettings, saveSetting } from '../services/settingsRepository';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
+import { DEFAULT_SETTINGS_BY_KEY } from '../constants/defaultSettings';
 
 interface AppState {
   isSettingsLoaded: boolean;
@@ -109,7 +110,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     const hydrateFromDatabase = async () => {
-      const settings = await loadSettings(Object.values(SETTINGS_DB_KEYS));
+      const settings = await ensureDefaultSettings(DEFAULT_SETTINGS_BY_KEY);
       if (cancelled) return;
 
       setNews(Array.isArray(settings[SETTINGS_DB_KEYS.news]) ? (settings[SETTINGS_DB_KEYS.news] as NewsItem[]) : initialNews);

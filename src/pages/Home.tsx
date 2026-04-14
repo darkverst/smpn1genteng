@@ -3,15 +3,17 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Users, Award, BookOpen, GraduationCap, Calendar, Newspaper, ChevronRight, Star, Target, Heart, ChevronLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { NewsCard, AgendaCard } from '../components/Cards';
+import AgendaDetailModal from '../components/AgendaDetailModal';
 import InstagramFeed from '../components/InstagramFeed';
 import SponsorMarquee from '../components/SponsorMarquee';
-import { GRADIENTS } from '../types';
+import { AgendaItem, GRADIENTS } from '../types';
 
 export default function Home() {
   const { news, agenda, sliderItems, profileData, statsData, instagramSettings } = useApp();
   const latestNews = news.slice(0, 3);
   const upcomingAgenda = agenda.slice(0, 3);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [selectedAgenda, setSelectedAgenda] = useState<AgendaItem | null>(null);
 
   useEffect(() => {
     if (sliderItems.length <= 1) return;
@@ -290,7 +292,7 @@ export default function Home() {
           <div className="grid gap-3 sm:gap-4 lg:gap-5">
             {upcomingAgenda.map((item, i) => (
               <div key={item.id} className="animate-fadeInUp" style={{ animationDelay: `${i * 0.1}s` }}>
-                <AgendaCard item={item} />
+                <AgendaCard item={item} onClick={() => setSelectedAgenda(item)} />
               </div>
             ))}
           </div>
@@ -348,6 +350,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <AgendaDetailModal item={selectedAgenda} onClose={() => setSelectedAgenda(null)} />
     </div>
   );
 }

@@ -120,6 +120,8 @@ INSERT INTO settings (key, value) VALUES
   "email": "info@smpn1genteng.sch.id",
   "hours": "Senin - Sabtu: 07:00 - 14:00 WIB",
   "mapQuery": "SMP+Negeri+1+Genteng+Banyuwangi",
+  "mapEmbedUrl": "",
+  "mapDirectionsUrl": "",
   "facebook": "https://facebook.com",
   "instagram": "https://instagram.com",
   "youtube": "https://youtube.com"
@@ -165,6 +167,47 @@ INSERT INTO settings (key, value) VALUES
   "googleVerification": "",
   "bingVerification": "",
   "googleAnalyticsId": ""
+}'::jsonb),
+('footer_credit', '{
+  "copyrightText": "",
+  "rightText": "Dibuat dengan ❤️ untuk pendidikan Indonesia",
+  "showYear": true,
+  "schoolName": "SMP Negeri 1 Genteng",
+  "developerName": "",
+  "developerUrl": ""
+}'::jsonb),
+('analytics_data', '{
+  "totalPageViews": 0,
+  "totalSessions": 0,
+  "dailyViews": [],
+  "pageViews": {},
+  "referrers": {},
+  "lastUpdated": "2026-01-01T00:00:00.000Z"
+}'::jsonb),
+('instagram_settings', '{
+  "username": "@smpn1genteng",
+  "profileUrl": "https://www.instagram.com/smpn1genteng",
+  "showSection": true,
+  "sectionTitle": "Instagram Sekolah",
+  "embedType": "widget",
+  "widgetCode": "<div class=\"elfsight-app-xxxxxx-xxxx-xxxx-xxxx-xxxxxxx\"></div>\n<!-- Dapatkan kode ini gratis di elfsight.com atau curator.io -->",
+  "posts": []
+}'::jsonb),
+('sponsors_data', '{
+  "showSection": true,
+  "title": "Didukung Oleh",
+  "sponsors": []
+}'::jsonb),
+('smpb_button', '{
+  "isActive": false,
+  "year": "2026",
+  "link": "",
+  "openInNewTab": true
+}'::jsonb),
+('auth_settings', '{
+  "username": "admin",
+  "password": "admin123",
+  "showDemoCredentials": true
 }'::jsonb)
 ON CONFLICT (key) DO NOTHING;
 
@@ -226,12 +269,18 @@ CREATE POLICY "Public read settings" ON settings FOR SELECT USING (TRUE);
 CREATE POLICY "Anyone can track views" ON analytics_views FOR INSERT WITH CHECK (TRUE);
 CREATE POLICY "Anyone can send message" ON contact_messages FOR INSERT WITH CHECK (TRUE);
 
+-- Policy: Frontend project ini belum memakai session Supabase Auth.
+-- Agar menu admin website bisa tetap menyimpan setting ke tabel settings,
+-- key-value settings dibuka untuk anon dan authenticated.
+CREATE POLICY "Public insert settings" ON settings FOR INSERT TO anon, authenticated WITH CHECK (TRUE);
+CREATE POLICY "Public update settings" ON settings FOR UPDATE TO anon, authenticated USING (TRUE) WITH CHECK (TRUE);
+CREATE POLICY "Public delete settings" ON settings FOR DELETE TO anon, authenticated USING (TRUE);
+
 -- Policy: Hanya authenticated user (admin) yang bisa INSERT/UPDATE/DELETE
 CREATE POLICY "Admin manage news" ON news FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Admin manage agenda" ON agenda FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Admin manage gallery" ON gallery FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Admin manage slider" ON slider FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Admin manage settings" ON settings FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Admin read messages" ON contact_messages FOR SELECT USING (auth.role() = 'authenticated');
 CREATE POLICY "Admin update messages" ON contact_messages FOR UPDATE USING (auth.role() = 'authenticated');
 CREATE POLICY "Admin read analytics" ON analytics_views FOR SELECT USING (auth.role() = 'authenticated');
