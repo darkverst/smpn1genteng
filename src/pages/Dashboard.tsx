@@ -18,7 +18,15 @@ import {
 } from '../types';
 import RichTextEditor from '../components/RichTextEditor';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
-import { getDatabaseStorageStats, loadSettings, saveSetting, type DatabaseStorageStats } from '../services/settingsRepository';
+import {
+  checkDatabaseConnection,
+  getDatabaseStorageStats,
+  loadSettings,
+  resetSettingsToDefault,
+  saveSetting,
+  type DatabaseConnectionStatus,
+  type DatabaseStorageStats,
+} from '../services/settingsRepository';
 
 type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'seo' | 'instagram' | 'sponsors' | 'security' | 'database';
 
@@ -1983,6 +1991,12 @@ function DatabaseSettingsTab() {
   const [databaseStats, setDatabaseStats] = useState<DatabaseStorageStats | null>(null);
   const [databaseStatsError, setDatabaseStatsError] = useState('');
   const [isLoadingDatabaseStats, setIsLoadingDatabaseStats] = useState(false);
+  const [databaseConnection, setDatabaseConnection] = useState<DatabaseConnectionStatus>({
+    isConnected: false,
+    source: 'unknown',
+    message: 'Memeriksa koneksi database...',
+  });
+  const [isCheckingConnection, setIsCheckingConnection] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refreshSettingsSnapshot = useCallback(async () => {
@@ -2003,10 +2017,18 @@ function DatabaseSettingsTab() {
     setIsLoadingDatabaseStats(false);
   }, []);
 
+  const refreshDatabaseConnection = useCallback(async () => {
+    setIsCheckingConnection(true);
+    const status = await checkDatabaseConnection();
+    setDatabaseConnection(status);
+    setIsCheckingConnection(false);
+  }, []);
+
   useEffect(() => {
     void refreshSettingsSnapshot();
     void refreshDatabaseStats();
-  }, [refreshSettingsSnapshot, refreshDatabaseStats]);
+    void refreshDatabaseConnection();
+  }, [refreshSettingsSnapshot, refreshDatabaseStats, refreshDatabaseConnection]);
 
   // Calculate storage usage
   const storageData = useMemo(() => {
@@ -2124,6 +2146,7 @@ function DatabaseSettingsTab() {
         await Promise.all(restoreOperations);
         await refreshSettingsSnapshot();
         await refreshDatabaseStats();
+        await refreshDatabaseConnection();
 
         setRestoreStatus('success');
         setRestoreMessage(`Berhasil! ${restoredCount} data berhasil dipulihkan dari backup tanggal ${new Date(data._meta.date).toLocaleString('id-ID')}. Halaman akan dimuat ulang...`);
@@ -2146,15 +2169,19 @@ function DatabaseSettingsTab() {
   // RESET ALL - Clear all data
   const handleResetAll = () => {
     void (async () => {
-      const resetOperations = BACKUP_DATABASE_KEYS.map(({ key }) =>
-        saveSetting(key, DEFAULT_SETTINGS_BY_KEY[key])
-      );
-      await Promise.all(resetOperations);
+      const result = await resetSettingsToDefault(DEFAULT_SETTINGS_BY_KEY);
+      if (!result.success) {
+        setShowResetAllConfirm(false);
+        setRestoreStatus('error');
+        setRestoreMessage(result.message || 'Gagal reset data ke default.');
+        return;
+      }
       await refreshSettingsSnapshot();
       await refreshDatabaseStats();
+      await refreshDatabaseConnection();
       setShowResetAllConfirm(false);
       setRestoreStatus('success');
-      setRestoreMessage('Semua data berhasil direset ke default database. Halaman akan dimuat ulang...');
+      setRestoreMessage(`Reset berhasil: ${result.resetCount} key diatur ulang ke default${result.removedCount > 0 ? ` dan ${result.removedCount} key lama dihapus` : ''}. Halaman akan dimuat ulang...`);
       setTimeout(() => { window.location.reload(); }, 2500);
     })();
   };
@@ -2189,6 +2216,40 @@ function DatabaseSettingsTab() {
           </button>
         </div>
       )}
+
+      {/* Database Connectivity */}
+      <div className={`rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border ${
+        databaseConnection.isConnected ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'
+      }`}>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+              <Database className={`h-4 w-4 sm:h-5 sm:w-5 ${databaseConnection.isConnected ? 'text-green-600' : 'text-amber-600'}`} />
+              Konektivitas Database
+            </h3>
+            <p className={`text-xs sm:text-sm mt-1 ${
+              databaseConnection.isConnected ? 'text-green-700' : 'text-amber-700'
+            }`}>
+              {databaseConnection.message}
+            </p>
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
+              Status: {databaseConnection.isConnected ? 'Terkoneksi ke website' : 'Belum terkoneksi'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              void refreshDatabaseConnection();
+              void refreshDatabaseStats();
+            }}
+            disabled={isCheckingConnection || isLoadingDatabaseStats}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-200 text-[11px] sm:text-xs font-semibold text-gray-700 hover:bg-white/70 disabled:opacity-60"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${(isCheckingConnection || isLoadingDatabaseStats) ? 'animate-spin' : ''}`} />
+            Cek Ulang
+          </button>
+        </div>
+      </div>
 
       {/* Storage Overview */}
       <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
@@ -2352,7 +2413,7 @@ function DatabaseSettingsTab() {
           Reset Semua Data
         </h3>
         <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-          Hapus semua data dan kembalikan ke pengaturan default (data bawaan). 
+          Kembalikan semua key settings ke data bawaan aplikasi dan hapus key tambahan non-default.
           Pastikan Anda sudah membuat backup terlebih dahulu!
         </p>
         <button onClick={() => setShowResetAllConfirm(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600 shadow-lg transition-colors">

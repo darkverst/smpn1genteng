@@ -10,6 +10,19 @@ export interface DatabaseStorageStats {
   settingsRows: number;
 }
 
+export interface DatabaseConnectionStatus {
+  isConnected: boolean;
+  source: 'supabase' | 'environment' | 'unknown';
+  message: string;
+}
+
+export interface ResetSettingsResult {
+  success: boolean;
+  resetCount: number;
+  removedCount: number;
+  message?: string;
+}
+
 function formatSize(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes < 0) return '0 B';
   if (bytes < 1024) return `${bytes} B`;
@@ -63,6 +76,107 @@ export async function saveSetting(key: string, value: unknown): Promise<boolean>
   }
 
   return true;
+}
+
+export async function checkDatabaseConnection(): Promise<DatabaseConnectionStatus> {
+  if (!isSupabaseConfigured || !supabase) {
+    return {
+      isConnected: false,
+      source: 'environment',
+      message: 'Environment Supabase belum valid. Periksa VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY.',
+    };
+  }
+
+  const { error, count } = await supabase
+    .from(SETTINGS_TABLE)
+    .select('key', { count: 'exact', head: true });
+
+  if (error) {
+    return {
+      isConnected: false,
+      source: 'supabase',
+      message: `Gagal terhubung ke tabel settings: ${error.message}`,
+    };
+  }
+
+  return {
+    isConnected: true,
+    source: 'supabase',
+    message: `Terhubung ke Supabase. Tabel settings aktif (${count ?? 0} baris).`,
+  };
+}
+
+export async function resetSettingsToDefault(defaultSettings: Record<string, unknown>): Promise<ResetSettingsResult> {
+  if (!isSupabaseConfigured || !supabase) {
+    return {
+      success: false,
+      resetCount: 0,
+      removedCount: 0,
+      message: 'Supabase belum dikonfigurasi.',
+    };
+  }
+
+  const defaultEntries = Object.entries(defaultSettings);
+  const defaultKeys = defaultEntries.map(([key]) => key);
+
+  const { data: existingRows, error: existingError } = await supabase
+    .from(SETTINGS_TABLE)
+    .select('key');
+
+  if (existingError) {
+    return {
+      success: false,
+      resetCount: 0,
+      removedCount: 0,
+      message: `Gagal membaca key existing: ${existingError.message}`,
+    };
+  }
+
+  const keysToRemove = (existingRows ?? [])
+    .map((row) => row.key)
+    .filter((key): key is string => typeof key === 'string' && !defaultKeys.includes(key));
+
+  let removedCount = 0;
+  if (keysToRemove.length > 0) {
+    const { error: deleteError } = await supabase
+      .from(SETTINGS_TABLE)
+      .delete()
+      .in('key', keysToRemove);
+    if (deleteError) {
+      return {
+        success: false,
+        resetCount: 0,
+        removedCount: 0,
+        message: `Gagal menghapus key di luar default: ${deleteError.message}`,
+      };
+    }
+    removedCount = keysToRemove.length;
+  }
+
+  const upsertPayload = defaultEntries.map(([key, value]) => ({
+    key,
+    value,
+    updated_at: new Date().toISOString(),
+  }));
+
+  const { error: upsertError } = await supabase
+    .from(SETTINGS_TABLE)
+    .upsert(upsertPayload);
+
+  if (upsertError) {
+    return {
+      success: false,
+      resetCount: 0,
+      removedCount,
+      message: `Gagal reset ke default: ${upsertError.message}`,
+    };
+  }
+
+  return {
+    success: true,
+    resetCount: upsertPayload.length,
+    removedCount,
+  };
 }
 
 export async function getDatabaseStorageStats(): Promise<DatabaseStorageStats | null> {
