@@ -118,6 +118,12 @@ export interface SmpbButtonSettings {
   openInNewTab: boolean;
 }
 
+export interface AuthSettings {
+  username: string;
+  password: string;
+  showDemoCredentials: boolean;
+}
+
 export interface SEOData {
   metaTitle: string;
   metaDescription: string;
@@ -530,4 +536,10 @@ export const initialSmpbButtonSettings: SmpbButtonSettings = {
   year: new Date().getFullYear().toString(),
   link: '',
   openInNewTab: true,
+};
+
+export const initialAuthSettings: AuthSettings = {
+  username: 'admin',
+  password: 'admin123',
+  showDemoCredentials: true,
 };

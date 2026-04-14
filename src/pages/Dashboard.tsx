@@ -19,7 +19,7 @@ import RichTextEditor from '../components/RichTextEditor';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
 import { loadSettings, saveSetting } from '../services/settingsRepository';
 
-type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'seo' | 'instagram' | 'sponsors' | 'backup';
+type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'seo' | 'instagram' | 'sponsors' | 'security' | 'backup';
 
 const emptyInstagramPost: Omit<InstagramPost, 'id'> = { postUrl: '', caption: '', thumbnail: '', likes: '', date: new Date().toISOString().split('T')[0], isEmbed: false, embedCode: '' };
 
@@ -79,6 +79,7 @@ export default function Dashboard() {
     instagramSettings, updateInstagramSettings, addInstagramPost, updateInstagramPost, deleteInstagramPost, reorderInstagramPosts,
     sponsorsData, updateSponsorsData, addSponsor, updateSponsor, deleteSponsor,
     smpbButton, updateSmpbButton,
+    authSettings, updateAdminCredentials, updateAuthUiSettings,
   } = useApp();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
@@ -129,6 +130,9 @@ export default function Dashboard() {
   const [statsSaved, setStatsSaved] = useState(false);
   const [seoForm, setSeoForm] = useState<SEOData>(seoData);
   const [seoSaved, setSeoSaved] = useState(false);
+  const [credentialsForm, setCredentialsForm] = useState({ username: authSettings.username, password: '', confirmPassword: '' });
+  const [securitySaved, setSecuritySaved] = useState(false);
+  const [securityError, setSecurityError] = useState('');
 
   useEffect(() => { setContactForm(contactInfo); }, [contactInfo]);
   useEffect(() => { setFooterForm(footerCredit); }, [footerCredit]);
@@ -136,6 +140,9 @@ export default function Dashboard() {
   useEffect(() => { setProfileForm(profileData); }, [profileData]);
   useEffect(() => { setStatsForm(statsData); }, [statsData]);
   useEffect(() => { setSeoForm(seoData); }, [seoData]);
+  useEffect(() => {
+    setCredentialsForm(prev => ({ ...prev, username: authSettings.username }));
+  }, [authSettings.username]);
 
   // If not logged in, redirect to login immediately
   if (!isLoggedIn) {
@@ -247,6 +254,32 @@ export default function Dashboard() {
     setTimeout(() => setSmpbSaved(false), 2000);
   };
 
+  const saveAdminCredentials = () => {
+    const username = credentialsForm.username.trim();
+    const password = credentialsForm.password.trim();
+    const confirmPassword = credentialsForm.confirmPassword.trim();
+    if (!password) {
+      setSecurityError('Password baru wajib diisi.');
+      return;
+    }
+    if (password.length < 6) {
+      setSecurityError('Password minimal 6 karakter.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setSecurityError('Konfirmasi password tidak sama.');
+      return;
+    }
+    updateAdminCredentials({
+      username: username || authSettings.username,
+      password,
+    });
+    setSecurityError('');
+    setSecuritySaved(true);
+    setCredentialsForm(prev => ({ ...prev, password: '', confirmPassword: '' }));
+    setTimeout(() => setSecuritySaved(false), 2000);
+  };
+
   // Profile
   const addMisi = () => { if (misiInput.trim()) { setProfileForm(p => ({ ...p, misi: [...p.misi, misiInput.trim()] })); setMisiInput(''); } };
   const removeMisi = (i: number) => { setProfileForm(p => ({ ...p, misi: p.misi.filter((_, idx) => idx !== i) })); };
@@ -348,6 +381,7 @@ export default function Dashboard() {
     { id: 'seo' as Tab, label: 'SEO & Analitik', icon: Search },
     { id: 'instagram' as Tab, label: 'Instagram', icon: Instagram },
     { id: 'sponsors' as Tab, label: 'Sponsor/Mitra', icon: Link2 },
+    { id: 'security' as Tab, label: 'Keamanan', icon: Shield },
     { id: 'contact' as Tab, label: 'Kontak', icon: Phone },
     { id: 'backup' as Tab, label: 'Backup', icon: Database },
   ];
@@ -1042,6 +1076,77 @@ export default function Dashboard() {
                       )}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======= SECURITY ======= */}
+          {activeTab === 'security' && (
+            <div className="animate-fadeIn space-y-4 sm:space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Keamanan Admin</h2>
+                {securitySaved && <span className="flex items-center gap-1 text-green-600 text-xs sm:text-sm font-semibold animate-fadeIn"><CheckCircle className="h-4 w-4" /> Tersimpan!</span>}
+              </div>
+
+              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-3 sm:space-y-4">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900">Kredensial Login Admin</h3>
+                <p className="text-xs text-gray-500">Ubah username/password admin yang dipakai untuk masuk ke dashboard.</p>
+                <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <label className={labelCls}>Username</label>
+                    <input
+                      type="text"
+                      value={credentialsForm.username}
+                      onChange={(e) => setCredentialsForm({ ...credentialsForm, username: e.target.value })}
+                      className={inputCls}
+                      placeholder="admin"
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Password Baru</label>
+                    <input
+                      type="password"
+                      value={credentialsForm.password}
+                      onChange={(e) => setCredentialsForm({ ...credentialsForm, password: e.target.value })}
+                      className={inputCls}
+                      placeholder="Minimal 6 karakter"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className={labelCls}>Konfirmasi Password Baru</label>
+                  <input
+                    type="password"
+                    value={credentialsForm.confirmPassword}
+                    onChange={(e) => setCredentialsForm({ ...credentialsForm, confirmPassword: e.target.value })}
+                    className={inputCls}
+                    placeholder="Ulangi password baru"
+                  />
+                </div>
+                {securityError && (
+                  <p className="text-xs sm:text-sm text-red-600">{securityError}</p>
+                )}
+                <button onClick={saveAdminCredentials} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-xl text-sm font-semibold hover:bg-primary-600 shadow-lg">
+                  <Save className="h-4 w-4" /> Simpan Kredensial
+                </button>
+              </div>
+
+              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-3 sm:space-y-4">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900">Tampilan Login</h3>
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs sm:text-sm font-medium text-gray-700">Tampilkan tulisan demo credential</p>
+                    <p className="text-[10px] sm:text-xs text-gray-400">Jika nonaktif, blok "Demo Credentials" di halaman login akan disembunyikan.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => updateAuthUiSettings({ showDemoCredentials: !authSettings.showDemoCredentials })}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${authSettings.showDemoCredentials ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}
+                  >
+                    {authSettings.showDemoCredentials ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
+                    {authSettings.showDemoCredentials ? 'Tampil' : 'Sembunyi'}
+                  </button>
                 </div>
               </div>
             </div>

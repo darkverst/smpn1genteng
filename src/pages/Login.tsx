@@ -9,7 +9,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, isLoggedIn } = useApp();
+  const { login, isLoggedIn, authSettings } = useApp();
   const navigate = useNavigate();
 
   // If already logged in, redirect to dashboard immediately
@@ -106,16 +106,18 @@ export default function Login() {
           </form>
 
           {/* Demo credentials */}
-          <div className="mt-5 sm:mt-6 bg-primary-50 rounded-xl p-3 sm:p-4 border border-primary-100">
-            <div className="flex items-center gap-2 text-primary-700 text-[11px] sm:text-xs font-semibold mb-1.5 sm:mb-2">
-              <Shield className="h-3.5 w-3.5" />
-              Demo Credentials
+          {authSettings.showDemoCredentials && (
+            <div className="mt-5 sm:mt-6 bg-primary-50 rounded-xl p-3 sm:p-4 border border-primary-100">
+              <div className="flex items-center gap-2 text-primary-700 text-[11px] sm:text-xs font-semibold mb-1.5 sm:mb-2">
+                <Shield className="h-3.5 w-3.5" />
+                Demo Credentials
+              </div>
+              <div className="text-[11px] sm:text-xs text-primary-600 space-y-0.5">
+                <p>Username: <code className="bg-primary-100 px-1.5 py-0.5 rounded font-mono">{authSettings.username}</code></p>
+                <p>Password: <code className="bg-primary-100 px-1.5 py-0.5 rounded font-mono">{authSettings.password}</code></p>
+              </div>
             </div>
-            <div className="text-[11px] sm:text-xs text-primary-600 space-y-0.5">
-              <p>Username: <code className="bg-primary-100 px-1.5 py-0.5 rounded font-mono">admin</code></p>
-              <p>Password: <code className="bg-primary-100 px-1.5 py-0.5 rounded font-mono">admin123</code></p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

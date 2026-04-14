@@ -103,7 +103,7 @@ git push -u origin main
 
 1. Di dashboard Supabase, klik **"SQL Editor"** (icon di sidebar kiri)
 2. Klik **"New Query"**
-3. Copy-paste SELURUH isi file `docs/supabase-schema.sql`
+3. Copy-paste isi file `docs/supabase-settings-schema.sql`
 4. Klik **"Run"** (tombol hijau)
 5. Pastikan tidak ada error (hijau semua ✅)
 
@@ -149,8 +149,8 @@ git push -u origin main
 
    | Key | Value |
    |-----|-------|
-   | `VITE_SUPABASE_URL` | `https://xxxxx.supabase.co` |
-   | `VITE_SUPABASE_ANON_KEY` | `eyJhbGciOi...` |
+   | `VITE_SUPABASE_URL` | `https://tjlzekjwrhuwftcayjxt.supabase.co` |
+   | `VITE_SUPABASE_ANON_KEY` | gunakan nilai dari `.env.vercel.example` |
 
 6. Klik **"Deploy"** → Tunggu 1-2 menit
 7. ✅ Website live di `https://smpn1-genteng.vercel.app`

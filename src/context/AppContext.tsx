@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import {
   NewsItem, AgendaItem, GalleryItem, ContactInfo, SliderItem, ProfileData, StatsData, FooterCredit, SEOData, AnalyticsData, DailyView,
-  InstagramSettings, InstagramPost, SponsorsData, Sponsor, SmpbButtonSettings,
-  initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings
+  InstagramSettings, InstagramPost, SponsorsData, Sponsor, SmpbButtonSettings, AuthSettings,
+  initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings, initialAuthSettings
 } from '../types';
 import { addSponsorRecord, deleteSponsorRecord, normalizeSponsorsData, updateSponsorRecord } from '../utils/sponsors';
 import { loadSettings, saveSetting } from '../services/settingsRepository';
@@ -56,11 +56,12 @@ interface AppState {
   deleteSponsor: (id: string) => void;
   smpbButton: SmpbButtonSettings;
   updateSmpbButton: (data: Partial<SmpbButtonSettings>) => void;
+  authSettings: AuthSettings;
+  updateAdminCredentials: (data: { username?: string; password: string }) => void;
+  updateAuthUiSettings: (data: Partial<Pick<AuthSettings, 'showDemoCredentials'>>) => void;
 }
 
 const AppContext = createContext<AppState | undefined>(undefined);
-
-const ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };
 
 function mergeObjectWithFallback<T extends object>(raw: unknown, fallback: T): T {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return fallback;
@@ -98,6 +99,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [instagramSettings, setInstagramSettings] = useState<InstagramSettings>(initialInstagramSettings);
   const [sponsorsData, setSponsorsData] = useState<SponsorsData>(initialSponsorsData);
   const [smpbButton, setSmpbButton] = useState<SmpbButtonSettings>(initialSmpbButtonSettings);
+  const [authSettings, setAuthSettings] = useState<AuthSettings>(initialAuthSettings);
 
   const persistSetting = useCallback((key: string, value: unknown) => {
     void saveSetting(key, value);
@@ -123,6 +125,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setInstagramSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.instagram], initialInstagramSettings));
       setSponsorsData(normalizeSponsorsData(settings[SETTINGS_DB_KEYS.sponsors], initialSponsorsData));
       setSmpbButton(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.smpbButton], initialSmpbButtonSettings));
+      setAuthSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.auth], initialAuthSettings));
       setIsSettingsLoaded(true);
     };
 
@@ -165,7 +168,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [isSettingsLoaded, persistSetting]);
 
   const login = (username: string, password: string): boolean => {
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+    if (username === authSettings.username && password === authSettings.password) {
       setIsLoggedIn(true);
       localStorage.setItem('smpn1_auth', 'true');
       return true;
@@ -384,6 +387,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     persistSetting(SETTINGS_DB_KEYS.smpbButton, next);
     return next;
   });
+  const updateAdminCredentials = ({ username, password }: { username?: string; password: string }) =>
+    setAuthSettings(prev => {
+      const next: AuthSettings = {
+        ...prev,
+        username: username?.trim() ? username.trim() : prev.username,
+        password,
+      };
+      persistSetting(SETTINGS_DB_KEYS.auth, next);
+      return next;
+    });
+  const updateAuthUiSettings = (data: Partial<Pick<AuthSettings, 'showDemoCredentials'>>) =>
+    setAuthSettings(prev => {
+      const next = { ...prev, ...data };
+      persistSetting(SETTINGS_DB_KEYS.auth, next);
+      return next;
+    });
 
   return (
     <AppContext.Provider value={{
@@ -402,6 +421,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       instagramSettings, updateInstagramSettings, addInstagramPost, updateInstagramPost, deleteInstagramPost, reorderInstagramPosts,
       sponsorsData, updateSponsorsData, addSponsor, updateSponsor, deleteSponsor,
       smpbButton, updateSmpbButton,
+      authSettings, updateAdminCredentials, updateAuthUiSettings,
     }}>
       {children}
     </AppContext.Provider>
