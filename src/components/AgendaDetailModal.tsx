@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Calendar, Clock, MapPin, X } from 'lucide-react';
 import { AgendaItem, CATEGORY_COLORS } from '../types';
 
@@ -33,7 +34,7 @@ export default function AgendaDetailModal({ item, onClose }: AgendaDetailModalPr
 
   if (!item) return null;
 
-  return (
+  const modal = (
     <div
       className="fixed inset-0 z-[70] bg-slate-950/75 backdrop-blur-sm overflow-y-auto overscroll-contain animate-fadeIn"
       onClick={onClose}
@@ -43,7 +44,7 @@ export default function AgendaDetailModal({ item, onClose }: AgendaDetailModalPr
     >
       <div className="min-h-dvh flex items-end justify-center px-0 py-0 sm:min-h-full sm:items-center sm:px-6 sm:py-10">
         <div
-          className="relative w-full bg-white rounded-t-[28px] sm:rounded-[28px] shadow-2xl overflow-hidden max-h-[92dvh] sm:max-h-[min(90vh,48rem)] sm:max-w-2xl sm:border sm:border-white/70 flex flex-col"
+          className="relative w-full bg-white rounded-t-[28px] sm:rounded-[28px] shadow-2xl overflow-hidden max-h-[92dvh] sm:max-h-[min(90vh,48rem)] sm:max-w-2xl sm:border sm:border-white/70 flex flex-col animate-slideUp sm:animate-scaleIn"
           onClick={(event) => event.stopPropagation()}
         >
           <div className="sm:hidden mx-auto mt-2.5 mb-1 h-1.5 w-14 rounded-full bg-slate-200" />
@@ -109,4 +110,6 @@ export default function AgendaDetailModal({ item, onClose }: AgendaDetailModalPr
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }
