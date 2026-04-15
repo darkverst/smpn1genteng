@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { LogIn, GraduationCap, AlertCircle, Eye, EyeOff, Shield } from 'lucide-react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { ArrowLeft, LogIn, GraduationCap, AlertCircle, Eye, EyeOff, Shield } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export default function Login() {
@@ -38,6 +38,16 @@ export default function Login() {
       <div className="w-full max-w-md animate-fadeIn">
         {/* Card */}
         <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 lg:p-10 border border-gray-100">
+          <div className="mb-4 sm:mb-5">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary-600 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Kembali ke Home
+            </Link>
+          </div>
+
           {/* Logo */}
           <div className="text-center mb-6 sm:mb-8">
             <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
