@@ -21,6 +21,7 @@ import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
 import { DEFAULT_SETTINGS_BY_KEY } from '../constants/defaultSettings';
 import {
   checkDatabaseConnection,
+  ensureDefaultSettings,
   getDatabaseStorageStats,
   loadSettings,
   resetSettingsToDefault,
@@ -143,6 +144,24 @@ export default function Dashboard() {
   const [credentialsForm, setCredentialsForm] = useState({ username: authSettings.username, password: '', confirmPassword: '' });
   const [securitySaved, setSecuritySaved] = useState(false);
   const [securityError, setSecurityError] = useState('');
+
+  const overviewSetupSummary = useMemo(() => {
+    const items = [
+      { label: 'Berita', count: news.length },
+      { label: 'Agenda', count: agenda.length },
+      { label: 'Galeri', count: gallery.length },
+      { label: 'Slider Hero', count: sliderItems.length },
+      { label: 'Instagram', count: instagramSettings.posts.length },
+      { label: 'Sponsor/Mitra', count: sponsorsData.sponsors.length },
+    ];
+    const pendingItems = items.filter((item) => item.count === 0);
+
+    return {
+      pendingItems,
+      isFreshInstall: pendingItems.length === items.length,
+      hasSetupWarning: pendingItems.length > 0,
+    };
+  }, [agenda.length, gallery.length, instagramSettings.posts.length, news.length, sliderItems.length, sponsorsData.sponsors.length]);
 
   useEffect(() => { setContactForm(contactInfo); }, [contactInfo]);
   useEffect(() => { setFooterForm(footerCredit); }, [footerCredit]);
@@ -482,6 +501,39 @@ export default function Dashboard() {
           {activeTab === 'overview' && (
             <div className="animate-fadeIn">
               <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900 mb-4 sm:mb-6">Overview</h2>
+              {overviewSetupSummary.hasSetupWarning && (
+                <div className={`mb-4 sm:mb-6 rounded-2xl border p-4 sm:p-5 ${
+                  overviewSetupSummary.isFreshInstall
+                    ? 'border-amber-200 bg-amber-50'
+                    : 'border-blue-200 bg-blue-50'
+                }`}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 text-sm font-bold text-gray-900">
+                        <AlertTriangle className={`h-4 w-4 ${
+                          overviewSetupSummary.isFreshInstall ? 'text-amber-600' : 'text-blue-600'
+                        }`} />
+                        {overviewSetupSummary.isFreshInstall ? 'Website masih tahap setup awal' : 'Masih ada section yang belum terisi'}
+                      </div>
+                      <p className="mt-1 text-xs sm:text-sm text-gray-700 leading-relaxed">
+                        {overviewSetupSummary.isFreshInstall
+                          ? 'Database terlihat masih kosong. Buka tab Database untuk sinkronisasi key settings dan isi data dummy awal bila diperlukan.'
+                          : 'Sebagian konten utama website masih kosong. Anda bisa melengkapinya manual atau gunakan pengisian data dummy untuk section yang belum terisi.'}
+                      </p>
+                      <p className="mt-2 text-xs text-gray-600">
+                        Section kosong: {overviewSetupSummary.pendingItems.map((item) => item.label).join(', ')}.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setActiveTab('database')}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 text-white text-xs sm:text-sm font-semibold hover:bg-primary-600"
+                    >
+                      <Database className="h-4 w-4" />
+                      Buka Pengaturan Database
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
                 {[
                   { icon: Newspaper, label: 'Berita', value: news.length, color: 'from-primary-400 to-primary-600', bg: 'bg-primary-50' },
@@ -1992,6 +2044,46 @@ const BACKUP_DATABASE_KEYS = [
   { key: SETTINGS_DB_KEYS.auth, label: 'Keamanan Admin', icon: '🔐' },
 ] as const;
 
+const INITIAL_SETUP_CONTENT_KEYS = [
+  SETTINGS_DB_KEYS.news,
+  SETTINGS_DB_KEYS.agenda,
+  SETTINGS_DB_KEYS.gallery,
+  SETTINGS_DB_KEYS.slider,
+  SETTINGS_DB_KEYS.instagram,
+  SETTINGS_DB_KEYS.sponsors,
+] as const;
+
+const INITIAL_SETUP_DEMO_VALUES: Record<string, unknown> = {
+  [SETTINGS_DB_KEYS.news]: initialNews,
+  [SETTINGS_DB_KEYS.agenda]: initialAgenda,
+  [SETTINGS_DB_KEYS.gallery]: initialGallery,
+  [SETTINGS_DB_KEYS.slider]: initialSliderItems,
+  [SETTINGS_DB_KEYS.instagram]: initialInstagramSettings,
+  [SETTINGS_DB_KEYS.sponsors]: initialSponsorsData,
+};
+
+function getSetupItemCount(key: string, value: unknown): number {
+  if (Array.isArray(value)) return value.length;
+  if (!value || typeof value !== 'object') return 0;
+
+  if (key === SETTINGS_DB_KEYS.instagram) {
+    const posts = (value as { posts?: unknown[] }).posts;
+    return Array.isArray(posts) ? posts.length : 0;
+  }
+
+  if (key === SETTINGS_DB_KEYS.sponsors) {
+    const sponsors = (value as { sponsors?: unknown[] }).sponsors;
+    return Array.isArray(sponsors) ? sponsors.length : 0;
+  }
+
+  return 0;
+}
+
+function isSetupItemMissingOrEmpty(key: string, value: unknown): boolean {
+  if (value === undefined || value === null) return true;
+  return getSetupItemCount(key, value) === 0;
+}
+
 function DatabaseSettingsTab() {
   const [restoreStatus, setRestoreStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [restoreMessage, setRestoreMessage] = useState('');
@@ -2009,6 +2101,8 @@ function DatabaseSettingsTab() {
     message: 'Memeriksa koneksi database...',
   });
   const [isCheckingConnection, setIsCheckingConnection] = useState(false);
+  const [isSyncingInitialSetup, setIsSyncingInitialSetup] = useState(false);
+  const [isSeedingInitialDemo, setIsSeedingInitialDemo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refreshSettingsSnapshot = useCallback(async () => {
@@ -2071,6 +2165,88 @@ function DatabaseSettingsTab() {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
+  const initialSetupSummary = useMemo(() => {
+    const labels = new Map(BACKUP_DATABASE_KEYS.map((item) => [item.key, item.label]));
+    const items = INITIAL_SETUP_CONTENT_KEYS.map((key) => {
+      const value = settingsSnapshot[key];
+      return {
+        key,
+        label: labels.get(key) || key,
+        count: getSetupItemCount(key, value),
+        missingOrEmpty: isSetupItemMissingOrEmpty(key, value),
+      };
+    });
+    const pendingItems = items.filter((item) => item.missingOrEmpty);
+
+    return {
+      pendingItems,
+      hasSetupWarning: pendingItems.length > 0,
+      isFreshInstall: pendingItems.length === items.length,
+    };
+  }, [settingsSnapshot]);
+
+  const refreshDatabasePanel = useCallback(async () => {
+    await Promise.all([
+      refreshSettingsSnapshot(),
+      refreshDatabaseStats(),
+      refreshDatabaseConnection(),
+    ]);
+  }, [refreshDatabaseConnection, refreshDatabaseStats, refreshSettingsSnapshot]);
+
+  const handleSyncInitialSetup = async () => {
+    setIsSyncingInitialSetup(true);
+    setRestoreStatus('idle');
+    setRestoreMessage('');
+
+    try {
+      await ensureDefaultSettings(DEFAULT_SETTINGS_BY_KEY);
+      await refreshDatabasePanel();
+      setRestoreStatus('success');
+      setRestoreMessage('Sinkronisasi database selesai. Semua key settings wajib sudah dibuat dengan default aman.');
+    } catch {
+      setRestoreStatus('error');
+      setRestoreMessage('Sinkronisasi gagal. Periksa koneksi Supabase dan jalankan schema terbaru.');
+    } finally {
+      setIsSyncingInitialSetup(false);
+    }
+  };
+
+  const handleSeedInitialDemo = async () => {
+    const confirmed = window.confirm(
+      'Isi data dummy awal hanya untuk section konten yang masih kosong. Data yang sudah ada tidak akan ditimpa. Lanjutkan?'
+    );
+    if (!confirmed) return;
+
+    setIsSeedingInitialDemo(true);
+    setRestoreStatus('idle');
+    setRestoreMessage('');
+
+    try {
+      const currentSettings = await loadSettings([...INITIAL_SETUP_CONTENT_KEYS] as string[]);
+      let seededCount = 0;
+
+      for (const key of INITIAL_SETUP_CONTENT_KEYS) {
+        if (!isSetupItemMissingOrEmpty(key, currentSettings[key])) continue;
+        const saved = await saveSetting(key, INITIAL_SETUP_DEMO_VALUES[key]);
+        if (saved) seededCount += 1;
+      }
+
+      await refreshDatabasePanel();
+
+      setRestoreStatus('success');
+      setRestoreMessage(
+        seededCount > 0
+          ? `Data dummy awal berhasil diisi untuk ${seededCount} section yang masih kosong.`
+          : 'Tidak ada section kosong yang perlu diisi. Semua data utama sudah tersedia.'
+      );
+    } catch {
+      setRestoreStatus('error');
+      setRestoreMessage('Pengisian data dummy gagal. Periksa koneksi database lalu coba lagi.');
+    } finally {
+      setIsSeedingInitialDemo(false);
+    }
   };
 
   // BACKUP - Export all data
@@ -2226,6 +2402,53 @@ function DatabaseSettingsTab() {
           <button onClick={() => setRestoreStatus('idle')} className="shrink-0 p-1 hover:bg-white/50 rounded">
             <X className="h-4 w-4 text-gray-400" />
           </button>
+        </div>
+      )}
+
+      {initialSetupSummary.hasSetupWarning && (
+        <div className={`rounded-xl sm:rounded-2xl p-4 sm:p-5 border ${
+          initialSetupSummary.isFreshInstall
+            ? 'bg-amber-50 border-amber-200'
+            : 'bg-blue-50 border-blue-200'
+        }`}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                <AlertTriangle className={`h-4 w-4 sm:h-5 sm:w-5 ${
+                  initialSetupSummary.isFreshInstall ? 'text-amber-600' : 'text-blue-600'
+                }`} />
+                {initialSetupSummary.isFreshInstall ? 'Fresh Install Terdeteksi' : 'Setup Awal Belum Lengkap'}
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-700 mt-1 leading-relaxed">
+                {initialSetupSummary.isFreshInstall
+                  ? 'Konten utama website masih kosong. Lakukan sinkronisasi key settings lalu isi data dummy awal jika Anda ingin mendapatkan contoh konten untuk memulai.'
+                  : 'Masih ada section konten yang kosong atau belum terbentuk. Sinkronisasi akan membuat key yang hilang, sedangkan data dummy hanya mengisi section kosong.'}
+              </p>
+              <p className="text-[11px] sm:text-xs text-gray-600 mt-2">
+                Section perlu perhatian: {initialSetupSummary.pendingItems.map((item) => item.label).join(', ')}.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => void handleSyncInitialSetup()}
+                disabled={isSyncingInitialSetup || isSeedingInitialDemo}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 text-white text-xs sm:text-sm font-semibold hover:bg-primary-600 disabled:opacity-60"
+              >
+                <RefreshCw className={`h-4 w-4 ${isSyncingInitialSetup ? 'animate-spin' : ''}`} />
+                Sinkronisasi Key
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleSeedInitialDemo()}
+                disabled={isSyncingInitialSetup || isSeedingInitialDemo}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 text-xs sm:text-sm font-semibold hover:bg-gray-50 disabled:opacity-60"
+              >
+                <Upload className={`h-4 w-4 ${isSeedingInitialDemo ? 'animate-pulse' : ''}`} />
+                {isSeedingInitialDemo ? 'Mengisi Dummy...' : 'Isi Data Dummy Awal'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

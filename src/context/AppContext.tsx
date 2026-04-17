@@ -7,7 +7,15 @@ import {
 import { addSponsorRecord, deleteSponsorRecord, normalizeSponsorsData, updateSponsorRecord } from '../utils/sponsors';
 import { ensureDefaultSettings, saveSetting } from '../services/settingsRepository';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
-import { DEFAULT_SETTINGS_BY_KEY } from '../constants/defaultSettings';
+import {
+  DEFAULT_AGENDA_ITEMS,
+  DEFAULT_GALLERY_ITEMS,
+  DEFAULT_INSTAGRAM_SETTINGS,
+  DEFAULT_NEWS_ITEMS,
+  DEFAULT_SETTINGS_BY_KEY,
+  DEFAULT_SLIDER_ITEMS,
+  DEFAULT_SPONSORS_DATA,
+} from '../constants/defaultSettings';
 
 interface AppState {
   isSettingsLoaded: boolean;
@@ -87,18 +95,18 @@ function ensureSessionId(): boolean {
 export function AppProvider({ children }: { children: ReactNode }) {
   const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('smpn1_auth') === 'true');
-  const [news, setNews] = useState<NewsItem[]>(initialNews);
-  const [agenda, setAgenda] = useState<AgendaItem[]>(initialAgenda);
-  const [gallery, setGallery] = useState<GalleryItem[]>(initialGallery);
+  const [news, setNews] = useState<NewsItem[]>([...DEFAULT_NEWS_ITEMS] as NewsItem[]);
+  const [agenda, setAgenda] = useState<AgendaItem[]>([...DEFAULT_AGENDA_ITEMS] as AgendaItem[]);
+  const [gallery, setGallery] = useState<GalleryItem[]>([...DEFAULT_GALLERY_ITEMS] as GalleryItem[]);
   const [contactInfo, setContactInfo] = useState<ContactInfo>(initialContactInfo);
-  const [sliderItems, setSliderItems] = useState<SliderItem[]>(initialSliderItems);
+  const [sliderItems, setSliderItems] = useState<SliderItem[]>([...DEFAULT_SLIDER_ITEMS] as SliderItem[]);
   const [profileData, setProfileData] = useState<ProfileData>(initialProfileData);
   const [statsData, setStatsData] = useState<StatsData>(initialStatsData);
   const [footerCredit, setFooterCredit] = useState<FooterCredit>(initialFooterCredit);
   const [seoData, setSeoData] = useState<SEOData>(initialSEOData);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>(initialAnalyticsData);
-  const [instagramSettings, setInstagramSettings] = useState<InstagramSettings>(initialInstagramSettings);
-  const [sponsorsData, setSponsorsData] = useState<SponsorsData>(initialSponsorsData);
+  const [instagramSettings, setInstagramSettings] = useState<InstagramSettings>(DEFAULT_INSTAGRAM_SETTINGS);
+  const [sponsorsData, setSponsorsData] = useState<SponsorsData>(DEFAULT_SPONSORS_DATA);
   const [smpbButton, setSmpbButton] = useState<SmpbButtonSettings>(initialSmpbButtonSettings);
   const [authSettings, setAuthSettings] = useState<AuthSettings>(initialAuthSettings);
 
@@ -113,18 +121,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const settings = await ensureDefaultSettings(DEFAULT_SETTINGS_BY_KEY);
       if (cancelled) return;
 
-      setNews(Array.isArray(settings[SETTINGS_DB_KEYS.news]) ? (settings[SETTINGS_DB_KEYS.news] as NewsItem[]) : initialNews);
-      setAgenda(Array.isArray(settings[SETTINGS_DB_KEYS.agenda]) ? (settings[SETTINGS_DB_KEYS.agenda] as AgendaItem[]) : initialAgenda);
-      setGallery(Array.isArray(settings[SETTINGS_DB_KEYS.gallery]) ? (settings[SETTINGS_DB_KEYS.gallery] as GalleryItem[]) : initialGallery);
+      setNews(Array.isArray(settings[SETTINGS_DB_KEYS.news]) ? (settings[SETTINGS_DB_KEYS.news] as NewsItem[]) : [...DEFAULT_NEWS_ITEMS] as NewsItem[]);
+      setAgenda(Array.isArray(settings[SETTINGS_DB_KEYS.agenda]) ? (settings[SETTINGS_DB_KEYS.agenda] as AgendaItem[]) : [...DEFAULT_AGENDA_ITEMS] as AgendaItem[]);
+      setGallery(Array.isArray(settings[SETTINGS_DB_KEYS.gallery]) ? (settings[SETTINGS_DB_KEYS.gallery] as GalleryItem[]) : [...DEFAULT_GALLERY_ITEMS] as GalleryItem[]);
       setContactInfo(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.contact], initialContactInfo));
-      setSliderItems(Array.isArray(settings[SETTINGS_DB_KEYS.slider]) ? (settings[SETTINGS_DB_KEYS.slider] as SliderItem[]) : initialSliderItems);
+      setSliderItems(Array.isArray(settings[SETTINGS_DB_KEYS.slider]) ? (settings[SETTINGS_DB_KEYS.slider] as SliderItem[]) : [...DEFAULT_SLIDER_ITEMS] as SliderItem[]);
       setProfileData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.profile], initialProfileData));
       setStatsData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.stats], initialStatsData));
       setFooterCredit(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.footer], initialFooterCredit));
       setSeoData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.seo], initialSEOData));
       setAnalyticsData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.analytics], initialAnalyticsData));
-      setInstagramSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.instagram], initialInstagramSettings));
-      setSponsorsData(normalizeSponsorsData(settings[SETTINGS_DB_KEYS.sponsors], initialSponsorsData));
+      setInstagramSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.instagram], DEFAULT_INSTAGRAM_SETTINGS));
+      setSponsorsData(normalizeSponsorsData(settings[SETTINGS_DB_KEYS.sponsors], DEFAULT_SPONSORS_DATA));
       setSmpbButton(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.smpbButton], initialSmpbButtonSettings));
       setAuthSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.auth], initialAuthSettings));
       setIsSettingsLoaded(true);
@@ -358,28 +366,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateSponsorsData = (data: Partial<SponsorsData>) =>
     setSponsorsData(prev => {
-      const next = normalizeSponsorsData({ ...prev, ...data }, initialSponsorsData);
+      const next = normalizeSponsorsData({ ...prev, ...data }, DEFAULT_SPONSORS_DATA);
       persistSetting(SETTINGS_DB_KEYS.sponsors, next);
       return next;
     });
 
   const addSponsor = (sponsor: Omit<Sponsor, 'id'>) =>
     setSponsorsData(prev => {
-      const next = addSponsorRecord(normalizeSponsorsData(prev, initialSponsorsData), sponsor);
+      const next = addSponsorRecord(normalizeSponsorsData(prev, DEFAULT_SPONSORS_DATA), sponsor);
       persistSetting(SETTINGS_DB_KEYS.sponsors, next);
       return next;
     });
 
   const updateSponsor = (id: string, updates: Partial<Sponsor>) =>
     setSponsorsData(prev => {
-      const next = updateSponsorRecord(normalizeSponsorsData(prev, initialSponsorsData), id, updates);
+      const next = updateSponsorRecord(normalizeSponsorsData(prev, DEFAULT_SPONSORS_DATA), id, updates);
       persistSetting(SETTINGS_DB_KEYS.sponsors, next);
       return next;
     });
 
   const deleteSponsor = (id: string) =>
     setSponsorsData(prev => {
-      const next = deleteSponsorRecord(normalizeSponsorsData(prev, initialSponsorsData), id);
+      const next = deleteSponsorRecord(normalizeSponsorsData(prev, DEFAULT_SPONSORS_DATA), id);
       persistSetting(SETTINGS_DB_KEYS.sponsors, next);
       return next;
     });
