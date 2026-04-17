@@ -71,6 +71,7 @@ export default function Footer() {
                 { to: '/berita', label: 'Berita Kegiatan' },
                 { to: '/agenda', label: 'Agenda Sekolah' },
                 { to: '/galeri', label: 'Galeri' },
+                { to: '/download', label: 'Download Dokumen' },
                 { to: '/kontak', label: 'Hubungi Kami' },
               ].map(link => (
                 <li key={link.to}>

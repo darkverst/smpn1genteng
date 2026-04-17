@@ -11,6 +11,7 @@ import Berita from './pages/Berita';
 import Agenda from './pages/Agenda';
 import Galeri from './pages/Galeri';
 import Kontak from './pages/Kontak';
+import Downloads from './pages/Downloads';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 
@@ -65,6 +66,7 @@ function AppRoutes() {
           <Route path="/berita/:id" element={<Berita />} />
           <Route path="/agenda" element={<Agenda />} />
           <Route path="/galeri" element={<Galeri />} />
+          <Route path="/download" element={<Downloads />} />
           <Route path="/kontak" element={<Kontak />} />
         </Route>
       </Routes>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Newspaper, Calendar, LayoutGrid, User, Camera, MessageSquare, LayoutDashboard, LogIn } from 'lucide-react';
+import { Home, Newspaper, Calendar, LayoutGrid, User, Camera, MessageSquare, LayoutDashboard, LogIn, Download } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const mainItems = [
@@ -12,6 +12,7 @@ const mainItems = [
 const moreItems = [
   { path: '/profil', label: 'Profil', icon: User },
   { path: '/galeri', label: 'Galeri', icon: Camera },
+  { path: '/download', label: 'Download', icon: Download },
   { path: '/kontak', label: 'Kontak', icon: MessageSquare },
 ];
 

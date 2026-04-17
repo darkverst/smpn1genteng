@@ -1,7 +1,9 @@
 import {
   initialAnalyticsData,
   initialAuthSettings,
+  initialBrandSettings,
   initialContactInfo,
+  initialDownloadDocumentsData,
   initialFooterCredit,
   initialInstagramSettings,
   initialProfileData,
@@ -34,6 +36,8 @@ export const DEFAULT_SETTINGS_BY_KEY: Record<string, unknown> = {
   [SETTINGS_DB_KEYS.slider]: DEFAULT_SLIDER_ITEMS,
   [SETTINGS_DB_KEYS.profile]: initialProfileData,
   [SETTINGS_DB_KEYS.stats]: initialStatsData,
+  [SETTINGS_DB_KEYS.brand]: initialBrandSettings,
+  [SETTINGS_DB_KEYS.downloads]: initialDownloadDocumentsData,
   [SETTINGS_DB_KEYS.footer]: initialFooterCredit,
   [SETTINGS_DB_KEYS.seo]: initialSEOData,
   [SETTINGS_DB_KEYS.analytics]: initialAnalyticsData,

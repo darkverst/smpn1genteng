@@ -70,6 +70,29 @@ export interface StatsData {
   akreditasi: string;
 }
 
+export interface BrandSettings {
+  schoolLogo: string;
+  showLogo: boolean;
+}
+
+export interface DownloadDocument {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  googleDriveLink: string;
+  fileType: string;
+  publishedAt: string;
+  isActive: boolean;
+}
+
+export interface DownloadDocumentsData {
+  pageTitle: string;
+  pageDescription: string;
+  showPage: boolean;
+  documents: DownloadDocument[];
+}
+
 export interface InstagramPost {
   id: string;
   postUrl: string;        // Full Instagram post URL e.g. https://www.instagram.com/p/ABC123/
@@ -261,6 +284,18 @@ export const initialStatsData: StatsData = {
   tenagaPendidik: '48',
   prestasi: '150+',
   akreditasi: 'A',
+};
+
+export const initialBrandSettings: BrandSettings = {
+  schoolLogo: '',
+  showLogo: true,
+};
+
+export const initialDownloadDocumentsData: DownloadDocumentsData = {
+  pageTitle: 'Download Dokumen',
+  pageDescription: 'Silakan pilih dokumen yang dibutuhkan lalu buka atau unduh melalui tautan Google Drive yang tersedia.',
+  showPage: true,
+  documents: [],
 };
 
 export const initialInstagramSettings: InstagramSettings = {

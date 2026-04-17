@@ -6,6 +6,8 @@ export const SETTINGS_DB_KEYS = {
   slider: 'slider_items',
   profile: 'profile_data',
   stats: 'stats_data',
+  brand: 'brand_settings',
+  downloads: 'download_documents',
   footer: 'footer_credit',
   seo: 'seo_data',
   analytics: 'analytics_data',

@@ -10,11 +10,11 @@ import {
 import { useApp } from '../context/AppContext';
 import {
   NewsItem, AgendaItem, GalleryItem, SliderItem, ContactInfo, ProfileData, StatsData, FooterCredit, SEOData,
-  InstagramPost, InstagramSettings, Sponsor,
+  BrandSettings, DownloadDocument, DownloadDocumentsData, InstagramPost, InstagramSettings, Sponsor,
   NEWS_CATEGORIES, AGENDA_TYPES, GALLERY_CATEGORIES, CATEGORY_COLORS, getYoutubeThumbnail,
   initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData,
-  initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings,
-  initialAuthSettings
+  initialBrandSettings, initialDownloadDocumentsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings,
+  initialSponsorsData, initialSmpbButtonSettings, initialAuthSettings
 } from '../types';
 import RichTextEditor from '../components/RichTextEditor';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
@@ -30,7 +30,7 @@ import {
   type DatabaseStorageStats,
 } from '../services/settingsRepository';
 
-type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'seo' | 'instagram' | 'sponsors' | 'security' | 'database';
+type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'branding' | 'downloads' | 'seo' | 'instagram' | 'sponsors' | 'security' | 'database';
 
 const emptyInstagramPost: Omit<InstagramPost, 'id'> = { postUrl: '', caption: '', thumbnail: '', likes: '', date: new Date().toISOString().split('T')[0], isEmbed: false, embedCode: '' };
 
@@ -39,6 +39,15 @@ const emptyAgenda: Omit<AgendaItem, 'id'> = { title: '', date: '', endDate: '', 
 const emptyGallery: Omit<GalleryItem, 'id'> = { title: '', image: '', category: 'Akademik', date: new Date().toISOString().split('T')[0], mediaType: 'image', youtubeUrl: '' };
 const emptySlider: Omit<SliderItem, 'id'> = { title: '', subtitle: '', image: '', buttonText: '', buttonLink: '' };
 const emptySponsor: Omit<Sponsor, 'id'> = { name: '', logo: '', url: '' };
+const emptyDownloadDocument: Omit<DownloadDocument, 'id'> = {
+  title: '',
+  description: '',
+  category: 'Umum',
+  googleDriveLink: '',
+  fileType: 'PDF',
+  publishedAt: new Date().toISOString().split('T')[0],
+  isActive: true,
+};
 
 /* Simple mini bar chart component */
 function MiniBarChart({ data, maxBars = 30 }: { data: { label: string; value: number; secondary?: number }[]; maxBars?: number }) {
@@ -84,6 +93,8 @@ export default function Dashboard() {
     sliderItems, addSliderItem, updateSliderItem, deleteSliderItem, reorderSlider,
     profileData, updateProfileData,
     statsData, updateStatsData,
+    brandSettings, updateBrandSettings,
+    downloadDocuments, updateDownloadDocuments, addDownloadDocument, updateDownloadDocument, deleteDownloadDocument,
     footerCredit, updateFooterCredit,
     seoData, updateSEOData,
     analyticsData, resetAnalytics,
@@ -139,6 +150,14 @@ export default function Dashboard() {
   const [profileSaved, setProfileSaved] = useState(false);
   const [statsForm, setStatsForm] = useState<StatsData>(statsData);
   const [statsSaved, setStatsSaved] = useState(false);
+  const [brandForm, setBrandForm] = useState<BrandSettings>(brandSettings);
+  const [brandSaved, setBrandSaved] = useState(false);
+  const [downloadsForm, setDownloadsForm] = useState<DownloadDocumentsData>(downloadDocuments);
+  const [downloadsSaved, setDownloadsSaved] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [editingDownloadId, setEditingDownloadId] = useState<string | null>(null);
+  const [downloadForm, setDownloadForm] = useState<Omit<DownloadDocument, 'id'>>(emptyDownloadDocument);
+  const [downloadError, setDownloadError] = useState('');
   const [seoForm, setSeoForm] = useState<SEOData>(seoData);
   const [seoSaved, setSeoSaved] = useState(false);
   const [credentialsForm, setCredentialsForm] = useState({ username: authSettings.username, password: '', confirmPassword: '' });
@@ -151,6 +170,7 @@ export default function Dashboard() {
       { label: 'Agenda', count: agenda.length },
       { label: 'Galeri', count: gallery.length },
       { label: 'Slider Hero', count: sliderItems.length },
+      { label: 'Dokumen Download', count: downloadDocuments.documents.length },
       { label: 'Instagram', count: instagramSettings.posts.length },
       { label: 'Sponsor/Mitra', count: sponsorsData.sponsors.length },
     ];
@@ -161,13 +181,15 @@ export default function Dashboard() {
       isFreshInstall: pendingItems.length === items.length,
       hasSetupWarning: pendingItems.length > 0,
     };
-  }, [agenda.length, gallery.length, instagramSettings.posts.length, news.length, sliderItems.length, sponsorsData.sponsors.length]);
+  }, [agenda.length, downloadDocuments.documents.length, gallery.length, instagramSettings.posts.length, news.length, sliderItems.length, sponsorsData.sponsors.length]);
 
   useEffect(() => { setContactForm(contactInfo); }, [contactInfo]);
   useEffect(() => { setFooterForm(footerCredit); }, [footerCredit]);
   useEffect(() => { setSmpbForm(smpbButton); }, [smpbButton]);
   useEffect(() => { setProfileForm(profileData); }, [profileData]);
   useEffect(() => { setStatsForm(statsData); }, [statsData]);
+  useEffect(() => { setBrandForm(brandSettings); }, [brandSettings]);
+  useEffect(() => { setDownloadsForm(downloadDocuments); }, [downloadDocuments]);
   useEffect(() => { setSeoForm(seoData); }, [seoData]);
   useEffect(() => {
     setCredentialsForm(prev => ({ ...prev, username: authSettings.username }));
@@ -251,6 +273,58 @@ export default function Dashboard() {
     setTimeout(() => setStatsSaved(false), 2000);
   };
 
+  const saveBrand = () => {
+    updateBrandSettings(brandForm);
+    setBrandSaved(true);
+    setTimeout(() => setBrandSaved(false), 2000);
+  };
+
+  const saveDownloadsPage = () => {
+    updateDownloadDocuments({
+      pageTitle: downloadsForm.pageTitle.trim(),
+      pageDescription: downloadsForm.pageDescription.trim(),
+      showPage: downloadsForm.showPage,
+    });
+    setDownloadsSaved(true);
+    setTimeout(() => setDownloadsSaved(false), 2000);
+  };
+
+  const openDownloadAdd = () => {
+    setDownloadForm(emptyDownloadDocument);
+    setEditingDownloadId(null);
+    setDownloadError('');
+    setShowDownloadModal(true);
+  };
+
+  const openDownloadEdit = (item: DownloadDocument) => {
+    setDownloadForm({
+      title: item.title,
+      description: item.description,
+      category: item.category,
+      googleDriveLink: item.googleDriveLink,
+      fileType: item.fileType,
+      publishedAt: item.publishedAt,
+      isActive: item.isActive,
+    });
+    setEditingDownloadId(item.id);
+    setDownloadError('');
+    setShowDownloadModal(true);
+  };
+
+  const saveDownload = () => {
+    if (!downloadForm.title.trim()) {
+      setDownloadError('Nama dokumen wajib diisi.');
+      return;
+    }
+    if (!downloadForm.googleDriveLink.trim()) {
+      setDownloadError('Link Google Drive wajib diisi.');
+      return;
+    }
+    if (editingDownloadId) updateDownloadDocument(editingDownloadId, downloadForm);
+    else addDownloadDocument(downloadForm);
+    setShowDownloadModal(false);
+  };
+
   // SEO
   const saveSeo = () => {
     updateSEOData(seoForm);
@@ -329,6 +403,7 @@ export default function Dashboard() {
       if (deleteConfirm.type === 'slider') deleteSliderItem(deleteConfirm.id);
       if (deleteConfirm.type === 'instagram') deleteInstagramPost(deleteConfirm.id);
       if (deleteConfirm.type === 'sponsor') deleteSponsor(deleteConfirm.id);
+      if (deleteConfirm.type === 'download') deleteDownloadDocument(deleteConfirm.id);
     } catch (err) {
       console.error('Gagal menghapus data:', err);
     }
@@ -407,6 +482,8 @@ export default function Dashboard() {
     { id: 'slider' as Tab, label: 'Slider', icon: Sliders },
     { id: 'profile' as Tab, label: 'Profil', icon: FileText },
     { id: 'stats' as Tab, label: 'Statistik', icon: BarChart3 },
+    { id: 'branding' as Tab, label: 'Logo Sekolah', icon: GraduationCap },
+    { id: 'downloads' as Tab, label: 'Dokumen Download', icon: Download },
     { id: 'seo' as Tab, label: 'SEO & Analitik', icon: Search },
     { id: 'instagram' as Tab, label: 'Instagram', icon: Instagram },
     { id: 'sponsors' as Tab, label: 'Sponsor/Mitra', icon: Link2 },
@@ -860,6 +937,169 @@ export default function Dashboard() {
               <button onClick={saveStats} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-xl text-sm font-semibold hover:bg-primary-600 shadow-lg">
                 <Save className="h-4 w-4" /> Simpan Statistik
               </button>
+            </div>
+          )}
+
+          {/* ======= BRANDING ======= */}
+          {activeTab === 'branding' && (
+            <div className="animate-fadeIn space-y-4 sm:space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Logo Sekolah</h2>
+                {brandSaved && <span className="flex items-center gap-1 text-green-600 text-xs sm:text-sm font-semibold animate-fadeIn"><CheckCircle className="h-4 w-4" /> Tersimpan!</span>}
+              </div>
+              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-4">
+                <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+                  <div className="rounded-2xl border border-dashed border-primary-200 bg-primary-50/50 p-4">
+                    <p className="text-sm font-bold text-gray-900 mb-3">Preview Logo</p>
+                    <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl bg-white p-6 text-center shadow-sm">
+                      {brandForm.showLogo && brandForm.schoolLogo ? (
+                        <img src={brandForm.schoolLogo} alt="Logo Sekolah" className="max-h-32 w-auto object-contain" />
+                      ) : (
+                        <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-primary-500 text-white shadow-md">
+                          <GraduationCap className="h-10 w-10" />
+                        </div>
+                      )}
+                      <p className="mt-4 text-sm font-semibold text-gray-900">Menu Atas & Halaman Download</p>
+                      <p className="mt-1 text-xs text-gray-500">Logo ini tampil di navbar dan header halaman download dokumen.</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                      <label className={labelCls}>Status Logo</label>
+                      <button
+                        onClick={() => setBrandForm({ ...brandForm, showLogo: !brandForm.showLogo })}
+                        className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold ${brandForm.showLogo ? 'bg-primary-500 text-white' : 'bg-white text-gray-600 border border-gray-200'}`}
+                      >
+                        {brandForm.showLogo ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
+                        {brandForm.showLogo ? 'Logo Ditampilkan' : 'Logo Disembunyikan'}
+                      </button>
+                    </div>
+                    <div>
+                      <label className={labelCls}>Upload Logo Sekolah</label>
+                      <p className="text-xs text-gray-400 mb-2">Gunakan PNG transparan atau JPG persegi. Maksimum 2MB.</p>
+                      {brandForm.schoolLogo ? (
+                        <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-4 sm:flex-row sm:items-center">
+                          <img src={brandForm.schoolLogo} alt="Logo Sekolah" className="h-20 w-20 rounded-2xl border border-gray-200 bg-white p-2 object-contain" />
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-gray-900">Logo siap digunakan</p>
+                            <p className="text-xs text-gray-500">Klik ganti untuk upload file baru atau hapus bila ingin kembali ke ikon default.</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <label className="cursor-pointer rounded-xl border border-primary-200 bg-white px-4 py-2 text-xs font-semibold text-primary-600 hover:bg-primary-50">
+                              Ganti
+                              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, setBrandForm, 'schoolLogo')} />
+                            </label>
+                            <button onClick={() => setBrandForm({ ...brandForm, schoolLogo: '' })} className="rounded-xl border border-red-200 bg-white px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50">
+                              Hapus
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary-300 bg-primary-50/50 px-6 py-10 text-center text-primary-500 hover:bg-primary-50">
+                          <Upload className="h-8 w-8" />
+                          <span className="text-sm font-semibold">Upload logo sekolah</span>
+                          <span className="text-xs text-primary-400">Klik untuk memilih file gambar</span>
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, setBrandForm, 'schoolLogo')} />
+                        </label>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <button onClick={saveBrand} className="flex items-center justify-center gap-2 rounded-xl bg-primary-500 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-600 shadow-lg">
+                        <Save className="h-4 w-4" /> Simpan Logo
+                      </button>
+                      <Link to="/download" className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                        <Eye className="h-4 w-4" /> Lihat Halaman Download
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======= DOWNLOADS ======= */}
+          {activeTab === 'downloads' && (
+            <div className="animate-fadeIn space-y-4 sm:space-y-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Dokumen Download</h2>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">Kelola halaman download dokumen dan daftar tautan Google Drive.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {downloadsSaved && <span className="flex items-center gap-1 text-green-600 text-xs sm:text-sm font-semibold animate-fadeIn"><CheckCircle className="h-4 w-4" /> Tersimpan!</span>}
+                  <button onClick={openDownloadAdd} className="flex items-center gap-1.5 bg-primary-500 hover:bg-primary-600 text-white px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-md">
+                    <Plus className="h-4 w-4" /> Tambah Dokumen
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-4">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <div>
+                    <label className={labelCls}>Judul Halaman</label>
+                    <input type="text" value={downloadsForm.pageTitle} onChange={(e) => setDownloadsForm({ ...downloadsForm, pageTitle: e.target.value })} className={inputCls} placeholder="Download Dokumen" />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Status Halaman</label>
+                    <button
+                      onClick={() => setDownloadsForm({ ...downloadsForm, showPage: !downloadsForm.showPage })}
+                      className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${downloadsForm.showPage ? 'bg-primary-500 text-white' : 'bg-white text-gray-600 border border-gray-200'}`}
+                    >
+                      {downloadsForm.showPage ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
+                      {downloadsForm.showPage ? 'Halaman Aktif' : 'Halaman Nonaktif'}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className={labelCls}>Deskripsi Halaman</label>
+                  <textarea rows={3} value={downloadsForm.pageDescription} onChange={(e) => setDownloadsForm({ ...downloadsForm, pageDescription: e.target.value })} className={inputCls + ' resize-none'} placeholder="Deskripsi singkat untuk membantu pengunjung memahami halaman download." />
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <button onClick={saveDownloadsPage} className="flex items-center justify-center gap-2 rounded-xl bg-primary-500 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-600 shadow-lg">
+                    <Save className="h-4 w-4" /> Simpan Pengaturan Halaman
+                  </button>
+                  <Link to="/download" className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                    <Eye className="h-4 w-4" /> Preview Halaman
+                  </Link>
+                </div>
+              </div>
+
+              <div className="space-y-2 sm:space-y-0 sm:bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-gray-100 sm:overflow-hidden">
+                <div className="hidden sm:grid sm:grid-cols-12 bg-gray-50 text-gray-600 text-xs font-semibold px-4 py-3">
+                  <div className="col-span-3">Nama Dokumen</div>
+                  <div className="col-span-2">Kategori</div>
+                  <div className="col-span-2">Jenis File</div>
+                  <div className="col-span-2">Tanggal</div>
+                  <div className="col-span-1">Status</div>
+                  <div className="col-span-2 text-right">Aksi</div>
+                </div>
+                {downloadDocuments.documents.map(item => (
+                  <div key={item.id} className="bg-white rounded-xl sm:rounded-none border border-gray-100 sm:border-0 sm:border-b sm:border-gray-50 p-3 sm:px-4 sm:py-3 sm:grid sm:grid-cols-12 sm:items-center sm:hover:bg-gray-50 transition-colors">
+                    <div className="sm:col-span-3">
+                      <p className="text-sm font-semibold text-gray-900 line-clamp-1">{item.title}</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5 sm:hidden">{item.category} · {item.fileType} · {item.publishedAt}</p>
+                    </div>
+                    <div className="hidden sm:block sm:col-span-2 text-sm text-gray-500">{item.category}</div>
+                    <div className="hidden sm:block sm:col-span-2 text-sm text-gray-500">{item.fileType}</div>
+                    <div className="hidden sm:block sm:col-span-2 text-sm text-gray-500">{item.publishedAt}</div>
+                    <div className="sm:col-span-1 mt-2 sm:mt-0">
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold ${item.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {item.isActive ? 'Aktif' : 'Nonaktif'}
+                      </span>
+                    </div>
+                    <div className="sm:col-span-2 mt-3 sm:mt-0 flex gap-1.5 sm:justify-end">
+                      <button onClick={() => openDownloadEdit(item)} className="flex items-center gap-1 px-2.5 py-1.5 bg-primary-50 text-primary-600 rounded-lg text-xs font-medium hover:bg-primary-100"><Edit className="h-3.5 w-3.5" /><span className="sm:hidden">Edit</span></button>
+                      <button onClick={() => window.open(item.googleDriveLink, '_blank', 'noopener,noreferrer')} className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-medium hover:bg-emerald-100"><ExternalLink className="h-3.5 w-3.5" /><span className="sm:hidden">Buka</span></button>
+                      <button onClick={() => setDeleteConfirm({ type: 'download', id: item.id })} className="flex items-center gap-1 px-2.5 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100"><Trash2 className="h-3.5 w-3.5" /><span className="sm:hidden">Hapus</span></button>
+                    </div>
+                  </div>
+                ))}
+                {downloadDocuments.documents.length === 0 && (
+                  <div className="bg-white px-4 py-10 text-center text-sm text-gray-500">
+                    Belum ada dokumen download. Klik tombol "Tambah Dokumen" untuk mulai membuat daftar.
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -1672,6 +1912,63 @@ export default function Dashboard() {
             <div className="flex items-center justify-end gap-2 sm:gap-3 p-4 sm:p-6 border-t border-gray-100 shrink-0">
               <button onClick={() => setShowSponsorModal(false)} className="px-4 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-medium">Batal</button>
               <button onClick={saveSponsor} className="flex items-center gap-2 px-5 py-2.5 bg-primary-500 text-white rounded-xl text-sm font-semibold shadow-md"><Save className="h-4 w-4" /> Simpan Sponsor</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDownloadModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4 animate-fadeIn" onClick={() => setShowDownloadModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-5 sm:p-6 animate-scaleIn" onClick={e => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-3 mb-5">
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">{editingDownloadId ? 'Edit Dokumen Download' : 'Tambah Dokumen Download'}</h3>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">Masukkan informasi dokumen dan tempel link Google Drive.</p>
+              </div>
+              <button onClick={() => setShowDownloadModal(false)} className="p-2 rounded-lg hover:bg-gray-100">
+                <X className="h-4 w-4 text-gray-500" />
+              </button>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className={labelCls}>Nama Dokumen</label>
+                <input type="text" value={downloadForm.title} onChange={e => setDownloadForm({ ...downloadForm, title: e.target.value })} className={inputCls} placeholder="Contoh: Formulir Pendaftaran Ulang" />
+              </div>
+              <div>
+                <label className={labelCls}>Kategori</label>
+                <input type="text" value={downloadForm.category} onChange={e => setDownloadForm({ ...downloadForm, category: e.target.value })} className={inputCls} placeholder="Umum / PPDB / Akademik" />
+              </div>
+              <div>
+                <label className={labelCls}>Jenis File</label>
+                <input type="text" value={downloadForm.fileType} onChange={e => setDownloadForm({ ...downloadForm, fileType: e.target.value })} className={inputCls} placeholder="PDF, DOCX, XLSX" />
+              </div>
+              <div className="sm:col-span-2">
+                <label className={labelCls}>Keterangan Singkat</label>
+                <textarea rows={3} value={downloadForm.description} onChange={e => setDownloadForm({ ...downloadForm, description: e.target.value })} className={inputCls + ' resize-none'} placeholder="Jelaskan isi atau fungsi dokumen." />
+              </div>
+              <div className="sm:col-span-2">
+                <label className={labelCls}>Link Google Drive</label>
+                <input type="url" value={downloadForm.googleDriveLink} onChange={e => setDownloadForm({ ...downloadForm, googleDriveLink: e.target.value })} className={inputCls} placeholder="https://drive.google.com/..." />
+              </div>
+              <div>
+                <label className={labelCls}>Tanggal Update</label>
+                <input type="date" value={downloadForm.publishedAt} onChange={e => setDownloadForm({ ...downloadForm, publishedAt: e.target.value })} className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Status Dokumen</label>
+                <button
+                  onClick={() => setDownloadForm({ ...downloadForm, isActive: !downloadForm.isActive })}
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${downloadForm.isActive ? 'bg-primary-500 text-white' : 'bg-white text-gray-600 border border-gray-200'}`}
+                >
+                  {downloadForm.isActive ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
+                  {downloadForm.isActive ? 'Dokumen Aktif' : 'Dokumen Nonaktif'}
+                </button>
+              </div>
+            </div>
+            {downloadError && <p className="mt-4 text-sm text-red-600">{downloadError}</p>}
+            <div className="flex gap-2 mt-5">
+              <button onClick={() => setShowDownloadModal(false)} className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-medium">Batal</button>
+              <button onClick={saveDownload} className="flex-1 px-4 py-2.5 bg-primary-500 text-white rounded-xl text-sm font-semibold">Simpan</button>
             </div>
           </div>
         </div>

@@ -78,6 +78,16 @@ values
     "prestasi": "150+",
     "akreditasi": "A"
   }'::jsonb),
+  ('brand_settings', '{
+    "schoolLogo": "",
+    "showLogo": true
+  }'::jsonb),
+  ('download_documents', '{
+    "pageTitle": "Download Dokumen",
+    "pageDescription": "Silakan pilih dokumen yang dibutuhkan lalu buka atau unduh melalui tautan Google Drive yang tersedia.",
+    "showPage": true,
+    "documents": []
+  }'::jsonb),
   ('footer_credit', '{
     "copyrightText": "",
     "rightText": "Dibuat dengan ❤️ untuk pendidikan Indonesia",

@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import {
   NewsItem, AgendaItem, GalleryItem, ContactInfo, SliderItem, ProfileData, StatsData, FooterCredit, SEOData, AnalyticsData, DailyView,
-  InstagramSettings, InstagramPost, SponsorsData, Sponsor, SmpbButtonSettings, AuthSettings,
-  initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings, initialAuthSettings
+  BrandSettings, DownloadDocument, DownloadDocumentsData, InstagramSettings, InstagramPost, SponsorsData, Sponsor, SmpbButtonSettings, AuthSettings,
+  initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData, initialBrandSettings, initialDownloadDocumentsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings, initialAuthSettings
 } from '../types';
 import { addSponsorRecord, deleteSponsorRecord, normalizeSponsorsData, updateSponsorRecord } from '../utils/sponsors';
 import { ensureDefaultSettings, saveSetting } from '../services/settingsRepository';
@@ -45,6 +45,13 @@ interface AppState {
   updateProfileData: (data: Partial<ProfileData>) => void;
   statsData: StatsData;
   updateStatsData: (data: Partial<StatsData>) => void;
+  brandSettings: BrandSettings;
+  updateBrandSettings: (data: Partial<BrandSettings>) => void;
+  downloadDocuments: DownloadDocumentsData;
+  updateDownloadDocuments: (data: Partial<DownloadDocumentsData>) => void;
+  addDownloadDocument: (item: Omit<DownloadDocument, 'id'>) => void;
+  updateDownloadDocument: (id: string, item: Partial<DownloadDocument>) => void;
+  deleteDownloadDocument: (id: string) => void;
   footerCredit: FooterCredit;
   updateFooterCredit: (data: Partial<FooterCredit>) => void;
   seoData: SEOData;
@@ -77,6 +84,14 @@ function mergeObjectWithFallback<T extends object>(raw: unknown, fallback: T): T
   return { ...fallback, ...(raw as Partial<T>) };
 }
 
+function normalizeDownloadDocumentsData(raw: unknown, fallback: DownloadDocumentsData): DownloadDocumentsData {
+  const merged = mergeObjectWithFallback(raw, fallback);
+  return {
+    ...merged,
+    documents: Array.isArray(merged.documents) ? merged.documents : fallback.documents,
+  };
+}
+
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
 }
@@ -102,6 +117,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sliderItems, setSliderItems] = useState<SliderItem[]>([...DEFAULT_SLIDER_ITEMS] as SliderItem[]);
   const [profileData, setProfileData] = useState<ProfileData>(initialProfileData);
   const [statsData, setStatsData] = useState<StatsData>(initialStatsData);
+  const [brandSettings, setBrandSettings] = useState<BrandSettings>(initialBrandSettings);
+  const [downloadDocuments, setDownloadDocuments] = useState<DownloadDocumentsData>(initialDownloadDocumentsData);
   const [footerCredit, setFooterCredit] = useState<FooterCredit>(initialFooterCredit);
   const [seoData, setSeoData] = useState<SEOData>(initialSEOData);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>(initialAnalyticsData);
@@ -128,6 +145,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setSliderItems(Array.isArray(settings[SETTINGS_DB_KEYS.slider]) ? (settings[SETTINGS_DB_KEYS.slider] as SliderItem[]) : [...DEFAULT_SLIDER_ITEMS] as SliderItem[]);
       setProfileData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.profile], initialProfileData));
       setStatsData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.stats], initialStatsData));
+      setBrandSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.brand], initialBrandSettings));
+      setDownloadDocuments(normalizeDownloadDocumentsData(settings[SETTINGS_DB_KEYS.downloads], initialDownloadDocumentsData));
       setFooterCredit(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.footer], initialFooterCredit));
       setSeoData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.seo], initialSEOData));
       setAnalyticsData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.analytics], initialAnalyticsData));
@@ -272,6 +291,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateStatsData = (data: Partial<StatsData>) => setStatsData(prev => {
     const next = { ...prev, ...data };
     persistSetting(SETTINGS_DB_KEYS.stats, next);
+    return next;
+  });
+  const updateBrandSettings = (data: Partial<BrandSettings>) => setBrandSettings(prev => {
+    const next = { ...prev, ...data };
+    persistSetting(SETTINGS_DB_KEYS.brand, next);
+    return next;
+  });
+  const updateDownloadDocuments = (data: Partial<DownloadDocumentsData>) => setDownloadDocuments(prev => {
+    const next = normalizeDownloadDocumentsData({ ...prev, ...data }, initialDownloadDocumentsData);
+    persistSetting(SETTINGS_DB_KEYS.downloads, next);
+    return next;
+  });
+  const addDownloadDocument = (item: Omit<DownloadDocument, 'id'>) => setDownloadDocuments(prev => {
+    const next = {
+      ...prev,
+      documents: [{ ...item, id: generateId() }, ...prev.documents],
+    };
+    persistSetting(SETTINGS_DB_KEYS.downloads, next);
+    return next;
+  });
+  const updateDownloadDocument = (id: string, item: Partial<DownloadDocument>) => setDownloadDocuments(prev => {
+    const next = {
+      ...prev,
+      documents: prev.documents.map((doc) => (doc.id === id ? { ...doc, ...item } : doc)),
+    };
+    persistSetting(SETTINGS_DB_KEYS.downloads, next);
+    return next;
+  });
+  const deleteDownloadDocument = (id: string) => setDownloadDocuments(prev => {
+    const next = {
+      ...prev,
+      documents: prev.documents.filter((doc) => doc.id !== id),
+    };
+    persistSetting(SETTINGS_DB_KEYS.downloads, next);
     return next;
   });
   const updateFooterCredit = (data: Partial<FooterCredit>) => setFooterCredit(prev => {
@@ -424,6 +477,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sliderItems, addSliderItem, updateSliderItem, deleteSliderItem, reorderSlider,
       profileData, updateProfileData,
       statsData, updateStatsData,
+      brandSettings, updateBrandSettings,
+      downloadDocuments, updateDownloadDocuments, addDownloadDocument, updateDownloadDocument, deleteDownloadDocument,
       footerCredit, updateFooterCredit,
       seoData, updateSEOData,
       analyticsData, trackPageView, resetAnalytics,

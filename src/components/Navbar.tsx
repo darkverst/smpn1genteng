@@ -9,6 +9,7 @@ const navLinks = [
   { path: '/berita', label: 'Berita' },
   { path: '/agenda', label: 'Agenda' },
   { path: '/galeri', label: 'Galeri' },
+  { path: '/download', label: 'Download' },
   { path: '/kontak', label: 'Kontak' },
 ];
 
@@ -16,7 +17,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
-  const { isLoggedIn, smpbButton } = useApp();
+  const { isLoggedIn, smpbButton, brandSettings } = useApp();
   const menuRef = useRef<HTMLDivElement>(null);
   const smpbLabel = `SMPB (${smpbButton.year || new Date().getFullYear()})`;
 
@@ -67,8 +68,12 @@ export default function Navbar() {
           <div className="flex justify-between items-center h-14 lg:h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2.5 group">
-              <div className="w-9 h-9 lg:w-10 lg:h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-                <GraduationCap className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
+              <div className="w-9 h-9 lg:w-10 lg:h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow overflow-hidden">
+                {brandSettings.showLogo && brandSettings.schoolLogo ? (
+                  <img src={brandSettings.schoolLogo} alt="Logo Sekolah" className="h-full w-full object-contain bg-white p-1.5" />
+                ) : (
+                  <GraduationCap className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
+                )}
               </div>
               <div>
                 <h1 className="text-base lg:text-lg font-bold text-primary-900 leading-tight">SMPN 1 Genteng</h1>
