@@ -2101,6 +2101,7 @@ function DatabaseSettingsTab() {
     message: 'Memeriksa koneksi database...',
   });
   const [isCheckingConnection, setIsCheckingConnection] = useState(false);
+  const [isRunningInitialWebsiteSetup, setIsRunningInitialWebsiteSetup] = useState(false);
   const [isSyncingInitialSetup, setIsSyncingInitialSetup] = useState(false);
   const [isSeedingInitialDemo, setIsSeedingInitialDemo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -2246,6 +2247,44 @@ function DatabaseSettingsTab() {
       setRestoreMessage('Pengisian data dummy gagal. Periksa koneksi database lalu coba lagi.');
     } finally {
       setIsSeedingInitialDemo(false);
+    }
+  };
+
+  const handleInitialWebsiteSetup = async () => {
+    const confirmed = window.confirm(
+      'Setup Awal Website akan menjalankan sinkronisasi key database lalu mengisi data dummy hanya pada section yang masih kosong. Data yang sudah ada tidak akan ditimpa. Lanjutkan?'
+    );
+    if (!confirmed) return;
+
+    setIsRunningInitialWebsiteSetup(true);
+    setRestoreStatus('idle');
+    setRestoreMessage('');
+
+    try {
+      await ensureDefaultSettings(DEFAULT_SETTINGS_BY_KEY);
+
+      const currentSettings = await loadSettings([...INITIAL_SETUP_CONTENT_KEYS] as string[]);
+      let seededCount = 0;
+
+      for (const key of INITIAL_SETUP_CONTENT_KEYS) {
+        if (!isSetupItemMissingOrEmpty(key, currentSettings[key])) continue;
+        const saved = await saveSetting(key, INITIAL_SETUP_DEMO_VALUES[key]);
+        if (saved) seededCount += 1;
+      }
+
+      await refreshDatabasePanel();
+
+      setRestoreStatus('success');
+      setRestoreMessage(
+        seededCount > 0
+          ? `Setup awal website selesai. Key database berhasil disinkronkan dan ${seededCount} section kosong diisi data dummy.`
+          : 'Setup awal website selesai. Key database berhasil disinkronkan dan tidak ada section kosong yang perlu diisi data dummy.'
+      );
+    } catch {
+      setRestoreStatus('error');
+      setRestoreMessage('Setup awal website gagal. Periksa koneksi Supabase dan coba lagi.');
+    } finally {
+      setIsRunningInitialWebsiteSetup(false);
     }
   };
 
@@ -2431,8 +2470,17 @@ function DatabaseSettingsTab() {
             <div className="flex flex-col sm:flex-row gap-2 shrink-0">
               <button
                 type="button"
+                onClick={() => void handleInitialWebsiteSetup()}
+                disabled={isRunningInitialWebsiteSetup || isSyncingInitialSetup || isSeedingInitialDemo}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-green-600 text-white text-xs sm:text-sm font-semibold hover:bg-green-700 disabled:opacity-60"
+              >
+                <CheckCircle className={`h-4 w-4 ${isRunningInitialWebsiteSetup ? 'animate-pulse' : ''}`} />
+                {isRunningInitialWebsiteSetup ? 'Menjalankan Setup...' : 'Setup Awal Website'}
+              </button>
+              <button
+                type="button"
                 onClick={() => void handleSyncInitialSetup()}
-                disabled={isSyncingInitialSetup || isSeedingInitialDemo}
+                disabled={isRunningInitialWebsiteSetup || isSyncingInitialSetup || isSeedingInitialDemo}
                 className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 text-white text-xs sm:text-sm font-semibold hover:bg-primary-600 disabled:opacity-60"
               >
                 <RefreshCw className={`h-4 w-4 ${isSyncingInitialSetup ? 'animate-spin' : ''}`} />
@@ -2441,7 +2489,7 @@ function DatabaseSettingsTab() {
               <button
                 type="button"
                 onClick={() => void handleSeedInitialDemo()}
-                disabled={isSyncingInitialSetup || isSeedingInitialDemo}
+                disabled={isRunningInitialWebsiteSetup || isSyncingInitialSetup || isSeedingInitialDemo}
                 className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 text-xs sm:text-sm font-semibold hover:bg-gray-50 disabled:opacity-60"
               >
                 <Upload className={`h-4 w-4 ${isSeedingInitialDemo ? 'animate-pulse' : ''}`} />
