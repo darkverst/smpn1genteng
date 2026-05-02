@@ -31,10 +31,17 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
-export async function loadSettings(keys: string[]): Promise<Record<string, unknown>> {
+async function fetchSettingsRows(keys: string[]): Promise<{
+  success: boolean;
+  settings: Record<string, unknown>;
+  errorMessage?: string;
+}> {
   if (!isSupabaseConfigured || !supabase) {
-    console.error('[DB] Supabase belum dikonfigurasi. Data tidak dapat dimuat dari database.');
-    return {};
+    return {
+      success: false,
+      settings: {},
+      errorMessage: 'Supabase belum dikonfigurasi.',
+    };
   }
 
   const { data, error } = await supabase
@@ -43,17 +50,39 @@ export async function loadSettings(keys: string[]): Promise<Record<string, unkno
     .in('key', keys);
 
   if (error) {
-    console.error('[DB] Gagal memuat settings:', error);
+    return {
+      success: false,
+      settings: {},
+      errorMessage: error.message,
+    };
+  }
+
+  const settings: Record<string, unknown> = {};
+  for (const row of data ?? []) {
+    if (typeof row.key === 'string') {
+      settings[row.key] = row.value;
+    }
+  }
+
+  return {
+    success: true,
+    settings,
+  };
+}
+
+export async function loadSettings(keys: string[]): Promise<Record<string, unknown>> {
+  if (!isSupabaseConfigured || !supabase) {
+    console.error('[DB] Supabase belum dikonfigurasi. Data tidak dapat dimuat dari database.');
     return {};
   }
 
-  const result: Record<string, unknown> = {};
-  for (const row of data ?? []) {
-    if (typeof row.key === 'string') {
-      result[row.key] = row.value;
-    }
+  const result = await fetchSettingsRows(keys);
+  if (!result.success) {
+    console.error('[DB] Gagal memuat settings:', result.errorMessage);
+    return {};
   }
-  return result;
+
+  return result.settings;
 }
 
 export async function ensureDefaultSettings(defaultSettings: Record<string, unknown>): Promise<Record<string, unknown>> {
@@ -65,7 +94,12 @@ export async function ensureDefaultSettings(defaultSettings: Record<string, unkn
     return { ...defaultSettings };
   }
 
-  const existingSettings = await loadSettings(keys);
+  const existingResult = await fetchSettingsRows(keys);
+  if (!existingResult.success) {
+    throw new Error(`Gagal membaca settings dari database: ${existingResult.errorMessage || 'unknown error'}`);
+  }
+
+  const existingSettings = existingResult.settings;
   const missingPayload = keys
     .filter((key) => existingSettings[key] === undefined)
     .map((key) => ({
@@ -80,7 +114,7 @@ export async function ensureDefaultSettings(defaultSettings: Record<string, unkn
       .upsert(missingPayload, { onConflict: 'key' });
 
     if (error) {
-      console.error('[DB] Gagal membuat key settings yang belum ada:', error);
+      throw new Error(`Gagal membuat key settings yang belum ada: ${error.message}`);
     }
   }
 

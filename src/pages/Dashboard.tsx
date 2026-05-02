@@ -2332,6 +2332,8 @@ const BACKUP_DATABASE_KEYS = [
   { key: SETTINGS_DB_KEYS.slider, label: 'Slider Hero', icon: '🖼️' },
   { key: SETTINGS_DB_KEYS.profile, label: 'Profil', icon: '📋' },
   { key: SETTINGS_DB_KEYS.stats, label: 'Statistik', icon: '📊' },
+  { key: SETTINGS_DB_KEYS.brand, label: 'Logo Sekolah', icon: '🏫' },
+  { key: SETTINGS_DB_KEYS.downloads, label: 'Dokumen Download', icon: '⬇️' },
   { key: SETTINGS_DB_KEYS.footer, label: 'Footer Credit', icon: '📝' },
   { key: SETTINGS_DB_KEYS.seo, label: 'SEO', icon: '🔍' },
   { key: SETTINGS_DB_KEYS.analytics, label: 'Analitik', icon: '📈' },

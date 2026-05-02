@@ -135,26 +135,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     const hydrateFromDatabase = async () => {
-      const settings = await ensureDefaultSettings(DEFAULT_SETTINGS_BY_KEY);
-      if (cancelled) return;
+      try {
+        const settings = await ensureDefaultSettings(DEFAULT_SETTINGS_BY_KEY);
+        if (cancelled) return;
 
-      setNews(Array.isArray(settings[SETTINGS_DB_KEYS.news]) ? (settings[SETTINGS_DB_KEYS.news] as NewsItem[]) : [...DEFAULT_NEWS_ITEMS] as NewsItem[]);
-      setAgenda(Array.isArray(settings[SETTINGS_DB_KEYS.agenda]) ? (settings[SETTINGS_DB_KEYS.agenda] as AgendaItem[]) : [...DEFAULT_AGENDA_ITEMS] as AgendaItem[]);
-      setGallery(Array.isArray(settings[SETTINGS_DB_KEYS.gallery]) ? (settings[SETTINGS_DB_KEYS.gallery] as GalleryItem[]) : [...DEFAULT_GALLERY_ITEMS] as GalleryItem[]);
-      setContactInfo(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.contact], initialContactInfo));
-      setSliderItems(Array.isArray(settings[SETTINGS_DB_KEYS.slider]) ? (settings[SETTINGS_DB_KEYS.slider] as SliderItem[]) : [...DEFAULT_SLIDER_ITEMS] as SliderItem[]);
-      setProfileData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.profile], initialProfileData));
-      setStatsData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.stats], initialStatsData));
-      setBrandSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.brand], initialBrandSettings));
-      setDownloadDocuments(normalizeDownloadDocumentsData(settings[SETTINGS_DB_KEYS.downloads], initialDownloadDocumentsData));
-      setFooterCredit(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.footer], initialFooterCredit));
-      setSeoData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.seo], initialSEOData));
-      setAnalyticsData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.analytics], initialAnalyticsData));
-      setInstagramSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.instagram], DEFAULT_INSTAGRAM_SETTINGS));
-      setSponsorsData(normalizeSponsorsData(settings[SETTINGS_DB_KEYS.sponsors], DEFAULT_SPONSORS_DATA));
-      setSmpbButton(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.smpbButton], initialSmpbButtonSettings));
-      setAuthSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.auth], initialAuthSettings));
-      setIsSettingsLoaded(true);
+        setNews(Array.isArray(settings[SETTINGS_DB_KEYS.news]) ? (settings[SETTINGS_DB_KEYS.news] as NewsItem[]) : [...DEFAULT_NEWS_ITEMS] as NewsItem[]);
+        setAgenda(Array.isArray(settings[SETTINGS_DB_KEYS.agenda]) ? (settings[SETTINGS_DB_KEYS.agenda] as AgendaItem[]) : [...DEFAULT_AGENDA_ITEMS] as AgendaItem[]);
+        setGallery(Array.isArray(settings[SETTINGS_DB_KEYS.gallery]) ? (settings[SETTINGS_DB_KEYS.gallery] as GalleryItem[]) : [...DEFAULT_GALLERY_ITEMS] as GalleryItem[]);
+        setContactInfo(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.contact], initialContactInfo));
+        setSliderItems(Array.isArray(settings[SETTINGS_DB_KEYS.slider]) ? (settings[SETTINGS_DB_KEYS.slider] as SliderItem[]) : [...DEFAULT_SLIDER_ITEMS] as SliderItem[]);
+        setProfileData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.profile], initialProfileData));
+        setStatsData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.stats], initialStatsData));
+        setBrandSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.brand], initialBrandSettings));
+        setDownloadDocuments(normalizeDownloadDocumentsData(settings[SETTINGS_DB_KEYS.downloads], initialDownloadDocumentsData));
+        setFooterCredit(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.footer], initialFooterCredit));
+        setSeoData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.seo], initialSEOData));
+        setAnalyticsData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.analytics], initialAnalyticsData));
+        setInstagramSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.instagram], DEFAULT_INSTAGRAM_SETTINGS));
+        setSponsorsData(normalizeSponsorsData(settings[SETTINGS_DB_KEYS.sponsors], DEFAULT_SPONSORS_DATA));
+        setSmpbButton(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.smpbButton], initialSmpbButtonSettings));
+        setAuthSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.auth], initialAuthSettings));
+      } catch (error) {
+        console.error('[App] Gagal sinkronisasi settings dari database. State lokal default dipakai sementara tanpa menimpa data database.', error);
+      } finally {
+        if (!cancelled) {
+          setIsSettingsLoaded(true);
+        }
+      }
     };
 
     void hydrateFromDatabase();
