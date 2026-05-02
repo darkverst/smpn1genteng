@@ -389,7 +389,55 @@ Cek hal berikut:
 - policy `public.settings` aktif atau belum
 - apakah pernah menjalankan `Reset Semua Data` atau `Restore` dari dashboard
 
-### 2. Sponsor / mitra tidak tampil mulus
+### 2. Storage Supabase masih besar setelah reset database
+
+Reset tabel `settings` tidak otomatis menghapus file di `Supabase Storage`.
+
+Gunakan script:
+
+```bash
+npm run storage:clear -- --bucket website-assets
+```
+
+Atau cek semua bucket:
+
+```bash
+npm run storage:clear -- --all-buckets
+```
+
+Default script berjalan dalam mode `dry-run`, jadi hanya menampilkan daftar file dan total ukuran.
+
+Untuk benar-benar menghapus file:
+
+```bash
+npm run storage:clear -- --bucket website-assets --confirm
+```
+
+Atau semua bucket:
+
+```bash
+npm run storage:clear -- --all-buckets --confirm
+```
+
+Environment yang dibutuhkan:
+
+- `SUPABASE_URL` atau `VITE_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Contoh PowerShell:
+
+```powershell
+$env:SUPABASE_URL="https://YOUR_PROJECT_ID.supabase.co"
+$env:SUPABASE_SERVICE_ROLE_KEY="YOUR_SERVICE_ROLE_KEY"
+```
+
+Peringatan:
+
+- penghapusan storage bersifat permanen
+- jangan commit `SUPABASE_SERVICE_ROLE_KEY`
+- jangan jalankan `--confirm` tanpa backup jika file masih dipakai
+
+### 3. Sponsor / mitra tidak tampil mulus
 
 Versi terbaru sudah memakai:
 
@@ -401,7 +449,7 @@ Jika masih aneh, cek:
 - logo sponsor terlalu besar / rasio tidak proporsional
 - data sponsor kosong atau URL / logo tidak valid
 
-### 3. Deploy Vercel gagal
+### 4. Deploy Vercel gagal
 
 Periksa:
 
@@ -410,7 +458,7 @@ Periksa:
 - environment variables sudah diisi
 - branch GitHub yang dipakai benar
 
-### 4. Route halaman tidak terbuka saat refresh
+### 5. Route halaman tidak terbuka saat refresh
 
 Project ini sudah memakai `HashRouter` dan `vercel.json`, jadi seharusnya aman untuk SPA.
 Jika tetap bermasalah, lakukan redeploy dan pastikan file `vercel.json` ikut ter-push.

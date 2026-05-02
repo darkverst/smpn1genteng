@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "storage:clear": "node scripts/clear-supabase-storage.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
