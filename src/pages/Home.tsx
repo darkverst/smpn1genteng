@@ -9,7 +9,7 @@ import SponsorMarquee from '../components/SponsorMarquee';
 import { AgendaItem, GRADIENTS } from '../types';
 
 export default function Home() {
-  const { news, agenda, sliderItems, profileData, statsData, instagramSettings } = useApp();
+  const { news, agenda, sliderItems, profileData, statsData, instagramSettings, schoolIdentity } = useApp();
   const latestNews = news.slice(0, 3);
   const upcomingAgenda = agenda.slice(0, 3);
   const shouldShowInstagramSection =
@@ -51,13 +51,21 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-r from-primary-950/90 via-primary-900/75 to-primary-800/60" />
               </>
             ) : (
-              <div className="absolute inset-0" style={{ background: GRADIENTS[idx % GRADIENTS.length].replace('135deg', '120deg') }} />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(120deg, ${slide.backgroundColor || schoolIdentity.primaryColor || GRADIENTS[idx % GRADIENTS.length]}, ${schoolIdentity.secondaryColor}, ${schoolIdentity.accentColor})`,
+                }}
+              />
             )}
           </div>
         ))}
 
         {sliderItems.length === 0 && (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-950" />
+          <div
+            className="absolute inset-0"
+            style={{ background: `linear-gradient(135deg, ${schoolIdentity.primaryColor}, ${schoolIdentity.secondaryColor}, ${schoolIdentity.footerBackgroundColor})` }}
+          />
         )}
 
         <div className="absolute inset-0 opacity-10"

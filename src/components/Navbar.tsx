@@ -17,9 +17,11 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
-  const { isLoggedIn, smpbButton, brandSettings } = useApp();
+  const { isLoggedIn, smpbButton, schoolIdentity } = useApp();
   const menuRef = useRef<HTMLDivElement>(null);
   const smpbLabel = `SMPB (${smpbButton.year || new Date().getFullYear()})`;
+  const headerName = schoolIdentity.schoolShortName || schoolIdentity.schoolName || 'SMPN 1 Genteng';
+  const headerTagline = schoolIdentity.schoolTagline || 'Kabupaten Banyuwangi';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -62,22 +64,32 @@ export default function Navbar() {
         scrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white shadow-sm'
       }`}>
         {/* Top accent bar */}
-        <div className="h-0.5 lg:h-1 bg-gradient-to-r from-primary-400 via-primary-500 to-accent-400" />
+        <div
+          className="h-0.5 lg:h-1"
+          style={{ background: `linear-gradient(90deg, ${schoolIdentity.primaryColor}, ${schoolIdentity.secondaryColor}, ${schoolIdentity.accentColor})` }}
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 lg:h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2.5 group">
-              <div className="w-9 h-9 lg:w-10 lg:h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow overflow-hidden">
-                {brandSettings.showLogo && brandSettings.schoolLogo ? (
-                  <img src={brandSettings.schoolLogo} alt="Logo Sekolah" className="h-full w-full object-contain bg-white p-1.5" />
+              <div
+                className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow overflow-hidden"
+                style={{ background: `linear-gradient(135deg, ${schoolIdentity.primaryColor}, ${schoolIdentity.secondaryColor})` }}
+              >
+                {schoolIdentity.showLogo && schoolIdentity.schoolLogo ? (
+                  <img src={schoolIdentity.schoolLogo} alt={`Logo ${headerName}`} className="h-full w-full object-contain bg-white p-1.5" />
                 ) : (
                   <GraduationCap className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
                 )}
               </div>
               <div>
-                <h1 className="text-base lg:text-lg font-bold text-primary-900 leading-tight">SMPN 1 Genteng</h1>
-                <p className="text-[10px] lg:text-[11px] text-primary-500 font-medium -mt-0.5 hidden sm:block">Kabupaten Banyuwangi</p>
+                <h1 className="text-base lg:text-lg font-bold text-primary-900 leading-tight">
+                  {headerName}
+                </h1>
+                <p className="text-[10px] lg:text-[11px] text-primary-500 font-medium -mt-0.5 hidden sm:block">
+                  {headerTagline}
+                </p>
               </div>
             </Link>
 

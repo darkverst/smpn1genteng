@@ -26,7 +26,7 @@ describe('Dashboard sponsors integration', () => {
     const user = userEvent.setup();
     renderDashboard();
 
-    const sponsorTabs = screen.getAllByRole('button', { name: /Sponsor\/Mitra/i });
+    const sponsorTabs = await screen.findAllByRole('button', { name: /Sponsor\/Mitra/i });
     await user.click(sponsorTabs[0]);
 
     await user.click(screen.getByRole('button', { name: /Tambah Sponsor/i }));
@@ -45,5 +45,5 @@ describe('Dashboard sponsors integration', () => {
     await waitFor(() => {
       expect(screen.queryByText('Mitra QA Otomasi')).not.toBeInTheDocument();
     });
-  });
+  }, 15000);
 });

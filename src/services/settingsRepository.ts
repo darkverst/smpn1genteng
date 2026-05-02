@@ -1,6 +1,8 @@
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 const SETTINGS_TABLE = 'settings';
+const SETTINGS_CACHE_TTL_MS = 60_000;
+const settingsCache = new Map<string, { value: unknown; expiresAt: number }>();
 
 export interface DatabaseStorageStats {
   databaseBytes: number;
@@ -29,6 +31,42 @@ function formatSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
+function getCachedSettings(keys: string[]): Record<string, unknown> | null {
+  const now = Date.now();
+  const cached: Record<string, unknown> = {};
+
+  for (const key of keys) {
+    const entry = settingsCache.get(key);
+    if (!entry || entry.expiresAt < now) {
+      if (entry && entry.expiresAt < now) {
+        settingsCache.delete(key);
+      }
+      return null;
+    }
+    cached[key] = entry.value;
+  }
+
+  return cached;
+}
+
+function cacheSettings(settings: Record<string, unknown>) {
+  const expiresAt = Date.now() + SETTINGS_CACHE_TTL_MS;
+  for (const [key, value] of Object.entries(settings)) {
+    settingsCache.set(key, { value, expiresAt });
+  }
+}
+
+export function invalidateSettingsCache(keys?: string[]) {
+  if (!keys || keys.length === 0) {
+    settingsCache.clear();
+    return;
+  }
+
+  for (const key of keys) {
+    settingsCache.delete(key);
+  }
 }
 
 async function fetchSettingsRows(keys: string[]): Promise<{
@@ -76,12 +114,18 @@ export async function loadSettings(keys: string[]): Promise<Record<string, unkno
     return {};
   }
 
+  const cached = getCachedSettings(keys);
+  if (cached) {
+    return cached;
+  }
+
   const result = await fetchSettingsRows(keys);
   if (!result.success) {
     console.error('[DB] Gagal memuat settings:', result.errorMessage);
     return {};
   }
 
+  cacheSettings(result.settings);
   return result.settings;
 }
 
@@ -118,10 +162,13 @@ export async function ensureDefaultSettings(defaultSettings: Record<string, unkn
     }
   }
 
-  return {
+  const merged = {
     ...defaultSettings,
     ...existingSettings,
   };
+  cacheSettings(merged);
+
+  return merged;
 }
 
 export async function saveSetting(key: string, value: unknown): Promise<boolean> {
@@ -143,6 +190,7 @@ export async function saveSetting(key: string, value: unknown): Promise<boolean>
     return false;
   }
 
+  cacheSettings({ [key]: value });
   return true;
 }
 
@@ -291,6 +339,7 @@ export async function resetSettingsToDefault(defaultSettings: Record<string, unk
     };
   }
 
+  cacheSettings(defaultSettings);
   return {
     success: true,
     resetCount: upsertPayload.length,

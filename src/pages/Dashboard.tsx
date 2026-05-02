@@ -9,16 +9,17 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import {
-  NewsItem, AgendaItem, GalleryItem, SliderItem, ContactInfo, ProfileData, StatsData, FooterCredit, SEOData,
-  BrandSettings, DownloadDocument, DownloadDocumentsData, InstagramPost, InstagramSettings, Sponsor,
+  NewsItem, AgendaItem, GalleryItem, SliderItem, ProfileData, StatsData, SEOData,
+  DownloadDocument, DownloadDocumentsData, InstagramPost, InstagramSettings, Sponsor, SchoolIdentitySettings,
   NEWS_CATEGORIES, AGENDA_TYPES, GALLERY_CATEGORIES, CATEGORY_COLORS, getYoutubeThumbnail,
   initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData,
-  initialBrandSettings, initialDownloadDocumentsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings,
+  initialDownloadDocumentsData, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSchoolIdentitySettings,
   initialSponsorsData, initialSmpbButtonSettings, initialAuthSettings
 } from '../types';
 import RichTextEditor from '../components/RichTextEditor';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
 import { DEFAULT_SETTINGS_BY_KEY } from '../constants/defaultSettings';
+import { applyThemePreset, SCHOOL_THEME_PRESETS } from '../utils/schoolIdentity';
 import {
   checkDatabaseConnection,
   ensureDefaultSettings,
@@ -31,13 +32,14 @@ import {
 } from '../services/settingsRepository';
 
 type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'branding' | 'downloads' | 'seo' | 'instagram' | 'sponsors' | 'security' | 'database';
+type TabGroupId = 'ringkasan' | 'konten' | 'identitas' | 'promosi' | 'sistem';
 
 const emptyInstagramPost: Omit<InstagramPost, 'id'> = { postUrl: '', caption: '', thumbnail: '', likes: '', date: new Date().toISOString().split('T')[0], isEmbed: false, embedCode: '' };
 
 const emptyNews: Omit<NewsItem, 'id'> = { title: '', excerpt: '', content: '', category: 'Akademik', image: '', date: new Date().toISOString().split('T')[0], author: 'Admin' };
 const emptyAgenda: Omit<AgendaItem, 'id'> = { title: '', date: '', endDate: '', time: '', location: '', description: '', type: 'Kegiatan' };
 const emptyGallery: Omit<GalleryItem, 'id'> = { title: '', image: '', category: 'Akademik', date: new Date().toISOString().split('T')[0], mediaType: 'image', youtubeUrl: '' };
-const emptySlider: Omit<SliderItem, 'id'> = { title: '', subtitle: '', image: '', buttonText: '', buttonLink: '' };
+const emptySlider: Omit<SliderItem, 'id'> = { title: '', subtitle: '', image: '', backgroundColor: '#0f766e', buttonText: '', buttonLink: '' };
 const emptySponsor: Omit<Sponsor, 'id'> = { name: '', logo: '', url: '' };
 const emptyDownloadDocument: Omit<DownloadDocument, 'id'> = {
   title: '',
@@ -89,13 +91,11 @@ export default function Dashboard() {
     news, addNews, updateNews, deleteNews,
     agenda, addAgenda, updateAgenda, deleteAgenda,
     gallery, addGallery, updateGallery, deleteGallery,
-    contactInfo, updateContactInfo,
     sliderItems, addSliderItem, updateSliderItem, deleteSliderItem, reorderSlider,
     profileData, updateProfileData,
     statsData, updateStatsData,
-    brandSettings, updateBrandSettings,
+    schoolIdentity, updateSchoolIdentity,
     downloadDocuments, updateDownloadDocuments, addDownloadDocument, updateDownloadDocument, deleteDownloadDocument,
-    footerCredit, updateFooterCredit,
     seoData, updateSEOData,
     analyticsData, resetAnalytics,
     instagramSettings, updateInstagramSettings, addInstagramPost, updateInstagramPost, deleteInstagramPost, reorderInstagramPosts,
@@ -105,6 +105,15 @@ export default function Dashboard() {
   } = useApp();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const [activeTabGroup, setActiveTabGroup] = useState<TabGroupId>('ringkasan');
+  const [isMobileAdminMenuOpen, setIsMobileAdminMenuOpen] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<TabGroupId, boolean>>({
+    ringkasan: false,
+    konten: false,
+    identitas: false,
+    promosi: false,
+    sistem: false,
+  });
 
   const [showNewsModal, setShowNewsModal] = useState(false);
   const [showAgendaModal, setShowAgendaModal] = useState(false);
@@ -138,20 +147,17 @@ export default function Dashboard() {
   });
   const [instagramSettingsSaved, setInstagramSettingsSaved] = useState(false);
 
-  const [contactForm, setContactForm] = useState<ContactInfo>(contactInfo);
   const [profileForm, setProfileForm] = useState<ProfileData>(profileData);
   const [misiInput, setMisiInput] = useState('');
   const [facilityInput, setFacilityInput] = useState('');
-  const [contactSaved, setContactSaved] = useState(false);
-  const [footerForm, setFooterForm] = useState<FooterCredit>(footerCredit);
-  const [footerSaved, setFooterSaved] = useState(false);
+  const [identityForm, setIdentityForm] = useState<SchoolIdentitySettings>(schoolIdentity);
+  const [identitySaved, setIdentitySaved] = useState(false);
+  const [identityErrors, setIdentityErrors] = useState<string[]>([]);
   const [smpbForm, setSmpbForm] = useState(smpbButton);
   const [smpbSaved, setSmpbSaved] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
   const [statsForm, setStatsForm] = useState<StatsData>(statsData);
   const [statsSaved, setStatsSaved] = useState(false);
-  const [brandForm, setBrandForm] = useState<BrandSettings>(brandSettings);
-  const [brandSaved, setBrandSaved] = useState(false);
   const [downloadsForm, setDownloadsForm] = useState<DownloadDocumentsData>(downloadDocuments);
   const [downloadsSaved, setDownloadsSaved] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
@@ -183,12 +189,10 @@ export default function Dashboard() {
     };
   }, [agenda.length, downloadDocuments.documents.length, gallery.length, instagramSettings.posts.length, news.length, sliderItems.length, sponsorsData.sponsors.length]);
 
-  useEffect(() => { setContactForm(contactInfo); }, [contactInfo]);
-  useEffect(() => { setFooterForm(footerCredit); }, [footerCredit]);
+  useEffect(() => { setIdentityForm(schoolIdentity); }, [schoolIdentity]);
   useEffect(() => { setSmpbForm(smpbButton); }, [smpbButton]);
   useEffect(() => { setProfileForm(profileData); }, [profileData]);
   useEffect(() => { setStatsForm(statsData); }, [statsData]);
-  useEffect(() => { setBrandForm(brandSettings); }, [brandSettings]);
   useEffect(() => { setDownloadsForm(downloadDocuments); }, [downloadDocuments]);
   useEffect(() => { setSeoForm(seoData); }, [seoData]);
   useEffect(() => {
@@ -250,7 +254,7 @@ export default function Dashboard() {
   // Slider
   const openSliderAdd = () => { setSliderForm(emptySlider); setEditingSliderId(null); setShowSliderModal(true); };
   const openSliderEdit = (item: SliderItem) => {
-    setSliderForm({ title: item.title, subtitle: item.subtitle, image: item.image, buttonText: item.buttonText, buttonLink: item.buttonLink });
+    setSliderForm({ title: item.title, subtitle: item.subtitle, image: item.image, backgroundColor: item.backgroundColor || '#0f766e', buttonText: item.buttonText, buttonLink: item.buttonLink });
     setEditingSliderId(item.id); setShowSliderModal(true);
   };
   const saveSlider = () => {
@@ -273,10 +277,40 @@ export default function Dashboard() {
     setTimeout(() => setStatsSaved(false), 2000);
   };
 
-  const saveBrand = () => {
-    updateBrandSettings(brandForm);
-    setBrandSaved(true);
-    setTimeout(() => setBrandSaved(false), 2000);
+  const saveIdentity = () => {
+    const normalizedIdentity: SchoolIdentitySettings = {
+      ...identityForm,
+      schoolName: identityForm.schoolName.trim(),
+      schoolShortName: identityForm.schoolShortName.trim(),
+      schoolTagline: identityForm.schoolTagline.trim(),
+      legalName: identityForm.legalName.trim(),
+      footerDescription: identityForm.footerDescription.trim(),
+      address: identityForm.address.trim(),
+      phone: identityForm.phone.trim(),
+      email: identityForm.email.trim(),
+      hours: identityForm.hours.trim(),
+      mapQuery: identityForm.mapQuery.trim(),
+      mapEmbedUrl: identityForm.mapEmbedUrl.trim(),
+      mapDirectionsUrl: identityForm.mapDirectionsUrl.trim(),
+      facebook: identityForm.facebook.trim(),
+      instagram: identityForm.instagram.trim(),
+      youtube: identityForm.youtube.trim(),
+      legalNotice: identityForm.legalNotice.trim(),
+      copyrightText: identityForm.copyrightText.trim(),
+      developerName: identityForm.developerName.trim(),
+      developerUrl: identityForm.developerUrl.trim(),
+    };
+
+    const result = updateSchoolIdentity(normalizedIdentity);
+    if (!result.success) {
+      setIdentitySaved(false);
+      setIdentityErrors(result.errors);
+      return;
+    }
+
+    setIdentityErrors([]);
+    setIdentitySaved(true);
+    setTimeout(() => setIdentitySaved(false), 2000);
   };
 
   const saveDownloadsPage = () => {
@@ -330,20 +364,6 @@ export default function Dashboard() {
     updateSEOData(seoForm);
     setSeoSaved(true);
     setTimeout(() => setSeoSaved(false), 2000);
-  };
-
-  // Contact
-  const saveContact = () => {
-    updateContactInfo(contactForm);
-    setContactSaved(true);
-    setTimeout(() => setContactSaved(false), 2000);
-  };
-
-  // Footer Credit
-  const saveFooterCredit = () => {
-    updateFooterCredit(footerForm);
-    setFooterSaved(true);
-    setTimeout(() => setFooterSaved(false), 2000);
   };
 
   const saveSmpbSettings = () => {
@@ -482,15 +502,66 @@ export default function Dashboard() {
     { id: 'slider' as Tab, label: 'Slider', icon: Sliders },
     { id: 'profile' as Tab, label: 'Profil', icon: FileText },
     { id: 'stats' as Tab, label: 'Statistik', icon: BarChart3 },
-    { id: 'branding' as Tab, label: 'Logo Sekolah', icon: GraduationCap },
+    { id: 'branding' as Tab, label: 'Identitas Sekolah', icon: GraduationCap },
     { id: 'downloads' as Tab, label: 'Dokumen Download', icon: Download },
     { id: 'seo' as Tab, label: 'SEO & Analitik', icon: Search },
     { id: 'instagram' as Tab, label: 'Instagram', icon: Instagram },
     { id: 'sponsors' as Tab, label: 'Sponsor/Mitra', icon: Link2 },
     { id: 'security' as Tab, label: 'Keamanan', icon: Shield },
-    { id: 'contact' as Tab, label: 'Kontak', icon: Phone },
+    { id: 'contact' as Tab, label: 'Tombol SMPB', icon: Phone },
     { id: 'database' as Tab, label: 'Database', icon: Database },
   ];
+
+  const tabGroups: { id: TabGroupId; label: string; description: string; tabs: typeof tabs }[] = [
+    {
+      id: 'ringkasan',
+      label: 'Ringkasan',
+      description: 'Overview dashboard',
+      tabs: tabs.filter((tab) => ['overview'].includes(tab.id)),
+    },
+    {
+      id: 'konten',
+      label: 'Konten Utama',
+      description: 'Kelola isi website',
+      tabs: tabs.filter((tab) => ['news', 'agenda', 'gallery', 'slider', 'profile', 'downloads'].includes(tab.id)),
+    },
+    {
+      id: 'identitas',
+      label: 'Identitas',
+      description: 'Identitas, brand, dan statistik',
+      tabs: tabs.filter((tab) => ['branding', 'stats', 'sponsors', 'instagram'].includes(tab.id)),
+    },
+    {
+      id: 'promosi',
+      label: 'Promosi',
+      description: 'SEO dan tombol publik',
+      tabs: tabs.filter((tab) => ['seo', 'contact'].includes(tab.id)),
+    },
+    {
+      id: 'sistem',
+      label: 'Sistem',
+      description: 'Keamanan dan database',
+      tabs: tabs.filter((tab) => ['security', 'database'].includes(tab.id)),
+    },
+  ];
+
+  useEffect(() => {
+    const currentGroup = tabGroups.find((group) => group.tabs.some((tab) => tab.id === activeTab));
+    if (currentGroup && currentGroup.id !== activeTabGroup) {
+      setActiveTabGroup(currentGroup.id);
+    }
+    if (currentGroup && collapsedGroups[currentGroup.id]) {
+      setCollapsedGroups((prev) => ({ ...prev, [currentGroup.id]: false }));
+    }
+  }, [activeTab]);
+
+  const toggleGroupCollapse = (groupId: TabGroupId) => {
+    setCollapsedGroups((prev) => ({ ...prev, [groupId]: !prev[groupId] }));
+  };
+
+  const activeGroupMeta = tabGroups.find((group) => group.id === activeTabGroup) ?? tabGroups[0];
+  const activeTabMeta = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
+  const activeThemePreset = SCHOOL_THEME_PRESETS.find((preset) => preset.id === identityForm.themePreset);
 
   const inputCls = "w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-300 bg-white";
   const labelCls = "block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5";
@@ -521,40 +592,108 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Horizontal Scrollable Tabs (mobile) + Sidebar (desktop) */}
+      {/* Grouped Tabs (mobile) + Sidebar (desktop) */}
       <div className="lg:flex">
         {/* Mobile Tabs */}
         <div className="lg:hidden bg-white border-b border-gray-200 sticky top-[52px] z-20">
-          <div className="flex overflow-x-auto no-scrollbar px-2 py-1.5 gap-1">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
-                  activeTab === tab.id ? 'bg-primary-500 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-100'
-                }`}
-              >
-                <tab.icon className="h-3.5 w-3.5" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <button
+            onClick={() => setIsMobileAdminMenuOpen((prev) => !prev)}
+            className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+          >
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">{activeGroupMeta.label}</p>
+              <p className="mt-1 text-xs font-semibold text-gray-800">{activeTabMeta.label}</p>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] font-semibold text-primary-600">
+              <span>{isMobileAdminMenuOpen ? 'Tutup Menu' : 'Buka Menu'}</span>
+              <ChevronLeft className={`h-4 w-4 shrink-0 transition-transform ${isMobileAdminMenuOpen ? '-rotate-90' : '-rotate-180'}`} />
+            </div>
+          </button>
+
+          {isMobileAdminMenuOpen && (
+            <div className="max-h-[calc(100vh-112px)] overflow-y-auto border-t border-gray-100 px-3 py-3 space-y-2">
+              {tabGroups.map(group => {
+                const isCollapsed = collapsedGroups[group.id];
+                return (
+                  <div key={group.id} className="rounded-2xl border border-gray-100 bg-gray-50/70">
+                    <button
+                      onClick={() => {
+                        setActiveTabGroup(group.id);
+                        toggleGroupCollapse(group.id);
+                      }}
+                      className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+                    >
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500">{group.label}</p>
+                        <p className="mt-1 text-[11px] text-gray-400">{group.description}</p>
+                      </div>
+                      <ChevronLeft className={`h-4 w-4 shrink-0 text-gray-400 transition-transform ${isCollapsed ? '-rotate-90' : '-rotate-180'}`} />
+                    </button>
+                    {!isCollapsed && (
+                      <div className="grid grid-cols-2 gap-2 border-t border-gray-100 px-3 py-3">
+                        {group.tabs.map(tab => (
+                          <button
+                            key={tab.id}
+                            onClick={() => {
+                              setActiveTabGroup(group.id);
+                              setActiveTab(tab.id);
+                              setIsMobileAdminMenuOpen(false);
+                            }}
+                            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-medium transition-all ${
+                              activeTab === tab.id ? 'bg-primary-500 text-white shadow-sm' : 'bg-white text-gray-600'
+                            }`}
+                          >
+                            <tab.icon className="h-3.5 w-3.5 shrink-0" />
+                            <span className="truncate text-left">{tab.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Desktop Sidebar */}
         <aside className="hidden lg:block sticky top-[52px] w-60 h-[calc(100vh-52px)] bg-white border-r border-gray-200 overflow-y-auto shrink-0">
-          <nav className="p-3 space-y-1">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  activeTab === tab.id ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <tab.icon className="h-5 w-5" />
-                {tab.label}
-              </button>
+          <nav className="p-3 space-y-4">
+            {tabGroups.map(group => (
+              <div key={group.id}>
+                <button
+                  onClick={() => {
+                    setActiveTabGroup(group.id);
+                    toggleGroupCollapse(group.id);
+                  }}
+                  className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left hover:bg-gray-50"
+                >
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">{group.label}</p>
+                    <p className="mt-1 text-[11px] text-gray-500">{group.description}</p>
+                  </div>
+                  <ChevronLeft className={`h-4 w-4 shrink-0 text-gray-400 transition-transform ${collapsedGroups[group.id] ? '-rotate-90' : '-rotate-180'}`} />
+                </button>
+                {!collapsedGroups[group.id] && (
+                  <div className="mt-2 space-y-1">
+                    {group.tabs.map(tab => (
+                      <button
+                        key={tab.id}
+                        onClick={() => {
+                          setActiveTabGroup(group.id);
+                          setActiveTab(tab.id);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                          activeTab === tab.id ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        <tab.icon className="h-5 w-5" />
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </nav>
           <div className="p-3 border-t border-gray-100 mt-2">
@@ -791,7 +930,11 @@ export default function Dashboard() {
                       <button onClick={() => moveSlider(idx, 'down')} disabled={idx === sliderItems.length - 1} className="p-1 hover:bg-gray-100 rounded disabled:opacity-30"><ArrowDown className="h-4 w-4 text-gray-400" /></button>
                     </div>
                     <div className="w-16 h-10 sm:w-24 sm:h-14 bg-gray-100 rounded-lg overflow-hidden shrink-0">
-                      {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-primary-400 to-primary-600" />}
+                      {item.image ? (
+                        <img src={item.image} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full" style={{ background: `linear-gradient(135deg, ${item.backgroundColor || '#0f766e'}, var(--school-secondary))` }} />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-900 truncate">{item.title}</p>
@@ -944,52 +1087,126 @@ export default function Dashboard() {
           {activeTab === 'branding' && (
             <div className="animate-fadeIn space-y-4 sm:space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Logo Sekolah</h2>
-                {brandSaved && <span className="flex items-center gap-1 text-green-600 text-xs sm:text-sm font-semibold animate-fadeIn"><CheckCircle className="h-4 w-4" /> Tersimpan!</span>}
+                <div>
+                  <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Identitas Sekolah Terpusat</h2>
+                  <p className="mt-1 text-xs sm:text-sm text-gray-500">Satu titik kontrol untuk header, footer, tema dasar, dan informasi legal website.</p>
+                </div>
+                {identitySaved && <span className="flex items-center gap-1 text-green-600 text-xs sm:text-sm font-semibold animate-fadeIn"><CheckCircle className="h-4 w-4" /> Tersimpan!</span>}
               </div>
-              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-4">
-                <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-                  <div className="rounded-2xl border border-dashed border-primary-200 bg-primary-50/50 p-4">
-                    <p className="text-sm font-bold text-gray-900 mb-3">Preview Logo</p>
-                    <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl bg-white p-6 text-center shadow-sm">
-                      {brandForm.showLogo && brandForm.schoolLogo ? (
-                        <img src={brandForm.schoolLogo} alt="Logo Sekolah" className="max-h-32 w-auto object-contain" />
-                      ) : (
-                        <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-primary-500 text-white shadow-md">
-                          <GraduationCap className="h-10 w-10" />
+              <div className="grid gap-4 lg:grid-cols-[330px_minmax(0,1fr)]">
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-bold text-gray-900">Status Konfigurasi</p>
+                      <span className="rounded-full bg-primary-50 px-3 py-1 text-[11px] font-semibold text-primary-700">
+                        v{identityForm.schemaVersion}.{identityForm.revision}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs text-gray-500">Konfigurasi ini tersimpan di database `school_identity` dan menjadi sumber utama header serta footer.</p>
+                    <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+                      <div className="rounded-xl bg-gray-50 p-3">
+                        <p className="text-gray-400">Schema</p>
+                        <p className="mt-1 font-semibold text-gray-800">{identityForm.schemaVersion}</p>
+                      </div>
+                      <div className="rounded-xl bg-gray-50 p-3">
+                        <p className="text-gray-400">Revisi</p>
+                        <p className="mt-1 font-semibold text-gray-800">{identityForm.revision}</p>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-[11px] text-gray-400">Update terakhir: {new Date(identityForm.updatedAt || Date.now()).toLocaleString('id-ID')}</p>
+                    <p className="mt-2 text-[11px] text-gray-500">
+                      Preset tema: <span className="font-semibold text-gray-700">{activeThemePreset?.label || 'Custom'}</span>
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-dashed border-primary-200 bg-white p-4 shadow-sm">
+                    <p className="text-sm font-bold text-gray-900 mb-3">Preview Header</p>
+                    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
+                      <div style={{ background: `linear-gradient(90deg, ${identityForm.primaryColor}, ${identityForm.secondaryColor}, ${identityForm.accentColor})` }} className="h-1" />
+                      <div className="flex items-center gap-3 p-4">
+                        <div
+                          className="flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-md overflow-hidden"
+                          style={{ background: `linear-gradient(135deg, ${identityForm.primaryColor}, ${identityForm.secondaryColor})` }}
+                        >
+                          {identityForm.showLogo && identityForm.schoolLogo ? (
+                            <img src={identityForm.schoolLogo} alt="Logo sekolah" className="h-full w-full object-contain bg-white p-1.5" />
+                          ) : (
+                            <GraduationCap className="h-8 w-8" />
+                          )}
                         </div>
-                      )}
-                      <p className="mt-4 text-sm font-semibold text-gray-900">Menu Atas & Halaman Download</p>
-                      <p className="mt-1 text-xs text-gray-500">Logo ini tampil di navbar dan header halaman download dokumen.</p>
+                        <div className="min-w-0">
+                          <p className="truncate text-base font-bold text-gray-900">{identityForm.schoolShortName || identityForm.schoolName}</p>
+                          <p className="truncate text-xs font-medium" style={{ color: identityForm.primaryColor }}>{identityForm.schoolTagline}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-sm font-bold text-gray-900">Preview Footer</p>
+                    <div className="mt-3 rounded-2xl p-4 text-white" style={{ backgroundColor: identityForm.footerBackgroundColor }}>
+                      <p className="text-sm font-semibold">{identityForm.schoolShortName || identityForm.schoolName}</p>
+                      <p className="mt-1 text-xs text-white/80">{identityForm.footerDescription}</p>
+                      <div className="mt-4 flex items-center justify-between gap-2 text-[11px] text-white/70">
+                        <span>{identityForm.showCurrentYear ? `© ${new Date().getFullYear()} ` : ''}{identityForm.legalName || identityForm.schoolName}</span>
+                        <span>{identityForm.legalNotice || 'Informasi legal footer'}</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-                      <label className={labelCls}>Status Logo</label>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm">
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900">Identitas Utama</h3>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className={labelCls}>Nama Sekolah</label>
+                        <input type="text" value={identityForm.schoolName} onChange={(e) => setIdentityForm({ ...identityForm, schoolName: e.target.value })} className={inputCls} placeholder="SMP Negeri 1 Genteng" />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Nama Singkat Header</label>
+                        <input type="text" value={identityForm.schoolShortName} onChange={(e) => setIdentityForm({ ...identityForm, schoolShortName: e.target.value })} className={inputCls} placeholder="SMPN 1 Genteng" />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Tagline Header</label>
+                        <input type="text" value={identityForm.schoolTagline} onChange={(e) => setIdentityForm({ ...identityForm, schoolTagline: e.target.value })} className={inputCls} placeholder="Kabupaten Banyuwangi" />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Nama Legal Footer</label>
+                        <input type="text" value={identityForm.legalName} onChange={(e) => setIdentityForm({ ...identityForm, legalName: e.target.value })} className={inputCls} placeholder="SMP Negeri 1 Genteng" />
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <label className={labelCls}>Deskripsi Footer</label>
+                      <textarea rows={3} value={identityForm.footerDescription} onChange={(e) => setIdentityForm({ ...identityForm, footerDescription: e.target.value })} className={inputCls + ' resize-none'} placeholder="Deskripsi singkat sekolah untuk footer." />
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-sm sm:text-base font-bold text-gray-900">Logo Sekolah</h3>
+                        <p className="mt-1 text-xs text-gray-500">Dipakai di navbar, footer, dan bagian identitas halaman publik.</p>
+                      </div>
                       <button
-                        onClick={() => setBrandForm({ ...brandForm, showLogo: !brandForm.showLogo })}
-                        className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold ${brandForm.showLogo ? 'bg-primary-500 text-white' : 'bg-white text-gray-600 border border-gray-200'}`}
+                        onClick={() => setIdentityForm({ ...identityForm, showLogo: !identityForm.showLogo })}
+                        className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold ${identityForm.showLogo ? 'bg-primary-500 text-white' : 'border border-gray-200 bg-white text-gray-600'}`}
                       >
-                        {brandForm.showLogo ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
-                        {brandForm.showLogo ? 'Logo Ditampilkan' : 'Logo Disembunyikan'}
+                        {identityForm.showLogo ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
+                        {identityForm.showLogo ? 'Aktif' : 'Nonaktif'}
                       </button>
                     </div>
-                    <div>
-                      <label className={labelCls}>Upload Logo Sekolah</label>
-                      <p className="text-xs text-gray-400 mb-2">Gunakan PNG transparan atau JPG persegi. Maksimum 2MB.</p>
-                      {brandForm.schoolLogo ? (
+                    <div className="mt-4">
+                      {identityForm.schoolLogo ? (
                         <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-4 sm:flex-row sm:items-center">
-                          <img src={brandForm.schoolLogo} alt="Logo Sekolah" className="h-20 w-20 rounded-2xl border border-gray-200 bg-white p-2 object-contain" />
+                          <img src={identityForm.schoolLogo} alt="Logo sekolah" className="h-20 w-20 rounded-2xl border border-gray-200 bg-white p-2 object-contain" />
                           <div className="flex-1">
                             <p className="text-sm font-semibold text-gray-900">Logo siap digunakan</p>
-                            <p className="text-xs text-gray-500">Klik ganti untuk upload file baru atau hapus bila ingin kembali ke ikon default.</p>
+                            <p className="text-xs text-gray-500">Format PNG transparan atau JPG persegi, maksimal 2MB.</p>
                           </div>
                           <div className="flex gap-2">
                             <label className="cursor-pointer rounded-xl border border-primary-200 bg-white px-4 py-2 text-xs font-semibold text-primary-600 hover:bg-primary-50">
                               Ganti
-                              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, setBrandForm, 'schoolLogo')} />
+                              <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, setIdentityForm, 'schoolLogo')} />
                             </label>
-                            <button onClick={() => setBrandForm({ ...brandForm, schoolLogo: '' })} className="rounded-xl border border-red-200 bg-white px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50">
+                            <button onClick={() => setIdentityForm({ ...identityForm, schoolLogo: '' })} className="rounded-xl border border-red-200 bg-white px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50">
                               Hapus
                             </button>
                           </div>
@@ -999,18 +1216,165 @@ export default function Dashboard() {
                           <Upload className="h-8 w-8" />
                           <span className="text-sm font-semibold">Upload logo sekolah</span>
                           <span className="text-xs text-primary-400">Klik untuk memilih file gambar</span>
-                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, setBrandForm, 'schoolLogo')} />
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, setIdentityForm, 'schoolLogo')} />
                         </label>
                       )}
                     </div>
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <button onClick={saveBrand} className="flex items-center justify-center gap-2 rounded-xl bg-primary-500 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-600 shadow-lg">
-                        <Save className="h-4 w-4" /> Simpan Logo
-                      </button>
-                      <Link to="/download" className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50">
-                        <Eye className="h-4 w-4" /> Lihat Halaman Download
-                      </Link>
+                  </div>
+
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm">
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900">Kontak & Lokasi</h3>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                      <div className="sm:col-span-2">
+                        <label className={labelCls}>Alamat</label>
+                        <textarea rows={2} value={identityForm.address} onChange={(e) => setIdentityForm({ ...identityForm, address: e.target.value })} className={inputCls + ' resize-none'} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Telepon</label>
+                        <input type="text" value={identityForm.phone} onChange={(e) => setIdentityForm({ ...identityForm, phone: e.target.value })} className={inputCls} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Email</label>
+                        <input type="email" value={identityForm.email} onChange={(e) => setIdentityForm({ ...identityForm, email: e.target.value })} className={inputCls} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Jam Operasional</label>
+                        <input type="text" value={identityForm.hours} onChange={(e) => setIdentityForm({ ...identityForm, hours: e.target.value })} className={inputCls} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Query Google Maps</label>
+                        <input type="text" value={identityForm.mapQuery} onChange={(e) => setIdentityForm({ ...identityForm, mapQuery: e.target.value })} className={inputCls} placeholder="SMP Negeri 1 Genteng Banyuwangi" />
+                      </div>
+                      <div>
+                        <label className={labelCls}>URL Embed Maps</label>
+                        <input type="url" value={identityForm.mapEmbedUrl} onChange={(e) => setIdentityForm({ ...identityForm, mapEmbedUrl: e.target.value })} className={inputCls} placeholder="https://www.google.com/maps/embed?pb=..." />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Link Arah Maps</label>
+                        <input type="url" value={identityForm.mapDirectionsUrl} onChange={(e) => setIdentityForm({ ...identityForm, mapDirectionsUrl: e.target.value })} className={inputCls} placeholder="https://maps.app.goo.gl/..." />
+                      </div>
                     </div>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                      <div>
+                        <label className={labelCls}>Facebook</label>
+                        <input type="url" value={identityForm.facebook} onChange={(e) => setIdentityForm({ ...identityForm, facebook: e.target.value })} className={inputCls} placeholder="https://facebook.com/..." />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Instagram</label>
+                        <input type="url" value={identityForm.instagram} onChange={(e) => setIdentityForm({ ...identityForm, instagram: e.target.value })} className={inputCls} placeholder="https://instagram.com/..." />
+                      </div>
+                      <div>
+                        <label className={labelCls}>YouTube</label>
+                        <input type="url" value={identityForm.youtube} onChange={(e) => setIdentityForm({ ...identityForm, youtube: e.target.value })} className={inputCls} placeholder="https://youtube.com/..." />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm">
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900">Tema Dasar Global</h3>
+                    <p className="mt-1 text-xs text-gray-500">Pilih preset agar warna utama website langsung menyesuaikan secara menyeluruh. Jika perlu, admin masih bisa mengubah warna manual.</p>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                      {SCHOOL_THEME_PRESETS.map((preset) => {
+                        const isActive = identityForm.themePreset === preset.id;
+                        return (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            onClick={() => setIdentityForm(applyThemePreset(identityForm, preset.id))}
+                            className={`rounded-2xl border p-3 text-left transition-all ${isActive ? 'border-primary-400 bg-primary-50 shadow-sm' : 'border-gray-200 bg-white hover:border-primary-200 hover:bg-gray-50'}`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="h-5 w-5 rounded-full border border-white/70 shadow-sm" style={{ backgroundColor: preset.primaryColor }} />
+                              <span className="h-5 w-5 rounded-full border border-white/70 shadow-sm" style={{ backgroundColor: preset.secondaryColor }} />
+                              <span className="h-5 w-5 rounded-full border border-white/70 shadow-sm" style={{ backgroundColor: preset.accentColor }} />
+                              <span className="h-5 w-5 rounded-full border border-white/70 shadow-sm" style={{ backgroundColor: preset.footerBackgroundColor }} />
+                            </div>
+                            <p className="mt-3 text-sm font-semibold text-gray-900">{preset.label}</p>
+                            <p className="mt-1 text-xs text-gray-500">{preset.description}</p>
+                            {isActive && <p className="mt-2 text-[11px] font-semibold text-primary-600">Preset aktif</p>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                      {[
+                        { key: 'primaryColor', label: 'Warna Utama' },
+                        { key: 'secondaryColor', label: 'Warna Sekunder' },
+                        { key: 'accentColor', label: 'Warna Aksen' },
+                        { key: 'footerBackgroundColor', label: 'Warna Footer' },
+                      ].map((item) => (
+                        <div key={item.key}>
+                          <label className={labelCls}>{item.label}</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="color"
+                              value={identityForm[item.key as keyof Pick<SchoolIdentitySettings, 'primaryColor' | 'secondaryColor' | 'accentColor' | 'footerBackgroundColor'>]}
+                              onChange={(e) => setIdentityForm({ ...identityForm, themePreset: 'custom', [item.key]: e.target.value })}
+                              className="h-11 w-14 rounded-xl border border-gray-200 bg-white p-1"
+                            />
+                            <input
+                              type="text"
+                              value={identityForm[item.key as keyof Pick<SchoolIdentitySettings, 'primaryColor' | 'secondaryColor' | 'accentColor' | 'footerBackgroundColor'>]}
+                              onChange={(e) => setIdentityForm({ ...identityForm, themePreset: 'custom', [item.key]: e.target.value })}
+                              className={inputCls}
+                              placeholder="#0f766e"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm">
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900">Informasi Legal Footer</h3>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                      <div className="sm:col-span-2">
+                        <label className={labelCls}>Catatan Legal / Credit</label>
+                        <input type="text" value={identityForm.legalNotice} onChange={(e) => setIdentityForm({ ...identityForm, legalNotice: e.target.value })} className={inputCls} placeholder="Dibuat dengan sepenuh hati untuk pendidikan Indonesia" />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Copyright Tambahan</label>
+                        <input type="text" value={identityForm.copyrightText} onChange={(e) => setIdentityForm({ ...identityForm, copyrightText: e.target.value })} className={inputCls} placeholder="All Rights Reserved" />
+                      </div>
+                      <div className="flex items-center gap-3 pt-7">
+                        <button
+                          type="button"
+                          onClick={() => setIdentityForm({ ...identityForm, showCurrentYear: !identityForm.showCurrentYear })}
+                          className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold ${identityForm.showCurrentYear ? 'bg-primary-500 text-white' : 'border border-gray-200 bg-white text-gray-600'}`}
+                        >
+                          {identityForm.showCurrentYear ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
+                          {identityForm.showCurrentYear ? 'Tahun Aktif' : 'Tahun Nonaktif'}
+                        </button>
+                      </div>
+                      <div>
+                        <label className={labelCls}>Nama Developer</label>
+                        <input type="text" value={identityForm.developerName} onChange={(e) => setIdentityForm({ ...identityForm, developerName: e.target.value })} className={inputCls} placeholder="Nama / Tim Pengembang" />
+                      </div>
+                      <div>
+                        <label className={labelCls}>URL Developer</label>
+                        <input type="url" value={identityForm.developerUrl} onChange={(e) => setIdentityForm({ ...identityForm, developerUrl: e.target.value })} className={inputCls} placeholder="https://developer.com" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {identityErrors.length > 0 && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+                      <p className="text-sm font-bold text-red-700">Validasi identitas sekolah gagal</p>
+                      <ul className="mt-2 space-y-1 text-xs text-red-600">
+                        {identityErrors.map((error) => (
+                          <li key={error}>- {error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <button onClick={saveIdentity} className="flex items-center justify-center gap-2 rounded-xl bg-primary-500 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-600 shadow-lg">
+                      <Save className="h-4 w-4" /> Simpan Identitas Sekolah
+                    </button>
+                    <Link to="/" className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                      <Eye className="h-4 w-4" /> Lihat Website
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -1461,60 +1825,15 @@ export default function Dashboard() {
           {activeTab === 'contact' && (
             <div className="animate-fadeIn space-y-4 sm:space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Kelola Kontak</h2>
-                {contactSaved && <span className="flex items-center gap-1 text-green-600 text-xs sm:text-sm font-semibold animate-fadeIn"><CheckCircle className="h-4 w-4" /> Tersimpan!</span>}
-              </div>
-              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-3 sm:space-y-4">
-                <h3 className="text-sm sm:text-base font-bold text-gray-900">Informasi Kontak</h3>
-                <div><label className={labelCls}><MapPin className="inline h-3.5 w-3.5 mr-1" />Alamat</label><textarea rows={2} value={contactForm.address} onChange={e => setContactForm({ ...contactForm, address: e.target.value })} className={inputCls + ' resize-none'} /></div>
-                <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div><label className={labelCls}><Phone className="inline h-3.5 w-3.5 mr-1" />Telepon</label><input type="text" value={contactForm.phone} onChange={e => setContactForm({ ...contactForm, phone: e.target.value })} className={inputCls} /></div>
-                  <div><label className={labelCls}><Mail className="inline h-3.5 w-3.5 mr-1" />Email</label><input type="email" value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })} className={inputCls} /></div>
+                <div>
+                  <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Tombol SMPB</h2>
+                  <p className="mt-1 text-xs sm:text-sm text-gray-500">Pengaturan tombol publik untuk penerimaan siswa baru.</p>
                 </div>
-                <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div><label className={labelCls}><Clock className="inline h-3.5 w-3.5 mr-1" />Jam Operasional</label><input type="text" value={contactForm.hours} onChange={e => setContactForm({ ...contactForm, hours: e.target.value })} className={inputCls} /></div>
-                  <div><label className={labelCls}><Globe className="inline h-3.5 w-3.5 mr-1" />Google Maps Query</label><input type="text" value={contactForm.mapQuery} onChange={e => setContactForm({ ...contactForm, mapQuery: e.target.value })} className={inputCls} placeholder="SMP Negeri 1 Genteng Banyuwangi" /></div>
-                </div>
-                <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 sm:p-4 space-y-3">
-                  <div>
-                    <h4 className="text-sm font-bold text-blue-900">Pengaturan Google Maps</h4>
-                    <p className="text-[11px] sm:text-xs text-blue-700 mt-1">
-                      Gunakan query untuk mode sederhana, atau isi URL embed agar peta yang tampil sesuai titik lokasi sekolah.
-                    </p>
-                  </div>
-                  <div>
-                    <label className={labelCls}>URL Embed Google Maps</label>
-                    <input
-                      type="url"
-                      value={contactForm.mapEmbedUrl}
-                      onChange={e => setContactForm({ ...contactForm, mapEmbedUrl: e.target.value })}
-                      className={inputCls}
-                      placeholder="https://www.google.com/maps/embed?pb=..."
-                    />
-                  </div>
-                  <div>
-                    <label className={labelCls}>Link Buka Google Maps</label>
-                    <input
-                      type="url"
-                      value={contactForm.mapDirectionsUrl}
-                      onChange={e => setContactForm({ ...contactForm, mapDirectionsUrl: e.target.value })}
-                      className={inputCls}
-                      placeholder="https://maps.app.goo.gl/... atau https://www.google.com/maps/search/?api=1..."
-                    />
-                  </div>
-                </div>
+                {smpbSaved && <span className="flex items-center gap-1 text-green-600 text-xs sm:text-sm font-semibold animate-fadeIn"><CheckCircle className="h-4 w-4" /> Tersimpan!</span>}
               </div>
-              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-3 sm:space-y-4">
-                <h3 className="text-sm sm:text-base font-bold text-gray-900">Media Sosial</h3>
-                <div><label className={labelCls}>Facebook</label><input type="url" value={contactForm.facebook} onChange={e => setContactForm({ ...contactForm, facebook: e.target.value })} className={inputCls} placeholder="https://facebook.com/..." /></div>
-                <div><label className={labelCls}>Instagram</label><input type="url" value={contactForm.instagram} onChange={e => setContactForm({ ...contactForm, instagram: e.target.value })} className={inputCls} placeholder="https://instagram.com/..." /></div>
-                <div><label className={labelCls}>YouTube</label><input type="url" value={contactForm.youtube} onChange={e => setContactForm({ ...contactForm, youtube: e.target.value })} className={inputCls} placeholder="https://youtube.com/..." /></div>
-              </div>
-
               <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-3 sm:space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm sm:text-base font-bold text-gray-900">Tombol SMPB</h3>
-                  {smpbSaved && <span className="flex items-center gap-1 text-green-600 text-xs font-semibold animate-fadeIn"><CheckCircle className="h-3.5 w-3.5" /> Tersimpan!</span>}
                 </div>
                 <div className="bg-gray-50 rounded-xl border border-gray-100 p-3 sm:p-4">
                   <p className="text-[10px] sm:text-xs text-gray-500 mb-1">Preview:</p>
@@ -1572,78 +1891,8 @@ export default function Dashboard() {
                   <Save className="h-4 w-4" /> Simpan Tombol SMPB
                 </button>
               </div>
-              <button onClick={saveContact} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-xl text-sm font-semibold hover:bg-primary-600 shadow-lg">
-                <Save className="h-4 w-4" /> Simpan Kontak
-              </button>
-
-              {/* FOOTER CREDIT EDITOR */}
-              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-3 sm:space-y-4 mt-4 sm:mt-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-primary-500" />
-                    Credit Footer
-                  </h3>
-                  {footerSaved && <span className="flex items-center gap-1 text-green-600 text-xs font-semibold animate-fadeIn"><CheckCircle className="h-3.5 w-3.5" /> Tersimpan!</span>}
-                </div>
-
-                {/* Preview */}
-                <div className="bg-primary-950 rounded-xl p-3 sm:p-4">
-                  <p className="text-[10px] sm:text-xs text-primary-300 mb-1">Preview Footer:</p>
-                  <div className="flex flex-col sm:flex-row justify-between items-center text-[11px] sm:text-sm text-primary-400 gap-1">
-                    <p>{footerForm.showYear ? `© ${new Date().getFullYear()} ` : ''}{footerForm.schoolName || 'SMP Negeri 1 Genteng'}{footerForm.copyrightText ? ` — ${footerForm.copyrightText}` : ''}</p>
-                    <p>
-                      {footerForm.rightText || ''}
-                      {footerForm.developerName ? (
-                        <>
-                          {footerForm.rightText ? ' oleh ' : 'Developed by '}
-                          <span className="text-primary-300 underline">{footerForm.developerName}</span>
-                        </>
-                      ) : null}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <label className={labelCls}>Nama Sekolah</label>
-                  <input type="text" value={footerForm.schoolName} onChange={e => setFooterForm({ ...footerForm, schoolName: e.target.value })} className={inputCls} placeholder="SMP Negeri 1 Genteng" />
-                  <p className="text-[10px] text-gray-400 mt-1">Nama yang tampil di copyright footer</p>
-                </div>
-
-                <div>
-                  <label className={labelCls}>Teks Tambahan Copyright (opsional)</label>
-                  <input type="text" value={footerForm.copyrightText} onChange={e => setFooterForm({ ...footerForm, copyrightText: e.target.value })} className={inputCls} placeholder="All rights reserved" />
-                  <p className="text-[10px] text-gray-400 mt-1">Contoh: "All Rights Reserved" → © 2025 SMP Negeri 1 Genteng — All Rights Reserved</p>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={footerForm.showYear} onChange={e => setFooterForm({ ...footerForm, showYear: e.target.checked })} className="sr-only peer" />
-                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-500"></div>
-                  </label>
-                  <span className="text-xs sm:text-sm text-gray-700">Tampilkan tahun otomatis (© {new Date().getFullYear()})</span>
-                </div>
-
-                <div>
-                  <label className={labelCls}>Teks Kanan Footer</label>
-                  <input type="text" value={footerForm.rightText} onChange={e => setFooterForm({ ...footerForm, rightText: e.target.value })} className={inputCls} placeholder="Dibuat dengan ❤️ untuk pendidikan Indonesia" />
-                  <p className="text-[10px] text-gray-400 mt-1">Teks yang muncul di sisi kanan footer</p>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className={labelCls}>Nama Developer (opsional)</label>
-                    <input type="text" value={footerForm.developerName} onChange={e => setFooterForm({ ...footerForm, developerName: e.target.value })} className={inputCls} placeholder="Nama / Tim Pengembang" />
-                  </div>
-                  <div>
-                    <label className={labelCls}>URL Developer (opsional)</label>
-                    <input type="url" value={footerForm.developerUrl} onChange={e => setFooterForm({ ...footerForm, developerUrl: e.target.value })} className={inputCls} placeholder="https://developer.com" />
-                    <p className="text-[10px] text-gray-400 mt-1">Jika diisi, nama developer akan menjadi link</p>
-                  </div>
-                </div>
-
-                <button onClick={saveFooterCredit} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-xl text-sm font-semibold hover:bg-primary-600 shadow-lg">
-                  <Save className="h-4 w-4" /> Simpan Credit Footer
-                </button>
+              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-xs text-blue-700">
+                Pengaturan alamat, logo, footer legal, dan tema dasar global sekarang dipusatkan di menu <strong>Identitas Sekolah</strong> agar proses rebranding lebih aman dan tidak tersebar di banyak panel.
               </div>
             </div>
           )}
@@ -1794,6 +2043,25 @@ export default function Dashboard() {
                   ) : (
                     <label className="cursor-pointer"><ImagePlus className="h-10 w-10 text-gray-300 mx-auto mb-1" /><p className="text-xs text-gray-500">Upload gambar (maks 2MB)</p><input type="file" accept="image/*" className="hidden" onChange={e => handleImageUpload(e, setSliderForm)} /></label>
                   )}
+                </div>
+                <p className="mt-2 text-[11px] text-gray-400">Jika gambar tidak diisi, slide akan menggunakan warna background yang dipilih di bawah.</p>
+              </div>
+              <div>
+                <label className={labelCls}>Warna Background Saat Tanpa Gambar</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={sliderForm.backgroundColor || '#0f766e'}
+                    onChange={e => setSliderForm({ ...sliderForm, backgroundColor: e.target.value })}
+                    className="h-11 w-14 rounded-xl border border-gray-200 bg-white p-1"
+                  />
+                  <input
+                    type="text"
+                    value={sliderForm.backgroundColor || '#0f766e'}
+                    onChange={e => setSliderForm({ ...sliderForm, backgroundColor: e.target.value })}
+                    className={inputCls}
+                    placeholder="#0f766e"
+                  />
                 </div>
               </div>
             </div>
@@ -2332,6 +2600,7 @@ const BACKUP_DATABASE_KEYS = [
   { key: SETTINGS_DB_KEYS.slider, label: 'Slider Hero', icon: '🖼️' },
   { key: SETTINGS_DB_KEYS.profile, label: 'Profil', icon: '📋' },
   { key: SETTINGS_DB_KEYS.stats, label: 'Statistik', icon: '📊' },
+  { key: SETTINGS_DB_KEYS.schoolIdentity, label: 'Identitas Sekolah', icon: '🧭' },
   { key: SETTINGS_DB_KEYS.brand, label: 'Logo Sekolah', icon: '🏫' },
   { key: SETTINGS_DB_KEYS.downloads, label: 'Dokumen Download', icon: '⬇️' },
   { key: SETTINGS_DB_KEYS.footer, label: 'Footer Credit', icon: '📝' },

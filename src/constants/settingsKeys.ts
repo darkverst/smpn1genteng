@@ -6,6 +6,7 @@ export const SETTINGS_DB_KEYS = {
   slider: 'slider_items',
   profile: 'profile_data',
   stats: 'stats_data',
+  schoolIdentity: 'school_identity',
   brand: 'brand_settings',
   downloads: 'download_documents',
   footer: 'footer_credit',

@@ -40,6 +40,8 @@ Project ini dirancang untuk kebutuhan website sekolah yang bisa dikelola dari da
 |-- docs/
 |   |-- supabase-settings-schema.sql
 |   |-- supabase-schema.sql
+|   |-- school-identity-management.md
+|   |-- school-identity.example.json
 |   |-- sponsor-mitra-bug-analysis.md
 |-- src/
 |   |-- components/
@@ -147,6 +149,7 @@ Setelah SQL dijalankan, tabel `public.settings` minimal akan berisi key seperti:
 - `slider_items`
 - `profile_data`
 - `stats_data`
+- `school_identity`
 - `brand_settings`
 - `download_documents`
 - `footer_credit`
@@ -206,6 +209,43 @@ Konsep pentingnya:
 - frontend memuat data dari `public.settings`
 - jika key belum ada, aplikasi dapat membuat key default yang aman
 - perubahan dari dashboard akan melakukan `upsert` kembali ke Supabase
+- identitas sekolah modern dipusatkan di key `school_identity`
+
+## Manajemen Identitas Sekolah
+
+Website ini memakai konfigurasi identitas sekolah terpusat melalui key:
+
+- `school_identity`
+
+Konfigurasi ini mengendalikan:
+
+- nama sekolah untuk header dan footer
+- logo sekolah
+- alamat, telepon, email, dan jam operasional
+- media sosial
+- warna tema dasar global
+- informasi legal footer
+
+Dokumen pendukung:
+
+- `docs/school-identity-management.md`
+- `docs/school-identity.example.json`
+
+### Cara Mengubah Identitas Tanpa Edit Kode
+
+1. Login ke dashboard admin.
+2. Buka menu `Identitas Sekolah`.
+3. Ubah data identitas sesuai kebutuhan.
+4. Klik `Simpan Identitas Sekolah`.
+5. Cek hasilnya di header, footer, dan halaman publik.
+
+### Versioning Konfigurasi
+
+Setiap konfigurasi identitas membawa metadata:
+
+- `schemaVersion`
+- `revision`
+- `updatedAt`
 
 ## Fitur Database Di Dashboard
 

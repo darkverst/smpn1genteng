@@ -14,6 +14,7 @@ function NewsDetail() {
   const { news } = useApp();
   const navigate = useNavigate();
   const item = news.find(n => n.id === id);
+  const [shareStatus, setShareStatus] = useState('');
 
   if (!item) {
     return (
@@ -33,6 +34,38 @@ function NewsDetail() {
   const relatedNews = news.filter(n => n.id !== item.id && n.category === item.category).slice(0, 3);
   const colorClass = CATEGORY_COLORS[item.category] || 'bg-gray-100 text-gray-800';
   const isHtmlContent = /<[a-z][\s\S]*>/i.test(item.content);
+  const shareUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/berita/${item.id}`
+    : `/berita/${item.id}`;
+
+  const handleShare = async () => {
+    const shareData = {
+      title: item.title,
+      text: item.excerpt,
+      url: shareUrl,
+    };
+
+    try {
+      if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+        await navigator.share(shareData);
+        setShareStatus('Berita berhasil dibagikan.');
+        return;
+      }
+
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareStatus('Tautan berita berhasil disalin.');
+        return;
+      }
+
+      setShareStatus('Browser tidak mendukung fitur bagikan otomatis.');
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
+      setShareStatus('Gagal membagikan berita. Coba lagi.');
+    }
+  };
 
   return (
     <div className="page-enter">
@@ -70,9 +103,16 @@ function NewsDetail() {
               {item.content.split('\n').map((p, i) => p.trim() && <p key={i}>{p}</p>)}
             </div>
           )}
-          <div className="mt-8 pt-4 sm:pt-6 border-t border-gray-200 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-              <Share2 className="h-4 w-4" /> Bagikan
+          <div className="mt-8 pt-4 sm:pt-6 border-t border-gray-200 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <button
+                type="button"
+                onClick={handleShare}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary-50 px-4 py-2 text-xs sm:text-sm font-semibold text-primary-700 hover:bg-primary-100 transition-colors"
+              >
+                <Share2 className="h-4 w-4" /> Bagikan Berita
+              </button>
+              {shareStatus && <p className="mt-2 text-[11px] sm:text-xs text-gray-500">{shareStatus}</p>}
             </div>
             <Link to="/berita" className="text-primary-500 font-semibold text-xs sm:text-sm flex items-center gap-1">
               <ArrowLeft className="h-4 w-4" /> Semua Berita

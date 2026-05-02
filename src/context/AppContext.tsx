@@ -1,10 +1,18 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import {
   NewsItem, AgendaItem, GalleryItem, ContactInfo, SliderItem, ProfileData, StatsData, FooterCredit, SEOData, AnalyticsData, DailyView,
-  BrandSettings, DownloadDocument, DownloadDocumentsData, InstagramSettings, InstagramPost, SponsorsData, Sponsor, SmpbButtonSettings, AuthSettings,
-  initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData, initialBrandSettings, initialDownloadDocumentsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings, initialAuthSettings
+  BrandSettings, DownloadDocument, DownloadDocumentsData, InstagramSettings, InstagramPost, SponsorsData, Sponsor, SmpbButtonSettings, AuthSettings, SchoolIdentitySettings,
+  initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData, initialBrandSettings, initialDownloadDocumentsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings, initialAuthSettings, initialSchoolIdentitySettings
 } from '../types';
 import { addSponsorRecord, deleteSponsorRecord, normalizeSponsorsData, updateSponsorRecord } from '../utils/sponsors';
+import {
+  createTailwindThemeScale,
+  buildLegacySettingsFromSchoolIdentity,
+  createSchoolIdentityFromLegacy,
+  normalizeSchoolIdentity,
+  prepareSchoolIdentityForSave,
+  validateSchoolIdentity,
+} from '../utils/schoolIdentity';
 import { ensureDefaultSettings, saveSetting } from '../services/settingsRepository';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
 import {
@@ -45,6 +53,8 @@ interface AppState {
   updateProfileData: (data: Partial<ProfileData>) => void;
   statsData: StatsData;
   updateStatsData: (data: Partial<StatsData>) => void;
+  schoolIdentity: SchoolIdentitySettings;
+  updateSchoolIdentity: (data: SchoolIdentitySettings) => { success: boolean; errors: string[] };
   brandSettings: BrandSettings;
   updateBrandSettings: (data: Partial<BrandSettings>) => void;
   downloadDocuments: DownloadDocumentsData;
@@ -92,6 +102,37 @@ function normalizeDownloadDocumentsData(raw: unknown, fallback: DownloadDocument
   };
 }
 
+function applySchoolTheme(identity: SchoolIdentitySettings) {
+  if (typeof document === 'undefined') return;
+
+  const root = document.documentElement;
+  const scale = createTailwindThemeScale(identity);
+  root.style.setProperty('--color-primary-50', scale.primary50);
+  root.style.setProperty('--color-primary-100', scale.primary100);
+  root.style.setProperty('--color-primary-200', scale.primary200);
+  root.style.setProperty('--color-primary-300', scale.primary300);
+  root.style.setProperty('--color-primary-400', scale.primary400);
+  root.style.setProperty('--color-primary-500', scale.primary500);
+  root.style.setProperty('--color-primary-600', scale.primary600);
+  root.style.setProperty('--color-primary-700', scale.primary700);
+  root.style.setProperty('--color-primary-800', scale.primary800);
+  root.style.setProperty('--color-primary-900', scale.primary900);
+  root.style.setProperty('--color-primary-950', scale.primary950);
+  root.style.setProperty('--color-accent-300', scale.accent300);
+  root.style.setProperty('--color-accent-400', scale.accent400);
+  root.style.setProperty('--color-accent-500', scale.accent500);
+  root.style.setProperty('--color-accent-600', scale.accent600);
+  root.style.setProperty('--school-primary', identity.primaryColor);
+  root.style.setProperty('--school-secondary', identity.secondaryColor);
+  root.style.setProperty('--school-accent', identity.accentColor);
+  root.style.setProperty('--school-footer-bg', identity.footerBackgroundColor);
+}
+
+function toIdentityComparable(identity: SchoolIdentitySettings) {
+  const { revision, updatedAt, ...rest } = identity;
+  return rest;
+}
+
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
 }
@@ -117,6 +158,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sliderItems, setSliderItems] = useState<SliderItem[]>([...DEFAULT_SLIDER_ITEMS] as SliderItem[]);
   const [profileData, setProfileData] = useState<ProfileData>(initialProfileData);
   const [statsData, setStatsData] = useState<StatsData>(initialStatsData);
+  const [schoolIdentity, setSchoolIdentity] = useState<SchoolIdentitySettings>(initialSchoolIdentitySettings);
   const [brandSettings, setBrandSettings] = useState<BrandSettings>(initialBrandSettings);
   const [downloadDocuments, setDownloadDocuments] = useState<DownloadDocumentsData>(initialDownloadDocumentsData);
   const [footerCredit, setFooterCredit] = useState<FooterCredit>(initialFooterCredit);
@@ -139,22 +181,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const settings = await ensureDefaultSettings(DEFAULT_SETTINGS_BY_KEY);
         if (cancelled) return;
 
+        const legacyBrand = mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.brand], initialBrandSettings);
+        const legacyContact = mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.contact], initialContactInfo);
+        const legacyFooter = mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.footer], initialFooterCredit);
+        const migratedIdentity = createSchoolIdentityFromLegacy(legacyBrand, legacyContact, legacyFooter);
+        const storedIdentity = normalizeSchoolIdentity(settings[SETTINGS_DB_KEYS.schoolIdentity], migratedIdentity);
+        const identityRaw = settings[SETTINGS_DB_KEYS.schoolIdentity];
+        const identityLooksLikeDefault = JSON.stringify(toIdentityComparable(normalizeSchoolIdentity(identityRaw, initialSchoolIdentitySettings))) === JSON.stringify(toIdentityComparable(normalizeSchoolIdentity(initialSchoolIdentitySettings)));
+        const legacyLooksCustomized = JSON.stringify(toIdentityComparable(migratedIdentity)) !== JSON.stringify(toIdentityComparable(normalizeSchoolIdentity(initialSchoolIdentitySettings)));
+        const resolvedIdentity = identityLooksLikeDefault && legacyLooksCustomized ? migratedIdentity : storedIdentity;
+        const resolvedLegacy = buildLegacySettingsFromSchoolIdentity(resolvedIdentity);
+
         setNews(Array.isArray(settings[SETTINGS_DB_KEYS.news]) ? (settings[SETTINGS_DB_KEYS.news] as NewsItem[]) : [...DEFAULT_NEWS_ITEMS] as NewsItem[]);
         setAgenda(Array.isArray(settings[SETTINGS_DB_KEYS.agenda]) ? (settings[SETTINGS_DB_KEYS.agenda] as AgendaItem[]) : [...DEFAULT_AGENDA_ITEMS] as AgendaItem[]);
         setGallery(Array.isArray(settings[SETTINGS_DB_KEYS.gallery]) ? (settings[SETTINGS_DB_KEYS.gallery] as GalleryItem[]) : [...DEFAULT_GALLERY_ITEMS] as GalleryItem[]);
-        setContactInfo(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.contact], initialContactInfo));
+        setSchoolIdentity(resolvedIdentity);
+        applySchoolTheme(resolvedIdentity);
+        setContactInfo(resolvedLegacy.contactInfo);
         setSliderItems(Array.isArray(settings[SETTINGS_DB_KEYS.slider]) ? (settings[SETTINGS_DB_KEYS.slider] as SliderItem[]) : [...DEFAULT_SLIDER_ITEMS] as SliderItem[]);
         setProfileData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.profile], initialProfileData));
         setStatsData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.stats], initialStatsData));
-        setBrandSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.brand], initialBrandSettings));
+        setBrandSettings(resolvedLegacy.brandSettings);
         setDownloadDocuments(normalizeDownloadDocumentsData(settings[SETTINGS_DB_KEYS.downloads], initialDownloadDocumentsData));
-        setFooterCredit(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.footer], initialFooterCredit));
+        setFooterCredit(resolvedLegacy.footerCredit);
         setSeoData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.seo], initialSEOData));
         setAnalyticsData(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.analytics], initialAnalyticsData));
         setInstagramSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.instagram], DEFAULT_INSTAGRAM_SETTINGS));
         setSponsorsData(normalizeSponsorsData(settings[SETTINGS_DB_KEYS.sponsors], DEFAULT_SPONSORS_DATA));
         setSmpbButton(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.smpbButton], initialSmpbButtonSettings));
         setAuthSettings(mergeObjectWithFallback(settings[SETTINGS_DB_KEYS.auth], initialAuthSettings));
+
+        if (identityLooksLikeDefault && legacyLooksCustomized) {
+          persistSetting(SETTINGS_DB_KEYS.schoolIdentity, resolvedIdentity);
+        }
       } catch (error) {
         console.error('[App] Gagal sinkronisasi settings dari database. State lokal default dipakai sementara tanpa menimpa data database.', error);
       } finally {
@@ -170,6 +229,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    applySchoolTheme(schoolIdentity);
+  }, [schoolIdentity]);
 
   // Track new session on mount
   useEffect(() => {
@@ -300,6 +363,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     persistSetting(SETTINGS_DB_KEYS.stats, next);
     return next;
   });
+  const updateSchoolIdentity = (data: SchoolIdentitySettings) => {
+    const next = prepareSchoolIdentityForSave(schoolIdentity, data);
+    const errors = validateSchoolIdentity(next);
+    if (errors.length > 0) {
+      return { success: false, errors };
+    }
+
+    const legacy = buildLegacySettingsFromSchoolIdentity(next);
+    setSchoolIdentity(next);
+    setBrandSettings(legacy.brandSettings);
+    setContactInfo(legacy.contactInfo);
+    setFooterCredit(legacy.footerCredit);
+    persistSetting(SETTINGS_DB_KEYS.schoolIdentity, next);
+    persistSetting(SETTINGS_DB_KEYS.brand, legacy.brandSettings);
+    persistSetting(SETTINGS_DB_KEYS.contact, legacy.contactInfo);
+    persistSetting(SETTINGS_DB_KEYS.footer, legacy.footerCredit);
+    return { success: true, errors: [] };
+  };
   const updateBrandSettings = (data: Partial<BrandSettings>) => setBrandSettings(prev => {
     const next = { ...prev, ...data };
     persistSetting(SETTINGS_DB_KEYS.brand, next);
@@ -484,6 +565,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sliderItems, addSliderItem, updateSliderItem, deleteSliderItem, reorderSlider,
       profileData, updateProfileData,
       statsData, updateStatsData,
+      schoolIdentity, updateSchoolIdentity,
       brandSettings, updateBrandSettings,
       downloadDocuments, updateDownloadDocuments, addDownloadDocument, updateDownloadDocument, deleteDownloadDocument,
       footerCredit, updateFooterCredit,

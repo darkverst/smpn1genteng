@@ -48,6 +48,7 @@ export interface SliderItem {
   title: string;
   subtitle: string;
   image: string;
+  backgroundColor: string;
   buttonText: string;
   buttonLink: string;
 }
@@ -73,6 +74,41 @@ export interface StatsData {
 export interface BrandSettings {
   schoolLogo: string;
   showLogo: boolean;
+  schoolName: string;
+  schoolTagline: string;
+}
+
+export interface SchoolIdentitySettings {
+  schemaVersion: number;
+  revision: number;
+  updatedAt: string;
+  themePreset: string;
+  schoolName: string;
+  schoolShortName: string;
+  schoolTagline: string;
+  legalName: string;
+  schoolLogo: string;
+  showLogo: boolean;
+  footerDescription: string;
+  address: string;
+  phone: string;
+  email: string;
+  hours: string;
+  mapQuery: string;
+  mapEmbedUrl: string;
+  mapDirectionsUrl: string;
+  facebook: string;
+  instagram: string;
+  youtube: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  footerBackgroundColor: string;
+  legalNotice: string;
+  copyrightText: string;
+  showCurrentYear: boolean;
+  developerName: string;
+  developerUrl: string;
 }
 
 export interface DownloadDocument {
@@ -258,6 +294,7 @@ export const initialSliderItems: SliderItem[] = [
     title: 'Unggul dalam Prestasi, Santun dalam Budi Pekerti',
     subtitle: 'Membentuk generasi penerus bangsa yang cerdas, berkarakter, berakhlak mulia, dan siap menghadapi tantangan masa depan.',
     image: '',
+    backgroundColor: '#0f766e',
     buttonText: 'Profil Sekolah',
     buttonLink: '/profil',
   },
@@ -266,6 +303,7 @@ export const initialSliderItems: SliderItem[] = [
     title: 'Pendaftaran Peserta Didik Baru Tahun Ajaran 2025/2026',
     subtitle: 'Bergabunglah bersama keluarga besar SMPN 1 Genteng. Raih masa depan cemerlang bersama kami.',
     image: '',
+    backgroundColor: '#0f5aa6',
     buttonText: 'Info Selengkapnya',
     buttonLink: '/kontak',
   },
@@ -274,6 +312,7 @@ export const initialSliderItems: SliderItem[] = [
     title: 'Prestasi Gemilang di Tingkat Nasional',
     subtitle: 'Siswa-siswi kami terus menorehkan prestasi membanggakan di berbagai kompetisi akademik dan non-akademik.',
     image: '',
+    backgroundColor: '#7c3aed',
     buttonText: 'Lihat Berita',
     buttonLink: '/berita',
   },
@@ -289,6 +328,41 @@ export const initialStatsData: StatsData = {
 export const initialBrandSettings: BrandSettings = {
   schoolLogo: '',
   showLogo: true,
+  schoolName: 'SMPN 1 Genteng',
+  schoolTagline: 'Kabupaten Banyuwangi',
+};
+
+export const initialSchoolIdentitySettings: SchoolIdentitySettings = {
+  schemaVersion: 1,
+  revision: 1,
+  updatedAt: new Date().toISOString(),
+  themePreset: 'ocean',
+  schoolName: 'SMP Negeri 1 Genteng',
+  schoolShortName: 'SMPN 1 Genteng',
+  schoolTagline: 'Kabupaten Banyuwangi',
+  legalName: 'SMP Negeri 1 Genteng',
+  schoolLogo: '',
+  showLogo: true,
+  footerDescription: 'Unggul dalam Prestasi, Santun dalam Budi Pekerti. Membentuk generasi cerdas dan berkarakter.',
+  address: 'Jl. Raya Genteng No. 01, Genteng, Kabupaten Banyuwangi, Jawa Timur 68465',
+  phone: '(0333) 845123',
+  email: 'info@smpn1genteng.sch.id',
+  hours: 'Senin - Sabtu: 07:00 - 14:00 WIB',
+  mapQuery: 'SMP+Negeri+1+Genteng+Banyuwangi',
+  mapEmbedUrl: '',
+  mapDirectionsUrl: '',
+  facebook: 'https://facebook.com',
+  instagram: 'https://instagram.com',
+  youtube: 'https://youtube.com',
+  primaryColor: '#0f766e',
+  secondaryColor: '#0f5aa6',
+  accentColor: '#f59e0b',
+  footerBackgroundColor: '#082f49',
+  legalNotice: 'Dibuat dengan sepenuh hati untuk pendidikan Indonesia',
+  copyrightText: '',
+  showCurrentYear: true,
+  developerName: '',
+  developerUrl: '',
 };
 
 export const initialDownloadDocumentsData: DownloadDocumentsData = {
