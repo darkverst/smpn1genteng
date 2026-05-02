@@ -6,6 +6,10 @@ export default function SponsorMarquee() {
 
   if (!sponsorsData.showSection || sponsors.length === 0) return null;
 
+  const minimumTrackItems = 6;
+  const repetitionCount = Math.max(1, Math.ceil(minimumTrackItems / sponsors.length));
+  const trackSponsors = Array.from({ length: repetitionCount }, () => sponsors).flat();
+
   const SponsorCard = ({ name, logo, url }: { name: string; logo: string; url: string }) => {
     const content = (
       <>
@@ -51,44 +55,29 @@ export default function SponsorMarquee() {
         <h3 className="text-xl font-bold text-center text-gray-800">{sponsorsData.title}</h3>
       </div>
 
-      {sponsors.length <= 4 ? (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {sponsors.map((sponsor) => (
-              <SponsorCard
-                key={sponsor.id}
-                name={sponsor.name}
-                logo={sponsor.logo}
-                url={sponsor.url}
-              />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="relative flex w-full items-center overflow-hidden">
-          <div className="absolute left-0 top-0 bottom-0 z-10 w-24 bg-gradient-to-r from-white to-transparent" />
-          <div className="absolute right-0 top-0 bottom-0 z-10 w-24 bg-gradient-to-l from-white to-transparent" />
+      <div className="relative flex w-full items-center overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 z-10 w-24 bg-gradient-to-r from-white to-transparent" />
+        <div className="absolute right-0 top-0 bottom-0 z-10 w-24 bg-gradient-to-l from-white to-transparent" />
 
-          <div className="flex w-max animate-marquee hover:pause-marquee items-center">
-            {[0, 1].map((copyIndex) => (
-              <div
-                key={copyIndex}
-                className="flex shrink-0 items-center gap-12 px-6"
-                aria-hidden={copyIndex === 1}
-              >
-                {sponsors.map((sponsor) => (
-                  <SponsorCard
-                    key={`${copyIndex}-${sponsor.id}`}
-                    name={sponsor.name}
-                    logo={sponsor.logo}
-                    url={sponsor.url}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
+        <div className="flex w-max animate-marquee hover:pause-marquee items-center">
+          {[0, 1].map((copyIndex) => (
+            <div
+              key={copyIndex}
+              className="flex shrink-0 items-center gap-12 px-6"
+              aria-hidden={copyIndex === 1}
+            >
+              {trackSponsors.map((sponsor, sponsorIndex) => (
+                <SponsorCard
+                  key={`${copyIndex}-${sponsor.id}-${sponsorIndex}`}
+                  name={sponsor.name}
+                  logo={sponsor.logo}
+                  url={sponsor.url}
+                />
+              ))}
+            </div>
+          ))}
         </div>
-      )}
+      </div>
     </section>
   );
 }
