@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables (JANGAN commit!)
+.env
+.env.local
+.env.production
+.env.development
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Database dumps & local backups
+*.sql
+!docs/*.sql
+backup-*.json
+backup_*.json
+smpn1_backup_*.json
+
+
+# Credentials & temp files
+data env.txt
+~$*
