@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { GraduationCap, LogIn, LayoutDashboard, Menu, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import DbIndicator from './DbIndicator';
+import { getButtonStyle, getIconBadgeStyle } from '../utils/themeStyles';
 
 const navLinks = [
   { path: '/', label: 'Home' },
@@ -82,7 +83,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2.5 group">
               <div
-                className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow overflow-hidden"
+                className={getIconBadgeStyle(schoolIdentity.iconStyle, "w-9 h-9 lg:w-10 lg:h-10 flex items-center justify-center overflow-hidden")}
                 style={{ background: `linear-gradient(135deg, ${schoolIdentity.primaryColor}, ${schoolIdentity.secondaryColor})` }}
               >
                 {schoolIdentity.showLogo && schoolIdentity.schoolLogo ? (
@@ -126,7 +127,7 @@ export default function Navbar() {
                   href={smpbButton.link}
                   target={smpbButton.openInNewTab ? '_blank' : '_self'}
                   rel={smpbButton.openInNewTab ? 'noopener noreferrer' : undefined}
-                  className="px-4 py-2 bg-accent-400 hover:bg-accent-500 text-primary-950 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                  className={getButtonStyle(schoolIdentity.buttonStyle, "px-4 py-2 bg-accent-400 hover:bg-accent-500 text-primary-950 text-sm font-semibold transition-colors")}
                 >
                   {smpbLabel}
                 </a>
@@ -134,7 +135,7 @@ export default function Navbar() {
               {isLoggedIn ? (
                 <Link
                   to="/dashboard"
-                  className="flex items-center gap-1.5 px-4 py-2 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors shadow-md hover:shadow-lg"
+                  className={getButtonStyle(schoolIdentity.buttonStyle, "flex items-center gap-1.5 px-4 py-2 bg-primary-500 text-white text-sm font-medium hover:bg-primary-600 transition-colors")}
                 >
                   <LayoutDashboard className="h-4 w-4" />
                   Dashboard
@@ -142,7 +143,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   to="/login"
-                  className="flex items-center gap-1.5 px-4 py-2 border-2 border-primary-500 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-500 hover:text-white transition-all"
+                  className={getButtonStyle(schoolIdentity.buttonStyle, "flex items-center gap-1.5 px-4 py-2 border-2 border-primary-500 text-primary-600 text-sm font-medium hover:bg-primary-500 hover:text-white transition-all")}
                 >
                   <LogIn className="h-4 w-4" />
                   Login
@@ -261,7 +262,7 @@ export default function Navbar() {
                   href={smpbButton.link}
                   target={smpbButton.openInNewTab ? '_blank' : '_self'}
                   rel={smpbButton.openInNewTab ? 'noopener noreferrer' : undefined}
-                  className="flex items-center justify-center px-4 py-3 bg-accent-400 text-primary-900 rounded-xl text-sm font-bold"
+                  className={getButtonStyle(schoolIdentity.buttonStyle, "flex items-center justify-center px-4 py-3 bg-accent-400 text-primary-900 text-sm font-bold")}
                 >
                   {smpbLabel}
                 </a>
@@ -270,7 +271,7 @@ export default function Navbar() {
                 <Link
                   to="/dashboard"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 px-4 py-3 bg-primary-50 text-primary-700 rounded-xl text-sm font-semibold"
+                  className={getButtonStyle(schoolIdentity.buttonStyle, "flex items-center gap-2 px-4 py-3 bg-primary-50 text-primary-700 text-sm font-semibold")}
                 >
                   <LayoutDashboard className="h-4 w-4" />
                   Dashboard Admin
@@ -279,7 +280,7 @@ export default function Navbar() {
                 <Link
                   to="/login"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 px-4 py-3 bg-primary-50 text-primary-700 rounded-xl text-sm font-semibold"
+                  className={getButtonStyle(schoolIdentity.buttonStyle, "flex items-center gap-2 px-4 py-3 bg-primary-50 text-primary-700 text-sm font-semibold")}
                 >
                   <LogIn className="h-4 w-4" />
                   Login Admin

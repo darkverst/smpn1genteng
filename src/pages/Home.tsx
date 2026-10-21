@@ -7,6 +7,8 @@ import AgendaDetailModal from '../components/AgendaDetailModal';
 import InstagramFeed from '../components/InstagramFeed';
 import SponsorMarquee from '../components/SponsorMarquee';
 import { AgendaItem, GRADIENTS } from '../types';
+import { getButtonStyle, getCardStyle, getIconBadgeStyle, getIconSvgEffect, getSectionBadgeStyle } from '../utils/themeStyles';
+import { cn } from '../utils/cn';
 
 export default function Home() {
   const { news, agenda, sliderItems, profileData, statsData, instagramSettings, schoolIdentity } = useApp();
@@ -109,7 +111,7 @@ export default function Home() {
                   {activeSlider.buttonLink && activeSlider.buttonText && (
                     <Link
                       to={activeSlider.buttonLink}
-                      className="inline-flex items-center gap-2 bg-accent-400/90 hover:bg-accent-400 text-primary-950 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-lg backdrop-blur-sm animate-fadeInUp"
+                      className={getButtonStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 bg-accent-400/90 hover:bg-accent-400 text-primary-950 px-4 py-2 sm:px-5 sm:py-2.5 font-bold text-xs sm:text-sm transition-all backdrop-blur-sm animate-fadeInUp")}
                     >
                       {activeSlider.buttonText}
                       <ArrowRight className="h-4 w-4" />
@@ -135,7 +137,7 @@ export default function Home() {
                     {activeSlider.buttonText && activeSlider.buttonLink && (
                       <Link
                         to={activeSlider.buttonLink}
-                        className="inline-flex items-center gap-2 bg-accent-400 hover:bg-accent-500 text-primary-950 px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-lg"
+                        className={getButtonStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 bg-accent-400 hover:bg-accent-500 text-primary-950 px-5 py-2.5 sm:px-6 sm:py-3 font-semibold text-xs sm:text-sm transition-all")}
                       >
                         {activeSlider.buttonText}
                         <ArrowRight className="h-4 w-4" />
@@ -143,7 +145,7 @@ export default function Home() {
                     )}
                     <Link
                       to="/kontak"
-                      className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all border border-white/20 backdrop-blur-sm"
+                      className={getButtonStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 sm:px-6 sm:py-3 font-semibold text-xs sm:text-sm transition-all border border-white/20 backdrop-blur-sm")}
                     >
                       Hubungi Kami
                     </Link>
@@ -206,11 +208,16 @@ export default function Home() {
             ].map((stat, i) => (
               <div
                 key={stat.label}
-                className="bg-white rounded-2xl p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 group animate-fadeInUp"
+                className={getCardStyle(schoolIdentity.cardStyle, "bg-white p-4 sm:p-5 lg:p-6 transition-all duration-300 group animate-fadeInUp")}
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform shadow-md`}>
-                  <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                <div
+                  className={getIconBadgeStyle(
+                    schoolIdentity.iconStyle,
+                    `w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${stat.color} flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform`
+                  )}
+                >
+                  <stat.icon className={cn("h-5 w-5 sm:h-6 sm:w-6 text-white", getIconSvgEffect(schoolIdentity.iconStyle))} />
                 </div>
                 <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900">{stat.value}</div>
                 <div className="text-xs sm:text-sm text-gray-500 mt-0.5">{stat.label}</div>
@@ -224,8 +231,8 @@ export default function Home() {
       <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12 animate-fadeInUp">
-            <div className="inline-flex items-center gap-2 bg-primary-50 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 text-primary-600 text-xs sm:text-sm font-medium mb-2 sm:mb-3">
-              <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <div className={getSectionBadgeStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 bg-primary-50 px-3 py-1 sm:px-4 sm:py-1.5 text-primary-600 text-xs sm:text-sm font-medium mb-2 sm:mb-3")}>
+              <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", getIconSvgEffect(schoolIdentity.iconStyle))} />
               Sambutan Kepala Sekolah
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight">
@@ -288,8 +295,13 @@ export default function Home() {
                   { icon: Award, title: 'Prestasi', desc: `${statsData.prestasi} penghargaan berbagai tingkat.` },
                   { icon: Users, title: 'Alumni', desc: '10.000+ alumni di seluruh Indonesia.' },
                 ].map((item) => (
-                  <div key={item.title} className="bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-xl p-3 sm:p-4 border border-primary-100 hover:shadow-md transition-all group">
-                    <item.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-500 mb-1.5 sm:mb-2 group-hover:scale-110 transition-transform" />
+                  <div
+                    key={item.title}
+                    className={getCardStyle(schoolIdentity.cardStyle, "bg-gradient-to-br from-primary-50 to-primary-100/50 p-3 sm:p-4 border border-primary-100 hover:shadow-md transition-all group")}
+                  >
+                    <div className={getIconBadgeStyle(schoolIdentity.iconStyle, "w-8 h-8 rounded-lg bg-primary-100 text-primary-700 flex items-center justify-center mb-1.5 sm:mb-2 group-hover:scale-110 transition-transform")}>
+                      <item.icon className={cn("h-4 w-4 sm:h-5 sm:w-5 text-primary-600", getIconSvgEffect(schoolIdentity.iconStyle))} />
+                    </div>
                     <h4 className="font-bold text-gray-900 text-xs sm:text-sm">{item.title}</h4>
                     <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
                   </div>
@@ -305,8 +317,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-6 sm:mb-10">
             <div>
-              <div className="inline-flex items-center gap-2 bg-primary-50 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 text-primary-600 text-xs sm:text-sm font-medium mb-2 sm:mb-3">
-                <Newspaper className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <div className={getSectionBadgeStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 bg-primary-50 px-3 py-1 sm:px-4 sm:py-1.5 text-primary-600 text-xs sm:text-sm font-medium mb-2 sm:mb-3")}>
+                <Newspaper className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", getIconSvgEffect(schoolIdentity.iconStyle))} />
                 Berita Terbaru
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900">Berita & Kegiatan</h2>
@@ -335,8 +347,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-6 sm:mb-10">
             <div>
-              <div className="inline-flex items-center gap-2 bg-primary-50 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 text-primary-600 text-xs sm:text-sm font-medium mb-2 sm:mb-3">
-                <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <div className={getSectionBadgeStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 bg-primary-50 px-3 py-1 sm:px-4 sm:py-1.5 text-primary-600 text-xs sm:text-sm font-medium mb-2 sm:mb-3")}>
+                <Calendar className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", getIconSvgEffect(schoolIdentity.iconStyle))} />
                 Agenda Sekolah
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900">Agenda Mendatang</h2>
@@ -365,7 +377,7 @@ export default function Home() {
         <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-pink-50 via-white to-purple-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-6 sm:mb-10 animate-fadeInUp">
-              <div className="inline-flex items-center gap-2 bg-pink-50 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 text-pink-600 text-xs sm:text-sm font-medium mb-2 sm:mb-3 border border-pink-100">
+              <div className={getSectionBadgeStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 bg-pink-50 px-3 py-1 sm:px-4 sm:py-1.5 text-pink-600 text-xs sm:text-sm font-medium mb-2 sm:mb-3 border border-pink-100")}>
                 <span className="text-base">📸</span>
                 Temukan Kami di Instagram
               </div>
@@ -397,10 +409,16 @@ export default function Home() {
             Jadilah bagian dari keluarga besar {schoolIdentity.schoolName || 'sekolah kami'}. Hubungi kami untuk informasi pendaftaran.
           </p>
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-            <Link to="/kontak" className="inline-flex items-center gap-2 bg-white text-primary-700 px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl font-bold text-sm hover:bg-primary-50 transition-all shadow-xl">
+            <Link
+              to="/kontak"
+              className={getButtonStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 bg-white text-primary-700 px-6 py-3 sm:px-8 sm:py-3.5 font-bold text-sm hover:bg-primary-50 transition-all shadow-xl")}
+            >
               Hubungi Kami <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/galeri" className="inline-flex items-center gap-2 bg-white/10 text-white px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl font-bold text-sm hover:bg-white/20 transition-all border border-white/20">
+            <Link
+              to="/galeri"
+              className={getButtonStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 bg-white/10 text-white px-6 py-3 sm:px-8 sm:py-3.5 font-bold text-sm hover:bg-white/20 transition-all border border-white/20")}
+            >
               Lihat Galeri
             </Link>
           </div>

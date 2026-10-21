@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-icon-style="material" data-button-style="rounded" data-card-style="modern">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,6 +8,24 @@
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Portal Sekolah" />
     <meta name="theme-color" content="#22c55e" />
+
+    <!-- Theme initialization script (runs before paint) -->
+    <script>
+      (function() {
+        try {
+          var raw = localStorage.getItem('sekolah_settings_cache');
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            var id = parsed && parsed.schoolIdentity;
+            if (id) {
+              if (id.iconStyle) document.documentElement.setAttribute('data-icon-style', id.iconStyle);
+              if (id.buttonStyle) document.documentElement.setAttribute('data-button-style', id.buttonStyle);
+              if (id.cardStyle) document.documentElement.setAttribute('data-card-style', id.cardStyle);
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
 
     <!-- Open Graph -->
     <meta property="og:title" content="Portal Sekolah - Website Resmi" />

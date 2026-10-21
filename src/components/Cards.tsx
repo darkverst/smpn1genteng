@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, ArrowRight, User, BookOpen, Trophy, Palette, Dumbbell, Flag, Users, Play, Images } from 'lucide-react';
 import { NewsItem, AgendaItem, GalleryItem, GRADIENTS, CATEGORY_COLORS, getYoutubeThumbnail } from '../types';
+import { useApp } from '../context/AppContext';
+import { getCardStyle, getIconBadgeStyle } from '../utils/themeStyles';
 
 const categoryIcons: Record<string, React.ReactNode> = {
   Prestasi: <Trophy className="h-8 w-8" />,
@@ -27,6 +29,7 @@ function getDay(dateStr: string): string {
 
 // ============ NEWS CARD ============
 export function NewsCard({ item, index = 0 }: { item: NewsItem; index?: number }) {
+  const { schoolIdentity } = useApp();
   const gradient = GRADIENTS[index % GRADIENTS.length];
   const icon = categoryIcons[item.category] || <BookOpen className="h-8 w-8" />;
   const colorClass = CATEGORY_COLORS[item.category] || 'bg-gray-100 text-gray-800';
@@ -34,7 +37,7 @@ export function NewsCard({ item, index = 0 }: { item: NewsItem; index?: number }
   return (
     <Link
       to={`/berita/${item.id}`}
-      className="group bg-white rounded-2xl shadow-sm hover:shadow-xl active:scale-[0.98] transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col"
+      className={getCardStyle(schoolIdentity.cardStyle, "group bg-white active:scale-[0.98] transition-all duration-300 overflow-hidden flex flex-col")}
     >
       <div className="relative h-40 sm:h-48 overflow-hidden">
         {item.image ? (
@@ -79,12 +82,16 @@ export function NewsCard({ item, index = 0 }: { item: NewsItem; index?: number }
 
 // ============ AGENDA CARD ============
 export function AgendaCard({ item, onClick }: { item: AgendaItem; onClick?: () => void }) {
+  const { schoolIdentity } = useApp();
   const colorClass = CATEGORY_COLORS[item.type] || 'bg-gray-100 text-gray-700';
   const isClickable = typeof onClick === 'function';
-  const containerClass = `bg-white rounded-2xl shadow-sm hover:shadow-lg active:scale-[0.99] transition-all duration-300 border border-gray-100 overflow-hidden group ${isClickable ? 'w-full text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-300' : ''}`;
+  const containerClass = getCardStyle(
+    schoolIdentity.cardStyle,
+    `bg-white active:scale-[0.99] transition-all duration-300 overflow-hidden group ${isClickable ? 'w-full text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-300' : ''}`
+  );
   const content = (
     <div className="flex">
-      <div className="w-16 sm:w-20 bg-gradient-to-b from-primary-500 to-primary-600 flex flex-col items-center justify-center text-white shrink-0 py-3 sm:py-4">
+      <div className={getIconBadgeStyle(schoolIdentity.iconStyle, "w-16 sm:w-20 bg-gradient-to-b from-primary-500 to-primary-600 flex flex-col items-center justify-center text-white shrink-0 py-3 sm:py-4")}>
         <span className="text-xl sm:text-2xl font-extrabold leading-none">{getDay(item.date)}</span>
         <span className="text-[10px] sm:text-xs font-semibold mt-0.5 opacity-90">{getMonthShort(item.date)}</span>
       </div>

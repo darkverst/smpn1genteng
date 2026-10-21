@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle, MessageSquare } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getGoogleMapsDirectionsUrl, getGoogleMapsEmbedUrl } from '../types';
+import { getButtonStyle, getCardStyle, getIconBadgeStyle, getIconSvgEffect, getSectionBadgeStyle } from '../utils/themeStyles';
+import { cn } from '../utils/cn';
 
 export default function Kontak() {
   const { contactInfo, schoolIdentity } = useApp();
@@ -45,9 +47,9 @@ export default function Kontak() {
               { icon: Mail, title: 'Email', content: contactInfo.email, color: 'from-accent-400 to-accent-600' },
               { icon: Clock, title: 'Jam Operasional', content: contactInfo.hours, color: 'from-purple-400 to-purple-600' },
             ].map((item) => (
-              <div key={item.title} className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 text-center group">
-                <div className={`w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br ${item.color} rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-4 group-hover:scale-110 transition-transform shadow-md`}>
-                  <item.icon className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
+              <div key={item.title} className={getCardStyle(schoolIdentity.cardStyle, "bg-gray-50 p-4 sm:p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 text-center group")}>
+                <div className={getIconBadgeStyle(schoolIdentity.iconStyle, `w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br ${item.color} flex items-center justify-center mx-auto mb-2 sm:mb-4 group-hover:scale-110 transition-transform shadow-md`)}>
+                  <item.icon className={cn("h-5 w-5 sm:h-7 sm:w-7 text-white", getIconSvgEffect(schoolIdentity.iconStyle))} />
                 </div>
                 <h3 className="font-bold text-gray-900 text-xs sm:text-base mb-1 sm:mb-2">{item.title}</h3>
                 <p className="text-[11px] sm:text-sm text-gray-500 leading-relaxed break-words">{item.content}</p>
@@ -56,7 +58,7 @@ export default function Kontak() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
-            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl border border-gray-100">
+            <div className={getCardStyle(schoolIdentity.cardStyle, "bg-white p-5 sm:p-8 shadow-xl border border-gray-100")}>
               <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-1 sm:mb-2">Kirim Pesan</h2>
               <p className="text-gray-500 text-xs sm:text-sm mb-4 sm:mb-6">Isi formulir di bawah untuk mengirim pesan kepada kami.</p>
 
@@ -92,14 +94,14 @@ export default function Kontak() {
                     <textarea required rows={4} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-300 transition-all resize-none" placeholder="Tulis pesan Anda..." />
                   </div>
-                  <button type="submit" className="w-full bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white py-3 sm:py-3.5 rounded-xl font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2">
+                  <button type="submit" className={getButtonStyle(schoolIdentity.buttonStyle, "w-full bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white py-3 sm:py-3.5 font-semibold text-sm transition-all shadow-lg flex items-center justify-center gap-2")}>
                     <Send className="h-4 w-4" /> Kirim Pesan
                   </button>
                 </form>
               )}
             </div>
 
-            <div className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-gray-100 h-[300px] sm:h-[400px] lg:h-auto">
+            <div className={getCardStyle(schoolIdentity.cardStyle, "overflow-hidden shadow-xl border border-gray-100 h-[300px] sm:h-[400px] lg:h-auto")}>
               <div className="h-full flex flex-col">
                 <iframe
                   src={mapEmbedUrl}
@@ -113,7 +115,7 @@ export default function Kontak() {
                   href={mapDirectionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-4 py-3 bg-primary-500 text-white text-sm font-semibold hover:bg-primary-600 transition-colors"
+                  className={getButtonStyle(schoolIdentity.buttonStyle, "flex items-center justify-center gap-2 px-4 py-3 bg-primary-500 text-white text-sm font-semibold hover:bg-primary-600 transition-colors")}
                 >
                   <MapPin className="h-4 w-4" />
                   Buka di Google Maps
