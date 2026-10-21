@@ -47,9 +47,9 @@ export default function Kontak() {
               { icon: Mail, title: 'Email', content: contactInfo.email, color: 'from-accent-400 to-accent-600' },
               { icon: Clock, title: 'Jam Operasional', content: contactInfo.hours, color: 'from-purple-400 to-purple-600' },
             ].map((item) => (
-              <div key={item.title} className={getCardStyle(schoolIdentity.cardStyle, "bg-gray-50 p-4 sm:p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 text-center group")}>
-                <div className={getIconBadgeStyle(schoolIdentity.iconStyle, `w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br ${item.color} flex items-center justify-center mx-auto mb-2 sm:mb-4 group-hover:scale-110 transition-transform shadow-md`)}>
-                  <item.icon className={cn("h-5 w-5 sm:h-7 sm:w-7 text-white", getIconSvgEffect(schoolIdentity.iconStyle))} />
+              <div key={item.title} className={cn("bg-gray-50 p-4 sm:p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 text-center group ui-card", getCardStyle(schoolIdentity.cardStyle))}>
+                <div className={cn(`w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br ${item.color} flex items-center justify-center mx-auto mb-2 sm:mb-4 group-hover:scale-110 transition-transform shadow-md ui-icon-badge`, getIconBadgeStyle(schoolIdentity.iconStyle))}>
+                  <item.icon className={cn("h-5 w-5 sm:h-7 sm:w-7", getIconSvgEffect(schoolIdentity.iconStyle))} />
                 </div>
                 <h3 className="font-bold text-gray-900 text-xs sm:text-base mb-1 sm:mb-2">{item.title}</h3>
                 <p className="text-[11px] sm:text-sm text-gray-500 leading-relaxed break-words">{item.content}</p>

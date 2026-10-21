@@ -208,16 +208,19 @@ export default function Home() {
             ].map((stat, i) => (
               <div
                 key={stat.label}
-                className={getCardStyle(schoolIdentity.cardStyle, "bg-white p-4 sm:p-5 lg:p-6 transition-all duration-300 group animate-fadeInUp")}
+                className={cn(
+                  "bg-white p-4 sm:p-5 lg:p-6 transition-all duration-300 group animate-fadeInUp ui-card",
+                  getCardStyle(schoolIdentity.cardStyle)
+                )}
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <div
-                  className={getIconBadgeStyle(
-                    schoolIdentity.iconStyle,
-                    `w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${stat.color} flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform`
+                  className={cn(
+                    `w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${stat.color} flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform ui-icon-badge`,
+                    getIconBadgeStyle(schoolIdentity.iconStyle)
                   )}
                 >
-                  <stat.icon className={cn("h-5 w-5 sm:h-6 sm:w-6 text-white", getIconSvgEffect(schoolIdentity.iconStyle))} />
+                  <stat.icon className={cn("h-5 w-5 sm:h-6 sm:w-6", getIconSvgEffect(schoolIdentity.iconStyle))} />
                 </div>
                 <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900">{stat.value}</div>
                 <div className="text-xs sm:text-sm text-gray-500 mt-0.5">{stat.label}</div>
@@ -297,10 +300,16 @@ export default function Home() {
                 ].map((item) => (
                   <div
                     key={item.title}
-                    className={getCardStyle(schoolIdentity.cardStyle, "bg-gradient-to-br from-primary-50 to-primary-100/50 p-3 sm:p-4 border border-primary-100 hover:shadow-md transition-all group")}
+                    className={cn(
+                      "bg-gradient-to-br from-primary-50 to-primary-100/50 p-3 sm:p-4 border border-primary-100 hover:shadow-md transition-all group ui-card",
+                      getCardStyle(schoolIdentity.cardStyle)
+                    )}
                   >
-                    <div className={getIconBadgeStyle(schoolIdentity.iconStyle, "w-8 h-8 rounded-lg bg-primary-100 text-primary-700 flex items-center justify-center mb-1.5 sm:mb-2 group-hover:scale-110 transition-transform")}>
-                      <item.icon className={cn("h-4 w-4 sm:h-5 sm:w-5 text-primary-600", getIconSvgEffect(schoolIdentity.iconStyle))} />
+                    <div className={cn(
+                      "w-8 h-8 rounded-lg bg-primary-100 text-primary-700 flex items-center justify-center mb-1.5 sm:mb-2 group-hover:scale-110 transition-transform ui-icon-badge",
+                      getIconBadgeStyle(schoolIdentity.iconStyle)
+                    )}>
+                      <item.icon className={cn("h-4 w-4 sm:h-5 sm:w-5", getIconSvgEffect(schoolIdentity.iconStyle))} />
                     </div>
                     <h4 className="font-bold text-gray-900 text-xs sm:text-sm">{item.title}</h4>
                     <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>

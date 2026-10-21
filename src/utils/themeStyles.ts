@@ -83,7 +83,7 @@ export function getIconBadgeStyle(
       styleClass = 'rounded-2xl shadow-xl [box-shadow:0_8px_16px_-2px_rgba(0,0,0,0.25),inset_0_2px_4px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(0,0,0,0.25)] border-t border-white/60 transform rotate-1 hover:rotate-0 hover:scale-105 active:scale-95';
       break;
     case 'flat':
-      styleClass = 'rounded-xl shadow-none border-0';
+      styleClass = 'rounded-lg shadow-none border-0 [background-image:none!important] [box-shadow:none!important]';
       break;
     case 'outline':
       styleClass = 'rounded-xl !bg-transparent border-2 border-primary-500 !text-primary-600 shadow-none hover:bg-primary-50/50 [background-image:none!important]';
@@ -97,7 +97,7 @@ export function getIconBadgeStyle(
       break;
   }
 
-  return cn(baseClass, styleClass);
+  return cn('ui-icon-badge', baseClass, styleClass);
 }
 
 /**

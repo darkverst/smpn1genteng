@@ -285,6 +285,8 @@ body {
 }
 
 /* Dedicated Icon Badges */
+
+/* 1. 3D Clay & Glass Style */
 [data-icon-style="3d"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) {
   border-radius: 16px !important;
   box-shadow: 0 6px 14px -2px rgba(0, 0, 0, 0.22), inset 0 2px 3px rgba(255, 255, 255, 0.6), inset 0 -2px 3px rgba(0, 0, 0, 0.25) !important;
@@ -293,33 +295,65 @@ body {
 [data-icon-style="3d"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):hover {
   transform: perspective(300px) rotateX(0deg) scale(1.05);
 }
+[data-icon-style="3d"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="bg-gradient-"], [style*="linear-gradient"]) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
 
+/* 2. Google Material Design Style */
 [data-icon-style="material"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) {
   border-radius: 14px !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.16), 0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
 }
+[data-icon-style="material"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="bg-gradient-"], [style*="linear-gradient"]) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
 
+/* 3. Flat Design Style: Datar bersih, tanpa drop-shadow, tanpa gradien tebal, modern pastel tint */
 [data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) {
   border-radius: 10px !important;
   box-shadow: none !important;
   border: none !important;
+  background-image: none !important;
+  transform: none !important;
+}
+[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="bg-gradient-"], [style*="linear-gradient"]) {
+  background-image: none !important;
+  background-color: color-mix(in srgb, var(--tw-gradient-from, var(--school-primary, #16a34a)) 16%, white) !important;
+  color: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
+}
+[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="bg-gradient-"], [style*="linear-gradient"]) svg {
+  color: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
+  stroke: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
+  filter: none !important;
+}
+[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) svg {
+  filter: none !important;
 }
 
+/* 4. Modern Outline Style */
 [data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) {
   border-radius: 12px !important;
   background-image: none !important;
-  background-color: color-mix(in srgb, var(--school-primary) 8%, white) !important;
-  border: 2px solid var(--school-primary) !important;
+  background-color: color-mix(in srgb, var(--tw-gradient-from, var(--school-primary, #16a34a)) 8%, white) !important;
+  border: 2px solid var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
   box-shadow: none !important;
-  color: var(--school-primary) !important;
+  color: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
 }
 [data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) svg {
-  color: var(--school-primary) !important;
-  stroke: var(--school-primary) !important;
+  color: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
+  stroke: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
+  filter: none !important;
 }
 
+/* 5. Duotone Glow Style */
 [data-icon-style="duotone"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) {
   border-radius: 16px !important;
-  box-shadow: 0 0 16px 2px color-mix(in srgb, var(--school-primary) 40%, transparent) !important;
-  outline: 2px solid color-mix(in srgb, var(--school-accent) 60%, transparent) !important;
+  box-shadow: 0 0 16px 2px color-mix(in srgb, var(--tw-gradient-from, var(--school-primary, #16a34a)) 40%, transparent) !important;
+  outline: 2px solid color-mix(in srgb, var(--school-accent, #eab308) 60%, transparent) !important;
+}
+[data-icon-style="duotone"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="bg-gradient-"], [style*="linear-gradient"]) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }

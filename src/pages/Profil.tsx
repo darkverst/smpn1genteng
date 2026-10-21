@@ -43,9 +43,9 @@ export default function Profil() {
                 { icon: Award, value: statsData.prestasi || '0', label: 'Prestasi', color: 'from-accent-400 to-accent-600' },
                 { icon: Star, value: statsData.akreditasi || '-', label: 'Akreditasi', color: 'from-purple-400 to-purple-600' },
               ].map((stat) => (
-                <div key={stat.label} className={getCardStyle(schoolIdentity.cardStyle, "bg-gray-50 p-4 sm:p-5 text-center border border-gray-100")}>
-                  <div className={getIconBadgeStyle(schoolIdentity.iconStyle, `w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${stat.color} flex items-center justify-center mx-auto mb-2 sm:mb-3`)}>
-                    <stat.icon className={cn("h-5 w-5 sm:h-6 sm:w-6 text-white", getIconSvgEffect(schoolIdentity.iconStyle))} />
+                <div key={stat.label} className={cn("bg-gray-50 p-4 sm:p-5 text-center border border-gray-100 ui-card", getCardStyle(schoolIdentity.cardStyle))}>
+                  <div className={cn(`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${stat.color} flex items-center justify-center mx-auto mb-2 sm:mb-3 ui-icon-badge`, getIconBadgeStyle(schoolIdentity.iconStyle))}>
+                    <stat.icon className={cn("h-5 w-5 sm:h-6 sm:w-6", getIconSvgEffect(schoolIdentity.iconStyle))} />
                   </div>
                   <div className="text-xl sm:text-2xl font-extrabold text-gray-900">{stat.value}</div>
                   <div className="text-[11px] sm:text-xs text-gray-500 mt-0.5">{stat.label}</div>
@@ -172,9 +172,9 @@ export default function Profil() {
               { icon: Users, title: 'Kebersamaan', desc: 'Lingkungan inklusif dan saling menghargai.', color: 'from-primary-400 to-primary-600' },
               { icon: Compass, title: 'Inovasi', desc: 'Inovasi dalam metode pembelajaran.', color: 'from-green-400 to-green-600' },
             ].map((value) => (
-              <div key={value.title} className={getCardStyle(schoolIdentity.cardStyle, "bg-white p-4 sm:p-6 text-center border border-gray-100 hover:shadow-lg transition-all duration-300 group")}>
-                <div className={getIconBadgeStyle(schoolIdentity.iconStyle, `w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br ${value.color} flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform shadow-md`)}>
-                  <value.icon className={cn("h-5 w-5 sm:h-7 sm:w-7 text-white", getIconSvgEffect(schoolIdentity.iconStyle))} />
+              <div key={value.title} className={cn("bg-white p-4 sm:p-6 text-center border border-gray-100 hover:shadow-lg transition-all duration-300 group ui-card", getCardStyle(schoolIdentity.cardStyle))}>
+                <div className={cn(`w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br ${value.color} flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform shadow-md ui-icon-badge`, getIconBadgeStyle(schoolIdentity.iconStyle))}>
+                  <value.icon className={cn("h-5 w-5 sm:h-7 sm:w-7", getIconSvgEffect(schoolIdentity.iconStyle))} />
                 </div>
                 <h3 className="font-bold text-gray-900 text-xs sm:text-base mb-1 sm:mb-2">{value.title}</h3>
                 <p className="text-[11px] sm:text-sm text-gray-500 leading-relaxed">{value.desc}</p>
