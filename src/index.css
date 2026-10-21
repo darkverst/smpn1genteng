@@ -310,7 +310,7 @@ body {
   stroke: #ffffff !important;
 }
 
-/* 3. Flat Design Style: Datar bersih, tanpa drop-shadow, tanpa gradien tebal, modern pastel tint */
+/* 3. Flat Design Style: Datar bersih, tanpa drop-shadow, tanpa gradien tebal, warna solid kontras tinggi */
 [data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) {
   border-radius: 10px !important;
   box-shadow: none !important;
@@ -318,14 +318,36 @@ body {
   background-image: none !important;
   transform: none !important;
 }
-[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="bg-gradient-"], [style*="linear-gradient"]) {
+[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-primary-"], [class*="bg-primary-500"], [class*="bg-primary-600"], [style*="linear-gradient"]) {
+  background: var(--school-primary, #16a34a) !important;
+  background-color: var(--school-primary, #16a34a) !important;
   background-image: none !important;
-  background-color: color-mix(in srgb, var(--tw-gradient-from, var(--school-primary, #16a34a)) 16%, white) !important;
-  color: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
+  color: #ffffff !important;
 }
-[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="bg-gradient-"], [style*="linear-gradient"]) svg {
-  color: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
-  stroke: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
+[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-green-"], [class*="bg-green-500"], [class*="bg-green-600"]) {
+  background-color: #16a34a !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-accent-"], [class*="bg-amber-500"], [class*="bg-accent-"]) {
+  background-color: var(--school-accent, #d97706) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-purple-"], [class*="bg-purple-500"], [class*="bg-purple-600"]) {
+  background-color: #9333ea !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-blue-"], [class*="bg-blue-500"], [class*="bg-blue-600"]) {
+  background-color: #2563eb !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+[data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="bg-gradient-"], [style*="linear-gradient"], [class*="from-"], [class*="bg-primary-500"]) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  fill: none !important;
   filter: none !important;
 }
 [data-icon-style="flat"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) svg {
@@ -336,21 +358,61 @@ body {
 [data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) {
   border-radius: 12px !important;
   background-image: none !important;
-  background-color: color-mix(in srgb, var(--tw-gradient-from, var(--school-primary, #16a34a)) 8%, white) !important;
-  border: 2px solid var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
+  background-color: transparent !important;
+  border-width: 2px !important;
+  border-style: solid !important;
   box-shadow: none !important;
-  color: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
 }
-[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) svg {
-  color: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
-  stroke: var(--tw-gradient-from, var(--school-primary, #16a34a)) !important;
+[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-primary-"], [class*="bg-primary-500"], [class*="bg-primary-600"], [style*="linear-gradient"]) {
+  border-color: var(--school-primary, #16a34a) !important;
+  color: var(--school-primary, #16a34a) !important;
+}
+[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-primary-"], [class*="bg-primary-500"], [class*="bg-primary-600"], [style*="linear-gradient"]) svg {
+  color: var(--school-primary, #16a34a) !important;
+  stroke: var(--school-primary, #16a34a) !important;
+  filter: none !important;
+}
+[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-green-"], [class*="bg-green-500"], [class*="bg-green-600"]) {
+  border-color: #16a34a !important;
+  color: #16a34a !important;
+}
+[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-green-"], [class*="bg-green-500"], [class*="bg-green-600"]) svg {
+  color: #16a34a !important;
+  stroke: #16a34a !important;
+  filter: none !important;
+}
+[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-accent-"], [class*="bg-amber-500"], [class*="bg-accent-"]) {
+  border-color: var(--school-accent, #d97706) !important;
+  color: var(--school-accent, #d97706) !important;
+}
+[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-accent-"], [class*="bg-amber-500"], [class*="bg-accent-"]) svg {
+  color: var(--school-accent, #d97706) !important;
+  stroke: var(--school-accent, #d97706) !important;
+  filter: none !important;
+}
+[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-purple-"], [class*="bg-purple-500"], [class*="bg-purple-600"]) {
+  border-color: #9333ea !important;
+  color: #9333ea !important;
+}
+[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-purple-"], [class*="bg-purple-500"], [class*="bg-purple-600"]) svg {
+  color: #9333ea !important;
+  stroke: #9333ea !important;
+  filter: none !important;
+}
+[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-blue-"], [class*="bg-blue-500"], [class*="bg-blue-600"]) {
+  border-color: #2563eb !important;
+  color: #2563eb !important;
+}
+[data-icon-style="outline"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="from-blue-"], [class*="bg-blue-500"], [class*="bg-blue-600"]) svg {
+  color: #2563eb !important;
+  stroke: #2563eb !important;
   filter: none !important;
 }
 
 /* 5. Duotone Glow Style */
 [data-icon-style="duotone"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]) {
   border-radius: 16px !important;
-  box-shadow: 0 0 16px 2px color-mix(in srgb, var(--tw-gradient-from, var(--school-primary, #16a34a)) 40%, transparent) !important;
+  box-shadow: 0 0 16px 2px color-mix(in srgb, var(--school-primary, #16a34a) 40%, transparent) !important;
   outline: 2px solid color-mix(in srgb, var(--school-accent, #eab308) 60%, transparent) !important;
 }
 [data-icon-style="duotone"] :is(.site-public-layout, .site-admin-layout, .site-login-layout, .site-theme-preview) :is(.ui-icon-badge, [data-icon-badge]):is([class*="bg-gradient-"], [style*="linear-gradient"]) svg {

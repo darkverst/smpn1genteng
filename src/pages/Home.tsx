@@ -220,7 +220,7 @@ export default function Home() {
                     getIconBadgeStyle(schoolIdentity.iconStyle)
                   )}
                 >
-                  <stat.icon className={cn("h-5 w-5 sm:h-6 sm:w-6", getIconSvgEffect(schoolIdentity.iconStyle))} />
+                  <stat.icon className={cn("h-5 w-5 sm:h-6 sm:w-6 text-white", getIconSvgEffect(schoolIdentity.iconStyle))} />
                 </div>
                 <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900">{stat.value}</div>
                 <div className="text-xs sm:text-sm text-gray-500 mt-0.5">{stat.label}</div>

@@ -45,7 +45,7 @@ export default function Profil() {
               ].map((stat) => (
                 <div key={stat.label} className={cn("bg-gray-50 p-4 sm:p-5 text-center border border-gray-100 ui-card", getCardStyle(schoolIdentity.cardStyle))}>
                   <div className={cn(`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${stat.color} flex items-center justify-center mx-auto mb-2 sm:mb-3 ui-icon-badge`, getIconBadgeStyle(schoolIdentity.iconStyle))}>
-                    <stat.icon className={cn("h-5 w-5 sm:h-6 sm:w-6", getIconSvgEffect(schoolIdentity.iconStyle))} />
+                    <stat.icon className={cn("h-5 w-5 sm:h-6 sm:w-6 text-white", getIconSvgEffect(schoolIdentity.iconStyle))} />
                   </div>
                   <div className="text-xl sm:text-2xl font-extrabold text-gray-900">{stat.value}</div>
                   <div className="text-[11px] sm:text-xs text-gray-500 mt-0.5">{stat.label}</div>
@@ -174,7 +174,7 @@ export default function Profil() {
             ].map((value) => (
               <div key={value.title} className={cn("bg-white p-4 sm:p-6 text-center border border-gray-100 hover:shadow-lg transition-all duration-300 group ui-card", getCardStyle(schoolIdentity.cardStyle))}>
                 <div className={cn(`w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br ${value.color} flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform shadow-md ui-icon-badge`, getIconBadgeStyle(schoolIdentity.iconStyle))}>
-                  <value.icon className={cn("h-5 w-5 sm:h-7 sm:w-7", getIconSvgEffect(schoolIdentity.iconStyle))} />
+                  <value.icon className={cn("h-5 w-5 sm:h-7 sm:w-7 text-white", getIconSvgEffect(schoolIdentity.iconStyle))} />
                 </div>
                 <h3 className="font-bold text-gray-900 text-xs sm:text-base mb-1 sm:mb-2">{value.title}</h3>
                 <p className="text-[11px] sm:text-sm text-gray-500 leading-relaxed">{value.desc}</p>
