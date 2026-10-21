@@ -14,6 +14,7 @@ import {
   saveAdminSession,
   verifyPassword,
 } from '../utils/security';
+import { setItemWithQuotaGuard } from '../utils/storageQuota';
 import {
   createTailwindThemeScale,
   buildLegacySettingsFromSchoolIdentity,
@@ -189,7 +190,8 @@ function safeWriteCache(key: string, value: unknown) {
     const currentRaw = localStorage.getItem(SETTINGS_STORAGE_CACHE_KEY);
     const current = currentRaw ? JSON.parse(currentRaw) : {};
     current[key] = value;
-    localStorage.setItem(SETTINGS_STORAGE_CACHE_KEY, JSON.stringify(current));
+    const serialized = JSON.stringify(current);
+    setItemWithQuotaGuard(SETTINGS_STORAGE_CACHE_KEY, serialized);
   } catch {
     // Ignore quota errors
   }
@@ -197,7 +199,8 @@ function safeWriteCache(key: string, value: unknown) {
 
 function safeCacheAllSettings(settings: Record<string, unknown>) {
   try {
-    localStorage.setItem(SETTINGS_STORAGE_CACHE_KEY, JSON.stringify(settings));
+    const serialized = JSON.stringify(settings);
+    setItemWithQuotaGuard(SETTINGS_STORAGE_CACHE_KEY, serialized);
   } catch {
     // Ignore quota errors
   }

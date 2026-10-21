@@ -1,6 +1,11 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
-import * as XLSX from 'xlsx';
+import {
+  downloadGuruTemplate as downloadGuruTemplateHelper,
+  exportGuruToExcel,
+  parseGuruExcel,
+} from '../utils/excelHelper';
+import { getLocalStorageUsage } from '../utils/storageQuota';
 import {
   LayoutDashboard, Newspaper, Calendar, Camera, LogOut, Plus, Edit, Trash2, X, Save, Eye, TrendingUp,
   GraduationCap, ImagePlus, Phone, Sliders, FileText, Youtube, MapPin, Mail, Clock, Globe, ArrowUp, ArrowDown,
@@ -915,165 +920,64 @@ export default function Dashboard() {
     }
   };
 
-  const downloadGuruTemplate = () => {
-    const wb = XLSX.utils.book_new();
-    const templateRows = [
-      {
-        'Nama Lengkap': 'Ahmad Faiq Fazaudin, S.Pd',
-        'Jabatan': 'Kepala Madrasah',
-        'Jenis Kelamin': 'L',
-        'Guru Mapel': 'Al-Qur\'an Hadits',
-        'Pendidikan': 'S1 Pendidikan Agama Islam',
-        'No. Telepon': '0812-3456-7890',
-        'Facebook': 'https://facebook.com/username',
-        'Instagram': 'https://instagram.com/username',
-        'YouTube': 'https://youtube.com/@madrasah',
-        'WhatsApp': '081234567890',
-      },
-      {
-        'Nama Lengkap': 'Siti Nurhaliza, M.Pd',
-        'Jabatan': 'Guru Mapel',
-        'Jenis Kelamin': 'P',
-        'Guru Mapel': 'Matematika',
-        'Pendidikan': 'S2 Pendidikan Matematika',
-        'No. Telepon': '0852-3092-6049',
-        'Facebook': '',
-        'Instagram': 'https://instagram.com/sitinurhaliza',
-        'YouTube': '',
-        'WhatsApp': '085230926049',
-      },
-      {
-        'Nama Lengkap': 'Budi Santoso, S.Kom',
-        'Jabatan': 'Staf IT & TU',
-        'Jenis Kelamin': 'L',
-        'Guru Mapel': 'Informatika',
-        'Pendidikan': 'S1 Teknik Informatika',
-        'No. Telepon': '0878-1234-5678',
-        'Facebook': '',
-        'Instagram': '',
-        'YouTube': '',
-        'WhatsApp': '087812345678',
-      },
-    ];
-
-    const ws = XLSX.utils.json_to_sheet(templateRows);
-    ws['!cols'] = [
-      { wch: 32 }, // Nama Lengkap
-      { wch: 22 }, // Jabatan
-      { wch: 15 }, // Jenis Kelamin
-      { wch: 24 }, // Guru Mapel
-      { wch: 28 }, // Pendidikan
-      { wch: 18 }, // No. Telepon
-      { wch: 30 }, // Facebook
-      { wch: 30 }, // Instagram
-      { wch: 30 }, // YouTube
-      { wch: 18 }, // WhatsApp
-    ];
-    XLSX.utils.book_append_sheet(wb, ws, 'Template Data Guru');
-
-    // Sheet 2: Petunjuk Pengisian
-    const petunjukRows = [
-      { 'Nama Kolom': 'Nama Lengkap', 'Wajib': 'Ya', 'Keterangan': 'Nama lengkap guru beserta gelar (wajib diisi)' },
-      { 'Nama Kolom': 'Jabatan', 'Wajib': 'Opsional', 'Keterangan': 'Contoh: Kepala Madrasah, Waka Kurikulum, Guru Mapel, Staf TU' },
-      { 'Nama Kolom': 'Jenis Kelamin', 'Wajib': 'Opsional', 'Keterangan': 'Isi L untuk Laki-Laki atau P untuk Perempuan' },
-      { 'Nama Kolom': 'Guru Mapel', 'Wajib': 'Opsional', 'Keterangan': 'Mata pelajaran yang diampu' },
-      { 'Nama Kolom': 'Pendidikan', 'Wajib': 'Opsional', 'Keterangan': 'Pendidikan terakhir (contoh: S1 PAI, S2 Manajemen)' },
-      { 'Nama Kolom': 'No. Telepon', 'Wajib': 'Opsional', 'Keterangan': 'Nomor HP atau telepon' },
-      { 'Nama Kolom': 'Facebook', 'Wajib': 'Opsional', 'Keterangan': 'Link akun Facebook (opsional)' },
-      { 'Nama Kolom': 'Instagram', 'Wajib': 'Opsional', 'Keterangan': 'Link akun atau username Instagram (opsional)' },
-      { 'Nama Kolom': 'YouTube', 'Wajib': 'Opsional', 'Keterangan': 'Link channel YouTube (opsional)' },
-      { 'Nama Kolom': 'WhatsApp', 'Wajib': 'Opsional', 'Keterangan': 'Nomor WhatsApp aktif' },
-    ];
-    const wsPetunjuk = XLSX.utils.json_to_sheet(petunjukRows);
-    wsPetunjuk['!cols'] = [{ wch: 18 }, { wch: 12 }, { wch: 55 }];
-    XLSX.utils.book_append_sheet(wb, wsPetunjuk, 'Petunjuk Pengisian');
-
-    XLSX.writeFile(wb, 'template-data-guru.xlsx');
-    addToast({
-      type: 'success',
-      title: 'Template Berhasil Diunduh',
-      message: 'File template-data-guru.xlsx siap diisi. Silakan gunakan tombol Import Excel untuk menambahkan data massal.',
-    });
-  };
-
-  const exportGuru = () => {
-    const wb = XLSX.utils.book_new();
-    const rows = teachers.map(t => ({
-      'Nama Lengkap': t.name,
-      'Jabatan': t.position,
-      'Jenis Kelamin': t.gender === 'L' ? 'Laki-Laki' : 'Perempuan',
-      'Guru Mapel': t.subject,
-      'Pendidikan': t.education,
-      'No. Telepon': t.phone,
-      'Facebook': t.socialMedia?.facebook || '',
-      'Instagram': t.socialMedia?.instagram || '',
-      'YouTube': t.socialMedia?.youtube || '',
-      'WhatsApp': t.socialMedia?.whatsapp || '',
-    }));
-    const ws = XLSX.utils.json_to_sheet(rows);
-    ws['!cols'] = [
-      { wch: 35 }, { wch: 18 }, { wch: 14 }, { wch: 22 },
-      { wch: 28 }, { wch: 18 }, { wch: 30 }, { wch: 30 },
-      { wch: 30 }, { wch: 18 }
-    ];
-    XLSX.utils.book_append_sheet(wb, ws, 'Data Guru');
-    XLSX.writeFile(wb, `data-guru-${new Date().toISOString().slice(0, 10)}.xlsx`);
-  };
-
-  const importGuru = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const data = new Uint8Array(ev.target?.result as ArrayBuffer);
-        const wb = XLSX.read(data, { type: 'array' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const rows: any[] = XLSX.utils.sheet_to_json(ws);
-        if (!rows.length) throw new Error('File Excel kosong atau tidak memiliki baris data.');
-        let importedCount = 0;
-        rows.forEach(r => {
-          const name = (r['Nama Lengkap'] || r['Nama'] || r['name'] || '').toString().trim();
-          if (!name) return;
-          const genderRaw = (r['Jenis Kelamin'] || r['gender'] || '').toString().trim().toUpperCase();
-          addTeacher({
-            name,
-            position: (r['Jabatan'] || r['position'] || '').toString().trim(),
-            subject: (r['Guru Mapel'] || r['Mata Pelajaran'] || r['Mapel'] || r['subject'] || '').toString().trim(),
-            education: (r['Pendidikan'] || r['Pendidikan Terakhir'] || r['education'] || '').toString().trim(),
-            phone: (r['No. Telepon'] || r['No Telp'] || r['Telepon'] || r['phone'] || '').toString().trim(),
-            gender: genderRaw.startsWith('P') ? 'P' as const : 'L' as const,
-            photo: '',
-            socialMedia: {
-              facebook: (r['Facebook'] || r['socialMedia?.facebook'] || '').toString().trim() || undefined,
-              instagram: (r['Instagram'] || r['socialMedia?.instagram'] || '').toString().trim() || undefined,
-              youtube: (r['YouTube'] || r['socialMedia?.youtube'] || '').toString().trim() || undefined,
-              whatsapp: (r['WhatsApp'] || r['socialMedia?.whatsapp'] || '').toString().trim() || undefined,
-            },
-          });
-          importedCount++;
+  const downloadGuruTemplate = async () => {
+    await downloadGuruTemplateHelper(
+      (msg) => {
+        addToast({
+          type: 'success',
+          title: 'Template Berhasil Diunduh',
+          message: msg,
         });
-
-        if (importedCount === 0) {
-          throw new Error('Tidak ditemukan baris data guru yang valid dalam file Excel.');
-        }
-
-        setGuruSaved(true);
-        notifySaved('Import Guru Berhasil!', `${importedCount} data guru berhasil diimpor dan disimpan ke database.`);
-        setTimeout(() => setGuruSaved(false), 2000);
-      } catch (err: any) {
-        const errorMsg = err?.message || 'Format file Excel tidak valid.';
-        setGuruError(errorMsg);
+      },
+      (err) => {
         addToast({
           type: 'error',
-          title: 'Import Guru Gagal',
-          message: errorMsg,
+          title: 'Gagal Mengunduh Template',
+          message: err.message,
         });
-        setTimeout(() => setGuruError(''), 4000);
       }
-    };
-    reader.readAsArrayBuffer(file);
-    e.target.value = '';
+    );
+  };
+
+  const exportGuru = async () => {
+    try {
+      await exportGuruToExcel(teachers);
+      addToast({
+        type: 'success',
+        title: 'Ekspor Berhasil',
+        message: 'Data guru berhasil diekspor ke file Excel.',
+      });
+    } catch (err: any) {
+      addToast({
+        type: 'error',
+        title: 'Gagal Ekspor Guru',
+        message: err?.message || 'Gagal mengekspor file Excel',
+      });
+    }
+  };
+
+  const importGuru = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const parsedTeachers = await parseGuruExcel(file);
+      parsedTeachers.forEach((t) => addTeacher(t));
+      setGuruSaved(true);
+      notifySaved('Import Guru Berhasil!', `${parsedTeachers.length} data guru berhasil diimpor dan disimpan ke database.`);
+      setTimeout(() => setGuruSaved(false), 2000);
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Format file Excel tidak valid.';
+      setGuruError(errorMsg);
+      addToast({
+        type: 'error',
+        title: 'Import Guru Gagal',
+        message: errorMsg,
+      });
+      setTimeout(() => setGuruError(''), 4000);
+    } finally {
+      e.target.value = '';
+    }
   };
 
   // Instagram handlers
@@ -5442,6 +5346,7 @@ function DatabaseSettingsTab() {
   const [isSyncingInitialSetup, setIsSyncingInitialSetup] = useState(false);
   const [isSeedingInitialDemo, setIsSeedingInitialDemo] = useState(false);
   const [isExportingBackup, setIsExportingBackup] = useState(false);
+  const [localQuota, setLocalQuota] = useState(() => getLocalStorageUsage());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refreshSettingsSnapshot = useCallback(async () => {
@@ -5459,6 +5364,7 @@ function DatabaseSettingsTab() {
 
   const refreshDatabaseStats = useCallback(async () => {
     setIsLoadingDatabaseStats(true);
+    setLocalQuota(getLocalStorageUsage());
     const stats = await getDatabaseStorageStats();
     if (!stats) {
       setDatabaseStatsError('Statistik database belum tersedia. Pastikan tabel settings di Supabase telah aktif.');
@@ -6080,6 +5986,47 @@ function DatabaseSettingsTab() {
           <div className="flex items-center justify-between mt-1.5 text-[10px] text-gray-400">
             <span>Total Digunakan: {databaseStats?.databaseSize || formatSize(storageData.totalSize)}</span>
             <span>Alokasi Supabase Free Tier: 1.0 GB Storage & 500 MB DB</span>
+          </div>
+        </div>
+
+        {/* LocalStorage Offline Cache Guard */}
+        <div className="bg-slate-50/80 rounded-xl p-3 sm:p-4 border border-slate-200 mb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs sm:text-sm font-bold text-gray-800">
+                Penyimpanan Cache Offline Browser (LocalStorage Guard)
+              </span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                localQuota.status === 'safe'
+                  ? 'bg-green-100 text-green-700'
+                  : localQuota.status === 'warning'
+                  ? 'bg-amber-100 text-amber-700'
+                  : 'bg-red-100 text-red-700 animate-pulse'
+              }`}>
+                {localQuota.status === 'safe' ? '✓ Aman' : localQuota.status === 'warning' ? '⚠ Peringatan' : '⛔ Kritis'}
+              </span>
+            </div>
+            <span className="text-xs font-semibold text-gray-600">
+              {localQuota.usedFormatted} / {localQuota.totalFormatted} ({localQuota.percentUsed}% terpakai)
+            </span>
+          </div>
+
+          <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                localQuota.status === 'safe'
+                  ? 'bg-emerald-500'
+                  : localQuota.status === 'warning'
+                  ? 'bg-amber-500'
+                  : 'bg-red-500'
+              }`}
+              style={{ width: `${Math.min(100, localQuota.percentUsed)}%` }}
+            />
+          </div>
+
+          <div className="flex items-center justify-between mt-1.5 text-[10px] text-gray-500">
+            <span>Sisa Kuota Browser: {localQuota.remainingFormatted} ({localQuota.itemCount} entri kunci tersimpan)</span>
+            <span>Kapasitas browser aman untuk loading instan 0ms</span>
           </div>
         </div>
 

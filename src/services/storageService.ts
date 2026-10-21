@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { compressImage } from '../utils/imageCompress';
+import { getLocalStorageUsage } from '../utils/storageQuota';
 
 export const BUCKET_NAME = 'school-media';
 
@@ -80,11 +81,17 @@ export async function uploadImageWithDetails(
     ? Math.round(((originalSize - compressedSize) / originalSize) * 100)
     : 0;
 
-  // 2. Jika Supabase belum dikonfigurasi, gunakan fallback base64
+  // 2. Jika Supabase belum dikonfigurasi, gunakan fallback base64 dengan proteksi kuota
   if (!isSupabaseConfigured || !supabase) {
+    const quota = getLocalStorageUsage();
+    const quotaWarning =
+      quota.status !== 'safe'
+        ? ` (Penyimpanan browser terpakai ${quota.percentUsed}%, sisa ${quota.remainingFormatted})`
+        : '';
+
     onProgress?.({
       stage: 'done',
-      message: 'Supabase belum terhubung, gambar disimpan dalam format lokal.',
+      message: `Supabase belum terhubung, gambar disimpan dalam format lokal${quotaWarning}.`,
       percent: 100,
     });
     return {
@@ -94,7 +101,10 @@ export async function uploadImageWithDetails(
       compressedSize,
       savedPercent,
       format: ext,
-      error: 'Supabase Storage belum dikonfigurasi.',
+      error:
+        quota.status === 'danger'
+          ? `Peringatan: Kapasitas penyimpanan lokal browser hampir penuh (${quota.percentUsed}%). Disarankan menyambungkan Supabase Storage.`
+          : 'Supabase Storage belum dikonfigurasi.',
     };
   }
 
