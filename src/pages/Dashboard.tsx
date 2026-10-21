@@ -42,7 +42,7 @@ import {
 } from '../services/settingsRepository';
 
 type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'branding' | 'theme' | 'downloads' | 'seo' | 'instagram' | 'sponsors' | 'guru' | 'eskul' | 'security' | 'database';
-type TabGroupId = 'ringkasan' | 'tampilan' | 'konten' | 'identitas' | 'promosi' | 'sistem';
+type TabGroupId = 'ringkasan' | 'konten' | 'identitas' | 'promosi' | 'sistem';
 
 const emptyEskul: Omit<ExtracurricularItem, 'id'> = {
   name: '',
@@ -138,7 +138,6 @@ export default function Dashboard() {
   const [isMobileAdminMenuOpen, setIsMobileAdminMenuOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<TabGroupId, boolean>>({
     ringkasan: false,
-    tampilan: false,
     konten: false,
     identitas: false,
     promosi: false,
@@ -1201,7 +1200,6 @@ export default function Dashboard() {
 
   const tabs = [
     { id: 'overview' as Tab, label: 'Overview', icon: LayoutDashboard },
-    { id: 'theme' as Tab, label: 'Tema & Tampilan', icon: Palette },
     { id: 'branding' as Tab, label: 'Identitas Sekolah', icon: GraduationCap },
     { id: 'news' as Tab, label: 'Berita', icon: Newspaper },
     { id: 'agenda' as Tab, label: 'Agenda', icon: Calendar },
@@ -1215,6 +1213,7 @@ export default function Dashboard() {
     { id: 'sponsors' as Tab, label: 'Sponsor/Mitra', icon: Link2 },
     { id: 'guru' as Tab, label: 'Data Guru', icon: Users },
     { id: 'eskul' as Tab, label: 'Ekstrakurikuler', icon: Trophy },
+    { id: 'theme' as Tab, label: 'Tema & Tampilan', icon: Palette },
     { id: 'security' as Tab, label: 'Keamanan', icon: Shield },
     { id: 'contact' as Tab, label: 'Tombol SMPB', icon: Phone },
     { id: 'database' as Tab, label: 'Database', icon: Database },
@@ -1226,12 +1225,6 @@ export default function Dashboard() {
       label: 'Ringkasan',
       description: 'Overview dashboard',
       tabs: tabs.filter((tab) => ['overview'].includes(tab.id)),
-    },
-    {
-      id: 'tampilan',
-      label: 'Desain & Tema',
-      description: 'Warna website & navigasi mobile',
-      tabs: tabs.filter((tab) => ['theme'].includes(tab.id)),
     },
     {
       id: 'konten',
@@ -1254,8 +1247,8 @@ export default function Dashboard() {
     {
       id: 'sistem',
       label: 'Sistem',
-      description: 'Keamanan dan database',
-      tabs: tabs.filter((tab) => ['security', 'database'].includes(tab.id)),
+      description: 'Tema tampilan, keamanan, dan database',
+      tabs: tabs.filter((tab) => ['theme', 'security', 'database'].includes(tab.id)),
     },
   ];
 
@@ -2426,10 +2419,10 @@ export default function Dashboard() {
                       <span>Preset tema: <strong className="text-gray-800">{activeThemePreset?.label || 'Custom'}</strong></span>
                       <button
                         type="button"
-                        onClick={() => { setActiveTabGroup('tampilan'); setActiveTab('theme'); }}
+                        onClick={() => { setActiveTabGroup('sistem'); setActiveTab('theme'); }}
                         className="text-primary-600 hover:text-primary-700 font-semibold hover:underline"
                       >
-                        Ubah di Tema →
+                        Ubah di Tema (Sistem) →
                       </button>
                     </div>
                   </div>
@@ -2596,12 +2589,12 @@ export default function Dashboard() {
                       </div>
                       <div>
                         <h4 className="text-sm font-bold text-gray-900">Kelola Tema & Tampilan Website</h4>
-                        <p className="text-xs text-gray-600 mt-0.5">Pengaturan warna tema global website dan model navigasi bawah sekarang dikelola di menu khusus <strong>Tema & Tampilan</strong>.</p>
+                        <p className="text-xs text-gray-600 mt-0.5">Pengaturan warna tema global website dan model navigasi bawah sekarang dikelola di menu <strong>Tema & Tampilan</strong> pada kelompok <strong>Sistem</strong>.</p>
                       </div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => { setActiveTabGroup('tampilan'); setActiveTab('theme'); }}
+                      onClick={() => { setActiveTabGroup('sistem'); setActiveTab('theme'); }}
                       className="inline-flex items-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 px-4 py-2.5 text-xs font-bold text-white transition-all shadow-sm shrink-0 active:scale-95 cursor-pointer"
                     >
                       <Palette className="h-4 w-4" /> Buka Menu Tema & Tampilan
