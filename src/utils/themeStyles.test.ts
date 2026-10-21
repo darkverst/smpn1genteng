@@ -11,7 +11,7 @@ describe('themeStyles utility', () => {
   it('menghasilkan kelas tombol yang sesuai dengan ButtonStyle', () => {
     expect(getButtonStyle('pill')).toContain('rounded-full');
     expect(getButtonStyle('flat')).toContain('shadow-none');
-    expect(getButtonStyle('3d')).toContain('border-b-4');
+    expect(getButtonStyle('3d')).toContain('shadow-[0_4px_0_0');
     expect(getButtonStyle('glass')).toContain('backdrop-blur-md');
     expect(getButtonStyle('glow')).toContain('shadow-[');
     expect(getButtonStyle('rounded')).toContain('rounded-xl');

@@ -19,7 +19,7 @@ export function getButtonStyle(
       styleClass = 'rounded-md shadow-none border-0 active:scale-[0.98]';
       break;
     case '3d':
-      styleClass = 'rounded-xl border-b-4 border-black/30 shadow-md active:border-b-0 active:translate-y-1 active:shadow-none hover:brightness-105';
+      styleClass = 'rounded-xl shadow-[0_4px_0_0_rgba(0,0,0,0.28)] active:translate-y-1 active:shadow-[0_1px_0_0_rgba(0,0,0,0.28)] hover:brightness-105';
       break;
     case 'glass':
       styleClass = 'rounded-xl backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/40 shadow-lg';

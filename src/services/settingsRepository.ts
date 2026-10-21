@@ -148,10 +148,39 @@ async function fetchSettingsRows(keys: string[]): Promise<{
   };
 }
 
+const LOCAL_STORAGE_SETTINGS_KEY = 'ma_settings_cache_v1';
+
+function readLocalStorageSettings(): Record<string, unknown> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_SETTINGS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeLocalStorageSetting(key: string, value: unknown) {
+  if (typeof window === 'undefined') return;
+  try {
+    const current = readLocalStorageSettings();
+    current[key] = value;
+    localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(current));
+  } catch {
+    // Ignore quota errors
+  }
+}
+
 export async function loadSettings(keys: string[]): Promise<Record<string, unknown>> {
   if (!isDbConfigured) {
-    console.error('[DB] Database belum dikonfigurasi. Data tidak dapat dimuat dari database.');
-    return {};
+    const localData = readLocalStorageSettings();
+    const result: Record<string, unknown> = {};
+    for (const key of keys) {
+      if (localData[key] !== undefined) {
+        result[key] = localData[key];
+      }
+    }
+    return result;
   }
 
   const cached = getCachedSettings(keys);
@@ -174,8 +203,15 @@ export async function ensureDefaultSettings(defaultSettings: Record<string, unkn
   if (keys.length === 0) return {};
 
   if (!isDbConfigured) {
-    console.error('[DB] Database belum dikonfigurasi. Menggunakan default lokal untuk settings.');
-    return { ...defaultSettings };
+    const localData = readLocalStorageSettings();
+    const merged: Record<string, unknown> = { ...defaultSettings };
+    for (const key of keys) {
+      if (localData[key] !== undefined) {
+        merged[key] = localData[key];
+      }
+    }
+    cacheSettings(merged);
+    return merged;
   }
 
   // 1. Handle via Supabase
@@ -239,8 +275,9 @@ export async function ensureDefaultSettings(defaultSettings: Record<string, unkn
 
 export async function saveSetting(key: string, value: unknown): Promise<boolean> {
   if (!isDbConfigured) {
-    console.error(`[DB] Database belum dikonfigurasi. Setting "${key}" tidak tersimpan.`);
-    return false;
+    writeLocalStorageSetting(key, value);
+    cacheSettings({ [key]: value });
+    return true;
   }
 
   // 1. Supabase

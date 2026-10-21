@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, ArrowRight, User, BookOpen, Trophy, Palette, Dumbbell, Flag, Users, Play, Images } from 'lucide-react';
 import { NewsItem, AgendaItem, GalleryItem, GRADIENTS, CATEGORY_COLORS, getYoutubeThumbnail } from '../types';
 import { useApp } from '../context/AppContext';
-import { getCardStyle, getIconBadgeStyle } from '../utils/themeStyles';
+import { getButtonStyle, getCardStyle, getIconBadgeStyle } from '../utils/themeStyles';
 
 const categoryIcons: Record<string, React.ReactNode> = {
   Prestasi: <Trophy className="h-8 w-8" />,
@@ -71,9 +71,12 @@ export function NewsCard({ item, index = 0 }: { item: NewsItem; index?: number }
           {item.title}
         </h3>
         <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 flex-1">{item.excerpt}</p>
-        <div className="mt-3 flex items-center text-primary-500 text-xs sm:text-sm font-semibold group-hover:text-primary-700 transition-colors">
-          Baca Selengkapnya
-          <ArrowRight className="h-3.5 w-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+        <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+          <span className={getButtonStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-primary-600 group-hover:bg-primary-700 transition-colors shadow-xs")}>
+            Baca Selengkapnya
+            <ArrowRight className="h-3.5 w-3.5 ml-0.5 group-hover:translate-x-1 transition-transform" />
+          </span>
+          <span className="text-[11px] text-gray-400 font-medium">{formatDate(item.date)}</span>
         </div>
       </div>
     </Link>
@@ -126,9 +129,11 @@ export function AgendaCard({ item, onClick }: { item: AgendaItem; onClick?: () =
           )}
         </div>
         {isClickable && (
-          <p className="mt-3 text-[11px] sm:text-xs font-semibold text-primary-500">
-            Klik untuk melihat detail agenda
-          </p>
+          <div className="mt-3">
+            <span className={getButtonStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-1 text-[11px] font-bold text-primary-700 bg-primary-50 px-2.5 py-1")}>
+              Detail Agenda →
+            </span>
+          </div>
         )}
       </div>
     </div>

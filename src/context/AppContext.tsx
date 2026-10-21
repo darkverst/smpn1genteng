@@ -280,7 +280,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const identityRaw = settings[SETTINGS_DB_KEYS.schoolIdentity];
         const identityLooksLikeDefault = JSON.stringify(toIdentityComparable(normalizeSchoolIdentity(identityRaw, initialSchoolIdentitySettings))) === JSON.stringify(toIdentityComparable(normalizeSchoolIdentity(initialSchoolIdentitySettings)));
         const legacyLooksCustomized = JSON.stringify(toIdentityComparable(migratedIdentity)) !== JSON.stringify(toIdentityComparable(normalizeSchoolIdentity(initialSchoolIdentitySettings)));
-        const resolvedIdentity = identityLooksLikeDefault && legacyLooksCustomized ? migratedIdentity : storedIdentity;
+        const resolvedIdentity = identityLooksLikeDefault && legacyLooksCustomized
+          ? {
+              ...migratedIdentity,
+              iconStyle: storedIdentity.iconStyle || 'material',
+              buttonStyle: storedIdentity.buttonStyle || 'rounded',
+              cardStyle: storedIdentity.cardStyle || 'modern',
+              bottomNavStyle: storedIdentity.bottomNavStyle || 'floating',
+              themePreset: storedIdentity.themePreset,
+              primaryColor: storedIdentity.primaryColor,
+              secondaryColor: storedIdentity.secondaryColor,
+              accentColor: storedIdentity.accentColor,
+              footerBackgroundColor: storedIdentity.footerBackgroundColor,
+            }
+          : storedIdentity;
         if (!resolvedIdentity.schoolLogo && legacyBrand.schoolLogo) {
           resolvedIdentity.schoolLogo = legacyBrand.schoolLogo;
         }
@@ -356,6 +369,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     applySchoolTheme(schoolIdentity);
   }, [schoolIdentity]);
+
+  // Sinkronisasi otomatis antar-tab saat pengaturan disimpan di tab dashboard
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === SETTINGS_STORAGE_CACHE_KEY && e.newValue) {
+        try {
+          const cached = JSON.parse(e.newValue);
+          if (cached && cached[SETTINGS_DB_KEYS.schoolIdentity]) {
+            const nextId = normalizeSchoolIdentity(cached[SETTINGS_DB_KEYS.schoolIdentity], initialSchoolIdentitySettings);
+            setSchoolIdentity(nextId);
+            applySchoolTheme(nextId);
+          }
+        } catch {
+          // Abaikan kesalahan parse
+        }
+      }
+    };
+
+    const handleCustomSync = (e: Event) => {
+      const customEvent = e as CustomEvent<SchoolIdentitySettings>;
+      if (customEvent.detail) {
+        setSchoolIdentity(customEvent.detail);
+        applySchoolTheme(customEvent.detail);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('sekolah:theme-updated', handleCustomSync);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('sekolah:theme-updated', handleCustomSync);
+    };
+  }, []);
 
   // Track new session on mount
   useEffect(() => {
@@ -495,6 +541,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const legacy = buildLegacySettingsFromSchoolIdentity(next);
     setSchoolIdentity(next);
+    applySchoolTheme(next);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('sekolah:theme-updated', { detail: next }));
+    }
     setBrandSettings(legacy.brandSettings);
     setContactInfo(legacy.contactInfo);
     setFooterCredit(legacy.footerCredit);

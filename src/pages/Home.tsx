@@ -323,8 +323,11 @@ export default function Home() {
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900">Berita & Kegiatan</h2>
             </div>
-            <Link to="/berita" className="hidden sm:flex items-center gap-1.5 text-primary-500 hover:text-primary-700 font-semibold text-sm transition-colors">
-              Lihat Semua <ChevronRight className="h-4 w-4" />
+            <Link
+              to="/berita"
+              className={getButtonStyle(schoolIdentity.buttonStyle, "hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-primary-50 text-primary-700 hover:bg-primary-100 font-semibold text-xs sm:text-sm transition-colors border border-primary-200/60")}
+            >
+              Lihat Semua Berita <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -335,7 +338,10 @@ export default function Home() {
             ))}
           </div>
           <div className="mt-6 text-center sm:hidden">
-            <Link to="/berita" className="inline-flex items-center gap-2 text-primary-500 font-semibold text-sm">
+            <Link
+              to="/berita"
+              className={getButtonStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 px-5 py-2.5 bg-primary-50 text-primary-700 font-semibold text-sm border border-primary-200/60")}
+            >
               Lihat Semua Berita <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
@@ -353,8 +359,11 @@ export default function Home() {
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900">Agenda Mendatang</h2>
             </div>
-            <Link to="/agenda" className="hidden sm:flex items-center gap-1.5 text-primary-500 hover:text-primary-700 font-semibold text-sm transition-colors">
-              Lihat Semua <ChevronRight className="h-4 w-4" />
+            <Link
+              to="/agenda"
+              className={getButtonStyle(schoolIdentity.buttonStyle, "hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-primary-50 text-primary-700 hover:bg-primary-100 font-semibold text-xs sm:text-sm transition-colors border border-primary-200/60")}
+            >
+              Lihat Semua Agenda <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
           <div className="grid gap-3 sm:gap-4 lg:gap-5">
@@ -365,7 +374,10 @@ export default function Home() {
             ))}
           </div>
           <div className="mt-6 text-center sm:hidden">
-            <Link to="/agenda" className="inline-flex items-center gap-2 text-primary-500 font-semibold text-sm">
+            <Link
+              to="/agenda"
+              className={getButtonStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 px-5 py-2.5 bg-primary-50 text-primary-700 font-semibold text-sm border border-primary-200/60")}
+            >
               Lihat Semua Agenda <ChevronRight className="h-4 w-4" />
             </Link>
           </div>

@@ -13,10 +13,10 @@
     <script>
       (function() {
         try {
-          var raw = localStorage.getItem('sekolah_settings_cache');
+          var raw = localStorage.getItem('ma_settings_cache_v1') || localStorage.getItem('sekolah_settings_cache');
           if (raw) {
             var parsed = JSON.parse(raw);
-            var id = parsed && parsed.schoolIdentity;
+            var id = parsed && (parsed.schoolIdentity || parsed['schoolIdentity']);
             if (id) {
               if (id.iconStyle) document.documentElement.setAttribute('data-icon-style', id.iconStyle);
               if (id.buttonStyle) document.documentElement.setAttribute('data-button-style', id.buttonStyle);

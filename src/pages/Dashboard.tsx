@@ -707,13 +707,14 @@ export default function Dashboard() {
     if (!result.success) {
       setIdentitySaved(false);
       setIdentityErrors(result.errors);
+      notifySaved('Gagal menyimpan: ' + (result.errors[0] || 'Periksa kembali isian formulir.'));
       return;
     }
 
     setIdentityErrors([]);
     setIdentitySaved(true);
-    notifySaved('Identitas & Logo Sekolah Berhasil Disimpan!');
-    setTimeout(() => setIdentitySaved(false), 2000);
+    notifySaved(activeTab === 'theme' ? 'Tema & Tampilan Website Berhasil Disimpan!' : 'Identitas & Logo Sekolah Berhasil Disimpan!');
+    setTimeout(() => setIdentitySaved(false), 2500);
   };
 
   const saveDownloadsPage = () => {
