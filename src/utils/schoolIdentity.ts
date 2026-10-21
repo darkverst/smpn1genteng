@@ -1,13 +1,145 @@
 import {
   type BottomNavStyle,
   type BrandSettings,
+  type ButtonStyle,
+  type CardStyle,
   type ContactInfo,
   type FooterCredit,
+  type IconStyle,
   initialSchoolIdentitySettings,
   type SchoolIdentitySettings,
 } from '../types';
 
 export const SCHOOL_IDENTITY_SCHEMA_VERSION = 1;
+
+export const ICON_STYLES = [
+  {
+    id: 'material' as const,
+    label: 'Material Design',
+    badge: 'Elevated & Crisp',
+    description: 'Ikon tegas berbingkai elevasi halus dengan bayangan khas Google Material Design.',
+  },
+  {
+    id: '3d' as const,
+    label: '3D Clay & Glass',
+    badge: 'Timbul & Glossy',
+    description: 'Ikon timbul bervolume 3D dengan efek glossy bevel dan bayangan berlapis ceria.',
+  },
+  {
+    id: 'flat' as const,
+    label: 'Flat Design',
+    badge: 'Minimalis Bersih',
+    description: 'Ikon datar bersih tanpa drop-shadow atau gradien tebal, modern dan elegan.',
+  },
+  {
+    id: 'outline' as const,
+    label: 'Modern Outline',
+    badge: 'Garis Presisi',
+    description: 'Ikon garis sleek dengan bingkai tepi bergaris tegas dan latar transparan.',
+  },
+  {
+    id: 'duotone' as const,
+    label: 'Duotone Glow',
+    badge: 'Neon Ambient',
+    description: 'Ikon dua warna cerah dengan pendaran cahaya neon halus di sekelilingnya.',
+  },
+] as const;
+
+export const VALID_ICON_STYLES: IconStyle[] = ['material', '3d', 'flat', 'outline', 'duotone'];
+
+export function sanitizeIconStyle(value: unknown, fallback: IconStyle = 'material'): IconStyle {
+  return typeof value === 'string' && VALID_ICON_STYLES.includes(value as IconStyle)
+    ? (value as IconStyle)
+    : fallback;
+}
+
+export const BUTTON_STYLES = [
+  {
+    id: 'rounded' as const,
+    label: 'Modern Rounded',
+    badge: 'Rounded-xl',
+    description: 'Sudut membulat modern proporsional dengan bayangan halus, nyaman di segala layar.',
+  },
+  {
+    id: 'pill' as const,
+    label: 'Pill Capsule',
+    badge: 'Rounded-full',
+    description: 'Bentuk kapsul lonjong membulat penuh yang ramah, santai, dan dinamis.',
+  },
+  {
+    id: 'flat' as const,
+    label: 'Flat Design',
+    badge: 'Tegas & Rapi',
+    description: 'Sudut tegas minimalis tanpa gradien, fokus tinggi pada keterbacaan konten.',
+  },
+  {
+    id: '3d' as const,
+    label: '3D Pressable Clay',
+    badge: 'Efek Tekan 3D',
+    description: 'Tombol timbul bervolume dengan border bawah 3D yang membal nyata saat diklik.',
+  },
+  {
+    id: 'glass' as const,
+    label: 'Glassmorphism',
+    badge: 'Kaca Transparan',
+    description: 'Efek frosted glass transparan mewah dengan border pantulan cahaya dan blur.',
+  },
+  {
+    id: 'glow' as const,
+    label: 'Neon Glow',
+    badge: 'Pendar Ambient',
+    description: 'Tombol modern bergradien hidup dengan pendaran bayangan neon sesuai warna tema.',
+  },
+] as const;
+
+export const VALID_BUTTON_STYLES: ButtonStyle[] = ['rounded', 'pill', 'flat', '3d', 'glass', 'glow'];
+
+export function sanitizeButtonStyle(value: unknown, fallback: ButtonStyle = 'rounded'): ButtonStyle {
+  return typeof value === 'string' && VALID_BUTTON_STYLES.includes(value as ButtonStyle)
+    ? (value as ButtonStyle)
+    : fallback;
+}
+
+export const CARD_STYLES = [
+  {
+    id: 'modern' as const,
+    label: 'Modern Soft',
+    badge: 'Default Clean',
+    description: 'Kartu membulat rounded-2xl dengan bayangan lembut dan border abu-abu bersih.',
+  },
+  {
+    id: 'flat' as const,
+    label: 'Flat Clean',
+    badge: 'Datar & Presisi',
+    description: 'Kartu kotak rapi tanpa drop-shadow, border 1.5px tegas, gaya web tech modern.',
+  },
+  {
+    id: '3d' as const,
+    label: '3D Claymorphism',
+    badge: 'Pop Art 3D',
+    description: 'Kartu timbul dengan bayangan solid bertingkat 4px yang ceria dan menonjol.',
+  },
+  {
+    id: 'glass' as const,
+    label: 'Glassmorphism',
+    badge: 'Frosted Glass',
+    description: 'Kartu kaca transparan elegan dengan backdrop blur dan kilauan batas tipis.',
+  },
+  {
+    id: 'bordered' as const,
+    label: 'Academic Bordered',
+    badge: 'Outline Resmi',
+    description: 'Desain akademik resmi dengan border outline presisi dan kesan formal terpercaya.',
+  },
+] as const;
+
+export const VALID_CARD_STYLES: CardStyle[] = ['modern', 'flat', '3d', 'glass', 'bordered'];
+
+export function sanitizeCardStyle(value: unknown, fallback: CardStyle = 'modern'): CardStyle {
+  return typeof value === 'string' && VALID_CARD_STYLES.includes(value as CardStyle)
+    ? (value as CardStyle)
+    : fallback;
+}
 
 export const BOTTOM_NAV_STYLES = [
   {
@@ -400,6 +532,9 @@ export function normalizeSchoolIdentity(raw: unknown, fallback: SchoolIdentitySe
     updatedAt: sanitizeIsoDate(source.updatedAt, fallback.updatedAt),
     themePreset: sanitizeString(source.themePreset, fallback.themePreset),
     bottomNavStyle: sanitizeBottomNavStyle(source.bottomNavStyle, fallback.bottomNavStyle || 'floating'),
+    iconStyle: sanitizeIconStyle(source.iconStyle, fallback.iconStyle || 'material'),
+    buttonStyle: sanitizeButtonStyle(source.buttonStyle, fallback.buttonStyle || 'rounded'),
+    cardStyle: sanitizeCardStyle(source.cardStyle, fallback.cardStyle || 'modern'),
     schoolName: sanitizeString(source.schoolName, fallback.schoolName),
     schoolShortName: sanitizeString(source.schoolShortName, fallback.schoolShortName),
     schoolTagline: sanitizeString(source.schoolTagline, fallback.schoolTagline),

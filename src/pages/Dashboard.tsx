@@ -7,7 +7,7 @@ import {
   Home, ChevronLeft, BarChart3, Users, Award, BookOpen, Star, Search, Activity, MousePointerClick,
   FileSearch, Tag, Link2, Shield, CheckCircle, RotateCcw, Instagram, Heart, ExternalLink, ToggleLeft, ToggleRight,
   Download, Upload, Database, HardDrive, AlertTriangle, RefreshCw, Info, Trophy,
-  Image, Type, Smartphone, Images, FileSpreadsheet, Palette, Sparkles
+  Image, Type, Smartphone, Images, FileSpreadsheet, Palette, Sparkles, Box, MousePointer, Layers, Shapes
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import {
@@ -22,7 +22,7 @@ import {
 import RichTextEditor from '../components/RichTextEditor';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
 import { DEFAULT_SETTINGS_BY_KEY } from '../constants/defaultSettings';
-import { applyThemePreset, SCHOOL_THEME_PRESETS, BOTTOM_NAV_STYLES } from '../utils/schoolIdentity';
+import { applyThemePreset, SCHOOL_THEME_PRESETS, BOTTOM_NAV_STYLES, ICON_STYLES, BUTTON_STYLES, CARD_STYLES } from '../utils/schoolIdentity';
 import {
   uploadImageWithDetails,
   formatBytes,
@@ -1269,6 +1269,9 @@ export default function Dashboard() {
   const activeGroupMeta = tabGroups.find((group) => group.id === activeTabGroup) ?? tabGroups[0];
   const activeTabMeta = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
   const activeThemePreset = SCHOOL_THEME_PRESETS.find((preset) => preset.id === identityForm.themePreset);
+  const activeIconMeta = ICON_STYLES.find((s) => s.id === (identityForm.iconStyle || 'material')) || ICON_STYLES[0];
+  const activeButtonMeta = BUTTON_STYLES.find((s) => s.id === (identityForm.buttonStyle || 'rounded')) || BUTTON_STYLES[0];
+  const activeCardMeta = CARD_STYLES.find((s) => s.id === (identityForm.cardStyle || 'modern')) || CARD_STYLES[0];
 
   const inputCls = "w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-300 bg-white";
   const labelCls = "block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5";
@@ -1971,20 +1974,25 @@ export default function Dashboard() {
               {/* Grid: Preview & Controls */}
               <div className="grid gap-5 lg:grid-cols-[340px_minmax(0,1fr)] items-start">
                 {/* Kolom Kiri: Live Visual Mockup Preview */}
-                <div className="space-y-4 lg:sticky lg:top-20">
+                <div
+                  className="space-y-4 lg:sticky lg:top-20 site-theme-preview"
+                  data-icon-style={identityForm.iconStyle || 'material'}
+                  data-button-style={identityForm.buttonStyle || 'rounded'}
+                  data-card-style={identityForm.cardStyle || 'modern'}
+                >
                   <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-5 shadow-sm space-y-4">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
                         <Sparkles className="h-4 w-4 text-primary-500" /> Live Pratinjau Tema
                       </p>
                       <span className="rounded-full bg-primary-50 px-2.5 py-0.5 text-[10px] font-bold text-primary-700 border border-primary-200">
-                        {activeThemePreset?.label || 'Custom Hex'}
+                        {activeThemePreset?.label || 'Custom'}
                       </span>
                     </div>
 
                     {/* Header Mockup */}
                     <div>
-                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Pratinjau Header & Logo</p>
+                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Header & Logo</p>
                       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xs">
                         <div style={{ background: `linear-gradient(90deg, ${identityForm.primaryColor}, ${identityForm.secondaryColor}, ${identityForm.accentColor})` }} className="h-1.5" />
                         <div className="p-3 flex items-center gap-2.5">
@@ -2006,31 +2014,53 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    {/* UI Elements Mockup */}
+                    {/* Live Preview: Kartu, Ikon & Tombol Interaktif */}
                     <div>
-                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Elemen Tombol & Badge</p>
-                      <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-3 space-y-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <button
-                            type="button"
-                            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-sm"
-                            style={{ backgroundColor: identityForm.primaryColor }}
+                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Kartu, Ikon & Tombol</p>
+                      <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-3 space-y-2.5">
+                        {/* Sample Card */}
+                        <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-start gap-3 transition-all ui-card">
+                          <div
+                            className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white transition-all shadow-md ui-icon-badge"
+                            style={{ background: `linear-gradient(135deg, ${identityForm.primaryColor}, ${identityForm.secondaryColor})` }}
                           >
-                            Tombol Utama
-                          </button>
-                          <button
-                            type="button"
-                            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-sm"
-                            style={{ backgroundColor: identityForm.secondaryColor }}
-                          >
-                            Sekunder
-                          </button>
-                          <span
-                            className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow-xs"
-                            style={{ backgroundColor: identityForm.accentColor }}
-                          >
-                            Badge Aksen
-                          </span>
+                            <Trophy className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h5 className="text-xs font-bold text-gray-900 truncate">Prestasi & Kegiatan</h5>
+                            <p className="text-[10px] text-gray-500 line-clamp-1 mt-0.5">Komponen otomatis mengikuti tema.</p>
+                            <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
+                              <button
+                                type="button"
+                                className="px-3 py-1.5 text-[11px] font-bold text-white shadow-sm transition-all ui-btn"
+                                style={{ backgroundColor: identityForm.primaryColor }}
+                              >
+                                Tombol Utama
+                              </button>
+                              <button
+                                type="button"
+                                className="px-2.5 py-1.5 text-[11px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all ui-btn"
+                              >
+                                Detail
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Indikator Status Gaya Aktif */}
+                        <div className="grid grid-cols-3 gap-1 pt-1 text-[10px] text-center">
+                          <div className="bg-white/80 p-1 rounded-lg border border-gray-200/60 truncate">
+                            <span className="text-[8px] text-gray-400 block uppercase font-semibold">Ikon</span>
+                            <span className="text-gray-800 font-bold block truncate">{activeIconMeta.label.split(' ')[0]}</span>
+                          </div>
+                          <div className="bg-white/80 p-1 rounded-lg border border-gray-200/60 truncate">
+                            <span className="text-[8px] text-gray-400 block uppercase font-semibold">Tombol</span>
+                            <span className="text-gray-800 font-bold block truncate">{activeButtonMeta.label.split(' ')[0]}</span>
+                          </div>
+                          <div className="bg-white/80 p-1 rounded-lg border border-gray-200/60 truncate">
+                            <span className="text-[8px] text-gray-400 block uppercase font-semibold">Kartu</span>
+                            <span className="text-gray-800 font-bold block truncate">{activeCardMeta.label.split(' ')[0]}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -2251,7 +2281,271 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  {/* Bagian 3: Model & Gaya Navigasi Bawah (Mobile Bottom Nav) */}
+                  {/* Bagian 3: Gaya Ikon Website (Icon Style) */}
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                          <Shapes className="h-5 w-5 text-primary-600" />
+                          Gaya Ikon Website (Icon Style - 5 Pilihan)
+                        </h3>
+                        <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                          Pilih gaya visual ikon di seluruh website: Google Material, 3D Clay timbul, Flat minimalis, Outline garis presisi, atau Duotone Glow.
+                        </p>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-400 self-start sm:self-auto bg-gray-100 px-2.5 py-1 rounded-full">
+                        {ICON_STYLES.length} Pilihan Gaya
+                      </span>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 pt-1">
+                      {ICON_STYLES.map((style) => {
+                        const isActive = (identityForm.iconStyle || 'material') === style.id;
+                        return (
+                          <button
+                            key={style.id}
+                            type="button"
+                            onClick={() => setIdentityForm({ ...identityForm, iconStyle: style.id })}
+                            className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                              isActive
+                                ? 'border-primary-500 bg-primary-50/80 shadow-md ring-2 ring-primary-500'
+                                : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-xs hover:bg-gray-50/70'
+                            }`}
+                          >
+                            <div>
+                              {/* Visual Mini Icon Sample */}
+                              <div className="h-14 rounded-xl bg-slate-50 border border-slate-100 p-2 flex items-center justify-center mb-3">
+                                <div
+                                  className={`w-10 h-10 flex items-center justify-center transition-all ${
+                                    style.id === '3d'
+                                      ? 'rounded-2xl shadow-lg ring-2 ring-white/60 transform rotate-3'
+                                      : style.id === 'material'
+                                      ? 'rounded-xl shadow-md border border-black/5'
+                                      : style.id === 'outline'
+                                      ? 'rounded-xl border-2 bg-transparent'
+                                      : style.id === 'duotone'
+                                      ? 'rounded-2xl ring-4 ring-primary-300/40 shadow-md'
+                                      : 'rounded-xl shadow-none'
+                                  }`}
+                                  style={{
+                                    backgroundColor: style.id === 'outline' ? 'transparent' : identityForm.primaryColor,
+                                    borderColor: style.id === 'outline' ? identityForm.primaryColor : undefined,
+                                    color: style.id === 'outline' ? identityForm.primaryColor : '#ffffff',
+                                    boxShadow: style.id === '3d'
+                                      ? '0 6px 12px -2px rgba(0,0,0,0.25), inset 0 2px 3px rgba(255,255,255,0.6)'
+                                      : style.id === 'duotone'
+                                      ? `0 0 14px 2px ${identityForm.primaryColor}66`
+                                      : undefined,
+                                  }}
+                                >
+                                  <Star className="h-5 w-5" />
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between gap-1">
+                                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                                  {style.label}
+                                </p>
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                                  {style.badge}
+                                </span>
+                              </div>
+                              <p className="mt-1.5 text-[11px] text-gray-500 leading-snug">
+                                {style.description}
+                              </p>
+                            </div>
+
+                            {isActive ? (
+                              <div className="mt-3 pt-2 border-t border-primary-200/60 flex items-center gap-1 text-[11px] font-bold text-primary-700">
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                <span>Gaya Ikon Aktif</span>
+                              </div>
+                            ) : (
+                              <div className="mt-3 pt-2 text-[11px] font-medium text-gray-400">
+                                Klik untuk memilih
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Bagian 4: Gaya Tombol Website (Button Style) */}
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                          <MousePointer className="h-5 w-5 text-primary-600" />
+                          Gaya Tombol Website (Button Style - 6 Pilihan)
+                        </h3>
+                        <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                          Pilih model tombol interaktif di seluruh halaman: Modern Rounded, Pill Capsule, Flat Design, 3D Clay membal, Glassmorphism kaca, atau Neon Glow.
+                        </p>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-400 self-start sm:self-auto bg-gray-100 px-2.5 py-1 rounded-full">
+                        {BUTTON_STYLES.length} Pilihan Gaya
+                      </span>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 pt-1">
+                      {BUTTON_STYLES.map((style) => {
+                        const isActive = (identityForm.buttonStyle || 'rounded') === style.id;
+                        return (
+                          <button
+                            key={style.id}
+                            type="button"
+                            onClick={() => setIdentityForm({ ...identityForm, buttonStyle: style.id })}
+                            className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                              isActive
+                                ? 'border-primary-500 bg-primary-50/80 shadow-md ring-2 ring-primary-500'
+                                : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-xs hover:bg-gray-50/70'
+                            }`}
+                          >
+                            <div>
+                              {/* Visual Mini Button Sample */}
+                              <div className="h-14 rounded-xl bg-slate-50 border border-slate-100 p-2 flex items-center justify-center mb-3">
+                                <div
+                                  className={`px-4 py-1.5 text-xs font-bold text-white transition-all flex items-center gap-1.5 ${
+                                    style.id === 'pill'
+                                      ? 'rounded-full shadow-sm'
+                                      : style.id === 'flat'
+                                      ? 'rounded-xs shadow-none'
+                                      : style.id === '3d'
+                                      ? 'rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.25)]'
+                                      : style.id === 'glass'
+                                      ? 'rounded-xl border border-white/50 backdrop-blur-md shadow-md'
+                                      : style.id === 'glow'
+                                      ? 'rounded-xl shadow-lg'
+                                      : 'rounded-xl shadow-sm'
+                                  }`}
+                                  style={{
+                                    backgroundColor: style.id === 'glass' ? `${identityForm.primaryColor}cc` : identityForm.primaryColor,
+                                    boxShadow: style.id === 'glow'
+                                      ? `0 0 16px 2px ${identityForm.primaryColor}80`
+                                      : style.id === '3d'
+                                      ? '0 4px 0 0 rgba(0, 0, 0, 0.25)'
+                                      : undefined,
+                                  }}
+                                >
+                                  <span>Contoh Tombol</span>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between gap-1">
+                                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                                  {style.label}
+                                </p>
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                                  {style.badge}
+                                </span>
+                              </div>
+                              <p className="mt-1.5 text-[11px] text-gray-500 leading-snug">
+                                {style.description}
+                              </p>
+                            </div>
+
+                            {isActive ? (
+                              <div className="mt-3 pt-2 border-t border-primary-200/60 flex items-center gap-1 text-[11px] font-bold text-primary-700">
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                <span>Gaya Tombol Aktif</span>
+                              </div>
+                            ) : (
+                              <div className="mt-3 pt-2 text-[11px] font-medium text-gray-400">
+                                Klik untuk memilih
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Bagian 5: Gaya Kartu & Elemen Kontainer (Card Style) */}
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                          <Layers className="h-5 w-5 text-primary-600" />
+                          Gaya Kartu & Kontainer (Card Style - 5 Pilihan)
+                        </h3>
+                        <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                          Pilih karakteristik visual kartu konten (Berita, Agenda, Galeri, Fasilitas): Modern Soft, Flat Datar, 3D Pop Art, Glassmorphism, atau Academic Bordered.
+                        </p>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-400 self-start sm:self-auto bg-gray-100 px-2.5 py-1 rounded-full">
+                        {CARD_STYLES.length} Pilihan Gaya
+                      </span>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 pt-1">
+                      {CARD_STYLES.map((style) => {
+                        const isActive = (identityForm.cardStyle || 'modern') === style.id;
+                        return (
+                          <button
+                            key={style.id}
+                            type="button"
+                            onClick={() => setIdentityForm({ ...identityForm, cardStyle: style.id })}
+                            className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                              isActive
+                                ? 'border-primary-500 bg-primary-50/80 shadow-md ring-2 ring-primary-500'
+                                : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-xs hover:bg-gray-50/70'
+                            }`}
+                          >
+                            <div>
+                              {/* Visual Mini Card Sample */}
+                              <div className="h-16 rounded-xl bg-slate-100/70 p-2 flex items-center justify-center mb-3">
+                                <div
+                                  className={`w-full h-11 bg-white p-2 flex items-center justify-between transition-all ${
+                                    style.id === 'flat'
+                                      ? 'rounded-xs border-2 border-slate-300 shadow-none'
+                                      : style.id === '3d'
+                                      ? 'rounded-xl border-2 border-slate-900/15 shadow-[3px_3px_0_rgba(15,23,42,0.12)]'
+                                      : style.id === 'glass'
+                                      ? 'rounded-xl bg-white/70 backdrop-blur-md border border-white/80 shadow-sm'
+                                      : style.id === 'bordered'
+                                      ? 'rounded-md border border-slate-400 shadow-none'
+                                      : 'rounded-xl border border-gray-100 shadow-sm'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: identityForm.primaryColor }} />
+                                    <div className="w-16 h-2 rounded bg-slate-200" />
+                                  </div>
+                                  <div className="w-8 h-2 rounded bg-slate-100" />
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between gap-1">
+                                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                                  {style.label}
+                                </p>
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                                  {style.badge}
+                                </span>
+                              </div>
+                              <p className="mt-1.5 text-[11px] text-gray-500 leading-snug">
+                                {style.description}
+                              </p>
+                            </div>
+
+                            {isActive ? (
+                              <div className="mt-3 pt-2 border-t border-primary-200/60 flex items-center gap-1 text-[11px] font-bold text-primary-700">
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                <span>Gaya Kartu Aktif</span>
+                              </div>
+                            ) : (
+                              <div className="mt-3 pt-2 text-[11px] font-medium text-gray-400">
+                                Klik untuk memilih
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Bagian 6: Model & Gaya Navigasi Bawah (Mobile Bottom Nav) */}
                   <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <div>

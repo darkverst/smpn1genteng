@@ -20,7 +20,7 @@ import Dashboard from './pages/Dashboard';
 /* Public layout with Navbar + Footer + BottomNav */
 function PublicLayout() {
   return (
-    <div className="flex flex-col h-dvh overflow-hidden">
+    <div className="flex flex-col h-dvh overflow-hidden site-public-layout">
       <Navbar />
       <div className="flex-1 overflow-y-auto" data-scroll-container>
         <main>

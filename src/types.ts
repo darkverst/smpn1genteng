@@ -83,6 +83,9 @@ export interface BrandSettings {
 }
 
 export type BottomNavStyle = 'floating' | 'classic' | 'dock' | 'minimal' | 'glass' | 'pill' | 'curved' | 'glow';
+export type IconStyle = 'material' | '3d' | 'flat' | 'outline' | 'duotone';
+export type ButtonStyle = 'rounded' | 'pill' | 'flat' | '3d' | 'glass' | 'glow';
+export type CardStyle = 'modern' | 'flat' | '3d' | 'glass' | 'bordered';
 
 export interface SchoolIdentitySettings {
   schemaVersion: number;
@@ -90,6 +93,9 @@ export interface SchoolIdentitySettings {
   updatedAt: string;
   themePreset: string;
   bottomNavStyle?: BottomNavStyle;
+  iconStyle?: IconStyle;
+  buttonStyle?: ButtonStyle;
+  cardStyle?: CardStyle;
   schoolName: string;
   schoolShortName: string;
   schoolTagline: string;
@@ -350,6 +356,9 @@ export const initialSchoolIdentitySettings: SchoolIdentitySettings = {
   updatedAt: new Date().toISOString(),
   themePreset: 'forest',
   bottomNavStyle: 'floating',
+  iconStyle: 'material',
+  buttonStyle: 'rounded',
+  cardStyle: 'modern',
   schoolName: 'Nama Sekolah',
   schoolShortName: 'Sekolah',
   schoolTagline: 'Unggul, Berkarakter, Berprestasi',

@@ -106,4 +106,24 @@ describe('school identity utils', () => {
     const invalid = normalizeSchoolIdentity({ bottomNavStyle: 'not-a-style' }, initialSchoolIdentitySettings);
     expect(invalid.bottomNavStyle).toBe('floating');
   });
+
+  it('normalisasi iconStyle, buttonStyle, dan cardStyle memvalidasi style yang valid dan fallback jika tidak valid', () => {
+    const valid = normalizeSchoolIdentity({
+      iconStyle: '3d',
+      buttonStyle: 'glass',
+      cardStyle: 'bordered',
+    }, initialSchoolIdentitySettings);
+    expect(valid.iconStyle).toBe('3d');
+    expect(valid.buttonStyle).toBe('glass');
+    expect(valid.cardStyle).toBe('bordered');
+
+    const invalid = normalizeSchoolIdentity({
+      iconStyle: 'unknown-icon',
+      buttonStyle: 'unknown-btn',
+      cardStyle: 'unknown-card',
+    }, initialSchoolIdentitySettings);
+    expect(invalid.iconStyle).toBe('material');
+    expect(invalid.buttonStyle).toBe('rounded');
+    expect(invalid.cardStyle).toBe('modern');
+  });
 });

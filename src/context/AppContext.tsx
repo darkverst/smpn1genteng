@@ -148,6 +148,11 @@ function applySchoolTheme(identity: SchoolIdentitySettings) {
   root.style.setProperty('--school-secondary', identity.secondaryColor);
   root.style.setProperty('--school-accent', identity.accentColor);
   root.style.setProperty('--school-footer-bg', identity.footerBackgroundColor);
+
+  // Apply visual element style attributes
+  root.setAttribute('data-icon-style', identity.iconStyle || 'material');
+  root.setAttribute('data-button-style', identity.buttonStyle || 'rounded');
+  root.setAttribute('data-card-style', identity.cardStyle || 'modern');
 }
 
 function toIdentityComparable(identity: SchoolIdentitySettings) {
