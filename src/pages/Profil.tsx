@@ -1,4 +1,4 @@
-import { Target, Eye, BookOpen, Award, Users, CheckCircle, Star, Heart, Compass, GraduationCap, Phone, BookText, GraduationCap as EduIcon, Globe, Facebook, Instagram, Youtube, X, Trophy, ChevronRight, Sparkles, Calendar, MapPin } from 'lucide-react';
+import { Target, Eye, BookOpen, Award, Users, CheckCircle, Star, Heart, Compass, GraduationCap, Phone, BookText, Facebook, Instagram, Youtube, X, Trophy, ChevronRight, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';

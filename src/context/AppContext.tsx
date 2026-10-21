@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import {
   NewsItem, AgendaItem, GalleryItem, ContactInfo, SliderItem, ProfileData, StatsData, FooterCredit, SEOData, AnalyticsData, DailyView,
   BrandSettings, DownloadDocument, DownloadDocumentsData, InstagramSettings, InstagramPost, SponsorsData, Sponsor, SmpbButtonSettings, AuthSettings, SchoolIdentitySettings, TeacherData, ExtracurricularItem,
-  initialNews, initialAgenda, initialGallery, initialContactInfo, initialSliderItems, initialProfileData, initialStatsData, initialBrandSettings, initialDownloadDocumentsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialInstagramSettings, initialSponsorsData, initialSmpbButtonSettings, initialAuthSettings, initialSchoolIdentitySettings, initialTeachers
+  initialContactInfo, initialProfileData, initialStatsData, initialBrandSettings, initialDownloadDocumentsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialSmpbButtonSettings, initialAuthSettings, initialSchoolIdentitySettings, initialTeachers
 } from '../types';
 import { addSponsorRecord, deleteSponsorRecord, normalizeSponsorsData, updateSponsorRecord } from '../utils/sponsors';
 import {

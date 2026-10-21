@@ -324,7 +324,7 @@ export const SCHOOL_THEME_PRESETS = [
   },
 ] as const;
 
-type ThemePresetId = typeof SCHOOL_THEME_PRESETS[number]['id'];
+export type ThemePresetId = typeof SCHOOL_THEME_PRESETS[number]['id'];
 
 const HEX_COLOR_REGEX = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

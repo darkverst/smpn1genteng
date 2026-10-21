@@ -8,6 +8,7 @@ import SplashScreen from './components/SplashScreen';
 import SEOHead from './components/SEOHead';
 import Home from './pages/Home';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Lazy load halaman admin dan sekunder untuk meminimalkan beban bundle awal
 const Login = lazy(() => import('./pages/Login'));
@@ -66,7 +67,12 @@ function AppRoutes() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <ErrorBoundary
+                  title="Terjadi Kendala pada Panel Dashboard"
+                  subtitle="Panel administrasi mengalami kesalahan teknis. Perubahan data terakhir Anda tetap tersimpan dengan aman."
+                >
+                  <Dashboard />
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />
@@ -91,11 +97,13 @@ function AppRoutes() {
 
 export function App() {
   return (
-    <HashRouter>
-      <AppProvider>
-        <AppInner />
-      </AppProvider>
-    </HashRouter>
+    <ErrorBoundary>
+      <HashRouter>
+        <AppProvider>
+          <AppInner />
+        </AppProvider>
+      </HashRouter>
+    </ErrorBoundary>
   );
 }
 

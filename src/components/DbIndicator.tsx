@@ -5,7 +5,7 @@ type Status = 'connecting' | 'online' | 'offline';
 
 export default function DbIndicator() {
   const [status, setStatus] = useState<Status>('connecting');
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const check = useCallback(async () => {
     if (!isDbConfigured) { setStatus('offline'); return; }

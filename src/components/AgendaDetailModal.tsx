@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Calendar, Clock, MapPin, X } from 'lucide-react';
+import { Clock, MapPin, X } from 'lucide-react';
 import { AgendaItem, CATEGORY_COLORS } from '../types';
 
 function formatFullDate(dateStr: string): string {

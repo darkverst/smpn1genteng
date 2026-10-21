@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle, MessageSquare } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getGoogleMapsDirectionsUrl, getGoogleMapsEmbedUrl } from '../types';
-import { getButtonStyle, getCardStyle, getIconBadgeStyle, getIconSvgEffect, getSectionBadgeStyle } from '../utils/themeStyles';
+import { getButtonStyle, getCardStyle, getIconBadgeStyle, getIconSvgEffect } from '../utils/themeStyles';
 import { cn } from '../utils/cn';
 
 export default function Kontak() {
