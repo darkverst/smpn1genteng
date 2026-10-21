@@ -35,8 +35,8 @@ describe('BottomNav component', () => {
     expect(nav).toHaveAttribute('data-nav-style', 'floating');
   });
 
-  it('mendukung berbagai variasi model bottom navigation (classic, dock, minimal, glass)', () => {
-    const styles: BottomNavStyle[] = ['classic', 'dock', 'minimal', 'glass'];
+  it('mendukung berbagai variasi model bottom navigation (classic, dock, minimal, glass, pill, curved, glow)', () => {
+    const styles: BottomNavStyle[] = ['classic', 'dock', 'minimal', 'glass', 'pill', 'curved', 'glow'];
 
     for (const style of styles) {
       mockBottomNavStyle = style;

@@ -82,7 +82,7 @@ export interface BrandSettings {
   schoolTagline: string;
 }
 
-export type BottomNavStyle = 'floating' | 'classic' | 'dock' | 'minimal' | 'glass';
+export type BottomNavStyle = 'floating' | 'classic' | 'dock' | 'minimal' | 'glass' | 'pill' | 'curved' | 'glow';
 
 export interface SchoolIdentitySettings {
   schemaVersion: number;

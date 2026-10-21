@@ -7,7 +7,7 @@ import {
   Home, ChevronLeft, BarChart3, Users, Award, BookOpen, Star, Search, Activity, MousePointerClick,
   FileSearch, Tag, Link2, Shield, CheckCircle, RotateCcw, Instagram, Heart, ExternalLink, ToggleLeft, ToggleRight,
   Download, Upload, Database, HardDrive, AlertTriangle, RefreshCw, Info, Trophy,
-  Image, Type, Smartphone, Images, FileSpreadsheet
+  Image, Type, Smartphone, Images, FileSpreadsheet, Palette, Sparkles
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import {
@@ -41,8 +41,8 @@ import {
   type DatabaseStorageStats,
 } from '../services/settingsRepository';
 
-type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'branding' | 'downloads' | 'seo' | 'instagram' | 'sponsors' | 'guru' | 'eskul' | 'security' | 'database';
-type TabGroupId = 'ringkasan' | 'konten' | 'identitas' | 'promosi' | 'sistem';
+type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'branding' | 'theme' | 'downloads' | 'seo' | 'instagram' | 'sponsors' | 'guru' | 'eskul' | 'security' | 'database';
+type TabGroupId = 'ringkasan' | 'tampilan' | 'konten' | 'identitas' | 'promosi' | 'sistem';
 
 const emptyEskul: Omit<ExtracurricularItem, 'id'> = {
   name: '',
@@ -138,11 +138,13 @@ export default function Dashboard() {
   const [isMobileAdminMenuOpen, setIsMobileAdminMenuOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<TabGroupId, boolean>>({
     ringkasan: false,
+    tampilan: false,
     konten: false,
     identitas: false,
     promosi: false,
     sistem: false,
   });
+  const [themeCategoryFilter, setThemeCategoryFilter] = useState<string>('Semua');
 
   const [showNewsModal, setShowNewsModal] = useState(false);
   const [showAgendaModal, setShowAgendaModal] = useState(false);
@@ -1199,13 +1201,14 @@ export default function Dashboard() {
 
   const tabs = [
     { id: 'overview' as Tab, label: 'Overview', icon: LayoutDashboard },
+    { id: 'theme' as Tab, label: 'Tema & Tampilan', icon: Palette },
+    { id: 'branding' as Tab, label: 'Identitas Sekolah', icon: GraduationCap },
     { id: 'news' as Tab, label: 'Berita', icon: Newspaper },
     { id: 'agenda' as Tab, label: 'Agenda', icon: Calendar },
     { id: 'gallery' as Tab, label: 'Galeri', icon: Camera },
     { id: 'slider' as Tab, label: 'Slider', icon: Sliders },
     { id: 'profile' as Tab, label: 'Profil', icon: FileText },
     { id: 'stats' as Tab, label: 'Statistik', icon: BarChart3 },
-    { id: 'branding' as Tab, label: 'Identitas Sekolah', icon: GraduationCap },
     { id: 'downloads' as Tab, label: 'Dokumen Download', icon: Download },
     { id: 'seo' as Tab, label: 'SEO & Analitik', icon: Search },
     { id: 'instagram' as Tab, label: 'Instagram', icon: Instagram },
@@ -1223,6 +1226,12 @@ export default function Dashboard() {
       label: 'Ringkasan',
       description: 'Overview dashboard',
       tabs: tabs.filter((tab) => ['overview'].includes(tab.id)),
+    },
+    {
+      id: 'tampilan',
+      label: 'Desain & Tema',
+      description: 'Warna website & navigasi mobile',
+      tabs: tabs.filter((tab) => ['theme'].includes(tab.id)),
     },
     {
       id: 'konten',
@@ -1928,6 +1937,460 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* ======= TEMA & TAMPILAN ======= */}
+          {activeTab === 'theme' && (
+            <div className="animate-fadeIn space-y-5 sm:space-y-6">
+              {/* Header Tab Tema */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white flex items-center justify-center shadow-lg shadow-primary-500/20 shrink-0">
+                    <Palette className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Tema & Tampilan Website</h2>
+                    <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
+                      Kustomisasi palet warna tema global website dan gaya navigasi bawah mobile secara langsung.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  {identitySaved && (
+                    <span className="flex items-center gap-1 text-green-600 text-xs sm:text-sm font-semibold animate-fadeIn bg-green-50 px-3 py-1.5 rounded-xl border border-green-200">
+                      <CheckCircle className="h-4 w-4" /> Tema Tersimpan!
+                    </span>
+                  )}
+                  <button
+                    onClick={saveIdentity}
+                    className="flex items-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 px-5 py-2.5 text-xs sm:text-sm font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer"
+                  >
+                    <Save className="h-4 w-4" /> Simpan Tema
+                  </button>
+                  <Link
+                    to="/"
+                    target="_blank"
+                    className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 transition-colors"
+                  >
+                    <Eye className="h-4 w-4" /> Pratinjau
+                  </Link>
+                </div>
+              </div>
+
+              {/* Grid: Preview & Controls */}
+              <div className="grid gap-5 lg:grid-cols-[340px_minmax(0,1fr)] items-start">
+                {/* Kolom Kiri: Live Visual Mockup Preview */}
+                <div className="space-y-4 lg:sticky lg:top-20">
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-5 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+                        <Sparkles className="h-4 w-4 text-primary-500" /> Live Pratinjau Tema
+                      </p>
+                      <span className="rounded-full bg-primary-50 px-2.5 py-0.5 text-[10px] font-bold text-primary-700 border border-primary-200">
+                        {activeThemePreset?.label || 'Custom Hex'}
+                      </span>
+                    </div>
+
+                    {/* Header Mockup */}
+                    <div>
+                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Pratinjau Header & Logo</p>
+                      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xs">
+                        <div style={{ background: `linear-gradient(90deg, ${identityForm.primaryColor}, ${identityForm.secondaryColor}, ${identityForm.accentColor})` }} className="h-1.5" />
+                        <div className="p-3 flex items-center gap-2.5">
+                          <div
+                            className="flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-sm overflow-hidden shrink-0"
+                            style={{ background: `linear-gradient(135deg, ${identityForm.primaryColor}, ${identityForm.secondaryColor})` }}
+                          >
+                            {identityForm.showLogo && identityForm.schoolLogo ? (
+                              <img src={identityForm.schoolLogo} alt="Logo" className="h-full w-full object-contain bg-white p-1" />
+                            ) : (
+                              <GraduationCap className="h-6 w-6" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-xs font-bold text-gray-900">{identityForm.schoolShortName || identityForm.schoolName || 'Nama Sekolah'}</p>
+                            <p className="truncate text-[10px] font-medium" style={{ color: identityForm.primaryColor }}>{identityForm.schoolTagline || 'Portal Resmi'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* UI Elements Mockup */}
+                    <div>
+                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Elemen Tombol & Badge</p>
+                      <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-3 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-sm"
+                            style={{ backgroundColor: identityForm.primaryColor }}
+                          >
+                            Tombol Utama
+                          </button>
+                          <button
+                            type="button"
+                            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-sm"
+                            style={{ backgroundColor: identityForm.secondaryColor }}
+                          >
+                            Sekunder
+                          </button>
+                          <span
+                            className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow-xs"
+                            style={{ backgroundColor: identityForm.accentColor }}
+                          >
+                            Badge Aksen
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Nav Mockup */}
+                    <div>
+                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+                        Navigasi Mobile ({BOTTOM_NAV_STYLES.find(s => s.id === (identityForm.bottomNavStyle || 'floating'))?.label || 'Melayang'})
+                      </p>
+                      <div className="rounded-xl bg-slate-900/90 p-3 text-white border border-white/10 shadow-inner">
+                        <div className="flex items-center justify-around py-1">
+                          <div
+                            className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all ${
+                              identityForm.bottomNavStyle === 'dock'
+                                ? 'rounded-full scale-110 shadow-lg'
+                                : identityForm.bottomNavStyle === 'pill'
+                                ? 'rounded-full scale-105'
+                                : identityForm.bottomNavStyle === 'minimal'
+                                ? 'rounded-lg'
+                                : 'rounded-xl'
+                            }`}
+                            style={{ backgroundColor: identityForm.primaryColor }}
+                          >
+                            <Home className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="text-white/40"><Newspaper className="h-4 w-4" /></div>
+                          <div className="text-white/40"><Calendar className="h-4 w-4" /></div>
+                          <div className="text-white/40"><Trophy className="h-4 w-4" /></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Mockup */}
+                    <div>
+                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Pratinjau Footer</p>
+                      <div
+                        className="rounded-xl p-3 text-white text-xs shadow-inner space-y-1"
+                        style={{ backgroundColor: identityForm.footerBackgroundColor }}
+                      >
+                        <p className="font-bold">{identityForm.schoolShortName || identityForm.schoolName || 'Nama Sekolah'}</p>
+                        <p className="text-[10px] text-white/70 line-clamp-1">{identityForm.footerDescription || 'Membentuk generasi cerdas dan berakhlak mulia.'}</p>
+                        <div className="pt-2 border-t border-white/10 flex justify-between text-[9px] text-white/60">
+                          <span>© {new Date().getFullYear()} {identityForm.legalName || 'Sekolah'}</span>
+                          <span style={{ color: identityForm.accentColor }}>Aksen Aktif</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Palet Warna Saat Ini */}
+                    <div className="pt-2 border-t border-gray-100">
+                      <p className="text-[11px] font-semibold text-gray-500 mb-2">Palet Warna Terpasang:</p>
+                      <div className="grid grid-cols-4 gap-1.5 text-center">
+                        <div className="p-1.5 rounded-lg bg-gray-50 border border-gray-100">
+                          <div className="h-5 w-5 rounded-full mx-auto shadow-xs border border-white" style={{ backgroundColor: identityForm.primaryColor }} />
+                          <p className="text-[9px] text-gray-500 mt-1 font-mono">{identityForm.primaryColor}</p>
+                          <p className="text-[9px] font-medium text-gray-700">Utama</p>
+                        </div>
+                        <div className="p-1.5 rounded-lg bg-gray-50 border border-gray-100">
+                          <div className="h-5 w-5 rounded-full mx-auto shadow-xs border border-white" style={{ backgroundColor: identityForm.secondaryColor }} />
+                          <p className="text-[9px] text-gray-500 mt-1 font-mono">{identityForm.secondaryColor}</p>
+                          <p className="text-[9px] font-medium text-gray-700">Sekunder</p>
+                        </div>
+                        <div className="p-1.5 rounded-lg bg-gray-50 border border-gray-100">
+                          <div className="h-5 w-5 rounded-full mx-auto shadow-xs border border-white" style={{ backgroundColor: identityForm.accentColor }} />
+                          <p className="text-[9px] text-gray-500 mt-1 font-mono">{identityForm.accentColor}</p>
+                          <p className="text-[9px] font-medium text-gray-700">Aksen</p>
+                        </div>
+                        <div className="p-1.5 rounded-lg bg-gray-50 border border-gray-100">
+                          <div className="h-5 w-5 rounded-full mx-auto shadow-xs border border-white" style={{ backgroundColor: identityForm.footerBackgroundColor }} />
+                          <p className="text-[9px] text-gray-500 mt-1 font-mono">{identityForm.footerBackgroundColor}</p>
+                          <p className="text-[9px] font-medium text-gray-700">Footer</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Kolom Kanan: Pengaturan Preset, Kustom Warna, & Bottom Nav */}
+                <div className="space-y-5">
+                  {/* Bagian 1: Preset Tema Warna Global */}
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                          <Palette className="h-5 w-5 text-primary-600" />
+                          Preset Tema Warna Website (12 Pilihan)
+                        </h3>
+                        <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                          Pilih salah satu preset tema siap pakai untuk menyelaraskan seluruh tampilan website secara otomatis sesuai jenis dan karakter sekolah.
+                        </p>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-400 self-start sm:self-auto bg-gray-100 px-2.5 py-1 rounded-full">
+                        {SCHOOL_THEME_PRESETS.length} Preset Tersedia
+                      </span>
+                    </div>
+
+                    {/* Filter Kategori Preset */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+                      {[
+                        'Semua',
+                        'Islami & Madrasah',
+                        'Negeri & Formal',
+                        'Modern & Unggulan',
+                        'Alami & Lingkungan',
+                        'Akademik Klasik',
+                        'Dinamis & Aktif',
+                        'Vokasi & Seni',
+                        'Sains & TI',
+                      ].map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setThemeCategoryFilter(cat)}
+                          className={`px-3 py-1.5 rounded-xl whitespace-nowrap font-medium transition-all ${
+                            themeCategoryFilter === cat
+                              ? 'bg-primary-500 text-white shadow-xs'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Grid Kartu Preset */}
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 pt-1">
+                      {SCHOOL_THEME_PRESETS
+                        .filter((p) => themeCategoryFilter === 'Semua' || (p as { category?: string }).category === themeCategoryFilter)
+                        .map((preset) => {
+                          const isActive = identityForm.themePreset === preset.id;
+                          return (
+                            <button
+                              key={preset.id}
+                              type="button"
+                              onClick={() => setIdentityForm(applyThemePreset(identityForm, preset.id))}
+                              className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                                isActive
+                                  ? 'border-primary-500 bg-primary-50/70 shadow-md ring-2 ring-primary-500'
+                                  : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm hover:bg-gray-50/60'
+                              }`}
+                            >
+                              <div>
+                                <div className="flex items-center justify-between gap-2 mb-3">
+                                  {/* 4 Color Swatch Dots */}
+                                  <div className="flex items-center gap-1.5 bg-gray-50 p-1.5 rounded-full border border-gray-200/80">
+                                    <span className="h-5 w-5 rounded-full border border-white shadow-xs" style={{ backgroundColor: preset.primaryColor }} title={`Utama: ${preset.primaryColor}`} />
+                                    <span className="h-5 w-5 rounded-full border border-white shadow-xs" style={{ backgroundColor: preset.secondaryColor }} title={`Sekunder: ${preset.secondaryColor}`} />
+                                    <span className="h-5 w-5 rounded-full border border-white shadow-xs" style={{ backgroundColor: preset.accentColor }} title={`Aksen: ${preset.accentColor}`} />
+                                    <span className="h-5 w-5 rounded-full border border-white shadow-xs" style={{ backgroundColor: preset.footerBackgroundColor }} title={`Footer: ${preset.footerBackgroundColor}`} />
+                                  </div>
+                                  {(preset as { category?: string }).category && (
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">
+                                      {(preset as { category?: string }).category}
+                                    </span>
+                                  )}
+                                </div>
+                                <h4 className="text-sm font-bold text-gray-900 flex items-center justify-between">
+                                  {preset.label}
+                                </h4>
+                                <p className="mt-1 text-xs text-gray-500 leading-snug">
+                                  {preset.description}
+                                </p>
+                              </div>
+
+                              <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
+                                {isActive ? (
+                                  <span className="flex items-center gap-1 font-bold text-primary-700">
+                                    <CheckCircle className="h-3.5 w-3.5" /> Preset Terpasang
+                                  </span>
+                                ) : (
+                                  <span className="font-medium text-gray-400 group-hover:text-primary-600">
+                                    Klik untuk terapkan
+                                  </span>
+                                )}
+                                <span className="font-mono text-[10px] text-gray-400">{preset.primaryColor}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </div>
+
+                  {/* Bagian 2: Kustomisasi Palet Warna Manual */}
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+                    <div>
+                      <h3 className="text-base font-bold text-gray-900">Kustomisasi Palet Warna Bebas</h3>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Sesuaikan kode warna secara presisi sesuai panduan branding sekolah Anda. Mengubah warna di sini akan mengubah status tema menjadi <em>Custom</em>.
+                      </p>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                      {[
+                        { key: 'primaryColor', label: 'Warna Utama', desc: 'Header, tombol, link & aksen utama' },
+                        { key: 'secondaryColor', label: 'Warna Sekunder', desc: 'Gradien, banner & tombol pendukung' },
+                        { key: 'accentColor', label: 'Warna Aksen', desc: 'Highlight penting, badge & ikon' },
+                        { key: 'footerBackgroundColor', label: 'Warna Background Footer', desc: 'Latar belakang area footer paling bawah' },
+                      ].map((item) => (
+                        <div key={item.key} className="p-3.5 rounded-xl border border-gray-100 bg-gray-50/50 space-y-2">
+                          <label className="text-xs font-bold text-gray-900 block">{item.label}</label>
+                          <p className="text-[10px] text-gray-500 line-clamp-1">{item.desc}</p>
+                          <div className="flex items-center gap-2.5 pt-1">
+                            <input
+                              type="color"
+                              value={identityForm[item.key as keyof Pick<SchoolIdentitySettings, 'primaryColor' | 'secondaryColor' | 'accentColor' | 'footerBackgroundColor'>]}
+                              onChange={(e) => setIdentityForm({ ...identityForm, themePreset: 'custom', [item.key]: e.target.value })}
+                              className="h-10 w-12 rounded-xl border border-gray-200 bg-white p-1 cursor-pointer shrink-0"
+                            />
+                            <input
+                              type="text"
+                              value={identityForm[item.key as keyof Pick<SchoolIdentitySettings, 'primaryColor' | 'secondaryColor' | 'accentColor' | 'footerBackgroundColor'>]}
+                              onChange={(e) => setIdentityForm({ ...identityForm, themePreset: 'custom', [item.key]: e.target.value })}
+                              className={inputCls + ' font-mono text-xs uppercase'}
+                              placeholder="#059669"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bagian 3: Model & Gaya Navigasi Bawah (Mobile Bottom Nav) */}
+                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                          <Smartphone className="h-5 w-5 text-primary-600" />
+                          Model Navigasi Bawah (Mobile Bottom Navigation - 8 Pilihan)
+                        </h3>
+                        <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                          Pilih model bilah menu bawah yang muncul di layar smartphone pengunjung. Setiap gaya didesain ergonomis dan otomatis mengikuti warna tema.
+                        </p>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-400 self-start sm:self-auto bg-gray-100 px-2.5 py-1 rounded-full">
+                        {BOTTOM_NAV_STYLES.length} Gaya Tersedia
+                      </span>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 pt-1">
+                      {BOTTOM_NAV_STYLES.map((style) => {
+                        const isActive = (identityForm.bottomNavStyle || 'floating') === style.id;
+                        return (
+                          <button
+                            key={style.id}
+                            type="button"
+                            onClick={() => setIdentityForm({ ...identityForm, bottomNavStyle: style.id })}
+                            className={`rounded-2xl border p-3.5 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                              isActive
+                                ? 'border-primary-500 bg-primary-50/80 shadow-md ring-2 ring-primary-500'
+                                : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-xs hover:bg-gray-50/70'
+                            }`}
+                          >
+                            <div>
+                              {/* Mini Visual Mockup */}
+                              <div className={`h-12 rounded-xl p-1.5 flex items-center justify-around border transition-all ${
+                                style.id === 'glass'
+                                  ? 'bg-slate-800/80 border-white/20 backdrop-blur-sm'
+                                  : style.id === 'dock'
+                                  ? 'bg-slate-900 border-primary-500/30 rounded-full px-2'
+                                  : style.id === 'pill'
+                                  ? 'bg-slate-900 border-white/20 rounded-full px-2'
+                                  : style.id === 'glow'
+                                  ? 'bg-slate-950 border-2 border-primary-400 shadow-[0_0_12px_rgba(34,197,94,0.3)] rounded-xl'
+                                  : style.id === 'curved'
+                                  ? 'bg-slate-900 border-t-2 border-primary-500/40 rounded-t-2xl'
+                                  : style.id === 'minimal'
+                                  ? 'bg-slate-950 border-white/5'
+                                  : style.id === 'classic'
+                                  ? 'bg-slate-900 border-t border-white/10 rounded-none'
+                                  : 'bg-slate-900 border-white/15 rounded-2xl'
+                              }`}>
+                                <div
+                                  className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${
+                                    isActive
+                                      ? style.id === 'dock' || style.id === 'pill'
+                                        ? 'text-white scale-110 rounded-full'
+                                        : style.id === 'glass'
+                                        ? 'bg-white/30 text-white'
+                                        : style.id === 'glow'
+                                        ? 'text-white shadow-[0_0_8px_rgba(34,197,94,0.8)]'
+                                        : style.id === 'minimal'
+                                        ? 'bg-white/10 text-primary-300'
+                                        : 'text-white shadow-sm'
+                                      : 'bg-white/10 text-white/40'
+                                  }`}
+                                  style={isActive ? { backgroundColor: identityForm.primaryColor } : {}}
+                                >
+                                  <Home className="h-3 w-3" />
+                                </div>
+                                <div className="w-5 h-5 rounded-md flex items-center justify-center bg-white/5 text-white/30">
+                                  <Newspaper className="h-2.5 w-2.5" />
+                                </div>
+                                <div className="w-5 h-5 rounded-md flex items-center justify-center bg-white/5 text-white/30">
+                                  <Calendar className="h-2.5 w-2.5" />
+                                </div>
+                              </div>
+
+                              <p className="mt-3 text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                                {style.label}
+                              </p>
+                              <p className="mt-1 text-[11px] text-gray-500 leading-snug">
+                                {style.description}
+                              </p>
+                            </div>
+
+                            {isActive ? (
+                              <div className="mt-3 pt-2 border-t border-primary-200/60 flex items-center gap-1 text-[11px] font-bold text-primary-700">
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                <span>Gaya Aktif</span>
+                              </div>
+                            ) : (
+                              <div className="mt-3 pt-2 text-[11px] font-medium text-gray-400">
+                                Klik untuk memilih
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Alert Error jika ada */}
+                  {identityErrors.length > 0 && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+                      <p className="text-sm font-bold text-red-700">Validasi pengaturan tema gagal</p>
+                      <ul className="mt-2 space-y-1 text-xs text-red-600">
+                        {identityErrors.map((error) => (
+                          <li key={error}>- {error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Tombol Simpan Bawah */}
+                  <div className="flex flex-col gap-3 sm:flex-row pt-2">
+                    <button
+                      onClick={saveIdentity}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 px-6 py-3 text-sm font-bold text-white shadow-lg active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Save className="h-4 w-4" /> Simpan Tema & Tampilan
+                    </button>
+                    <Link
+                      to="/"
+                      target="_blank"
+                      className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-6 py-3 text-sm font-semibold text-gray-700 transition-colors"
+                    >
+                      <Eye className="h-4 w-4" /> Buka Website Publik
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ======= BRANDING ======= */}
           {activeTab === 'branding' && (
             <div className="animate-fadeIn space-y-4 sm:space-y-6">
@@ -1959,9 +2422,16 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <p className="mt-3 text-[11px] text-gray-400">Update terakhir: {new Date(identityForm.updatedAt || Date.now()).toLocaleString('id-ID')}</p>
-                    <p className="mt-2 text-[11px] text-gray-500">
-                      Preset tema: <span className="font-semibold text-gray-700">{activeThemePreset?.label || 'Custom'}</span>
-                    </p>
+                    <div className="mt-2 flex items-center justify-between text-[11px] text-gray-500">
+                      <span>Preset tema: <strong className="text-gray-800">{activeThemePreset?.label || 'Custom'}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => { setActiveTabGroup('tampilan'); setActiveTab('theme'); }}
+                        className="text-primary-600 hover:text-primary-700 font-semibold hover:underline"
+                      >
+                        Ubah di Tema →
+                      </button>
+                    </div>
                   </div>
 
                   <div className="rounded-2xl border border-dashed border-primary-200 bg-white p-4 shadow-sm">
@@ -2118,144 +2588,24 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm">
-                    <h3 className="text-sm sm:text-base font-bold text-gray-900">Tema Dasar Global</h3>
-                    <p className="mt-1 text-xs text-gray-500">Pilih preset agar warna utama website langsung menyesuaikan secara menyeluruh. Jika perlu, admin masih bisa mengubah warna manual.</p>
-                    <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                      {SCHOOL_THEME_PRESETS.map((preset) => {
-                        const isActive = identityForm.themePreset === preset.id;
-                        return (
-                          <button
-                            key={preset.id}
-                            type="button"
-                            onClick={() => setIdentityForm(applyThemePreset(identityForm, preset.id))}
-                            className={`rounded-2xl border p-3 text-left transition-all ${isActive ? 'border-primary-400 bg-primary-50 shadow-sm' : 'border-gray-200 bg-white hover:border-primary-200 hover:bg-gray-50'}`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="h-5 w-5 rounded-full border border-white/70 shadow-sm" style={{ backgroundColor: preset.primaryColor }} />
-                              <span className="h-5 w-5 rounded-full border border-white/70 shadow-sm" style={{ backgroundColor: preset.secondaryColor }} />
-                              <span className="h-5 w-5 rounded-full border border-white/70 shadow-sm" style={{ backgroundColor: preset.accentColor }} />
-                              <span className="h-5 w-5 rounded-full border border-white/70 shadow-sm" style={{ backgroundColor: preset.footerBackgroundColor }} />
-                            </div>
-                            <p className="mt-3 text-sm font-semibold text-gray-900">{preset.label}</p>
-                            <p className="mt-1 text-xs text-gray-500">{preset.description}</p>
-                            {isActive && <p className="mt-2 text-[11px] font-semibold text-primary-600">Preset aktif</p>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                      {[
-                        { key: 'primaryColor', label: 'Warna Utama' },
-                        { key: 'secondaryColor', label: 'Warna Sekunder' },
-                        { key: 'accentColor', label: 'Warna Aksen' },
-                        { key: 'footerBackgroundColor', label: 'Warna Footer' },
-                      ].map((item) => (
-                        <div key={item.key}>
-                          <label className={labelCls}>{item.label}</label>
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="color"
-                              value={identityForm[item.key as keyof Pick<SchoolIdentitySettings, 'primaryColor' | 'secondaryColor' | 'accentColor' | 'footerBackgroundColor'>]}
-                              onChange={(e) => setIdentityForm({ ...identityForm, themePreset: 'custom', [item.key]: e.target.value })}
-                              className="h-11 w-14 rounded-xl border border-gray-200 bg-white p-1"
-                            />
-                            <input
-                              type="text"
-                              value={identityForm[item.key as keyof Pick<SchoolIdentitySettings, 'primaryColor' | 'secondaryColor' | 'accentColor' | 'footerBackgroundColor'>]}
-                              onChange={(e) => setIdentityForm({ ...identityForm, themePreset: 'custom', [item.key]: e.target.value })}
-                              className={inputCls}
-                              placeholder="#0f766e"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Model Navigasi Bawah (Mobile Bottom Nav) */}
-                  <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm">
-                    <div className="flex items-center justify-between gap-2">
+                  {/* Shortcut ke Menu Tema & Tampilan */}
+                  <div className="rounded-2xl border border-primary-200 bg-gradient-to-r from-primary-50/80 to-white p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                        <Palette className="h-5 w-5" />
+                      </div>
                       <div>
-                        <h3 className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
-                          <Smartphone className="h-4 w-4 text-primary-600" />
-                          Model Navigasi Bawah (Mobile Bottom Navigation)
-                        </h3>
-                        <p className="mt-1 text-xs text-gray-500">
-                          Pilih model dan gaya bilah menu bawah pada layar smartphone / mobile. Perubahan langsung aktif di seluruh halaman publik.
-                        </p>
+                        <h4 className="text-sm font-bold text-gray-900">Kelola Tema & Tampilan Website</h4>
+                        <p className="text-xs text-gray-600 mt-0.5">Pengaturan warna tema global website dan model navigasi bawah sekarang dikelola di menu khusus <strong>Tema & Tampilan</strong>.</p>
                       </div>
                     </div>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                      {BOTTOM_NAV_STYLES.map((style) => {
-                        const isActive = (identityForm.bottomNavStyle || 'floating') === style.id;
-                        return (
-                          <button
-                            key={style.id}
-                            type="button"
-                            onClick={() => setIdentityForm({ ...identityForm, bottomNavStyle: style.id })}
-                            className={`rounded-2xl border p-3.5 text-left transition-all relative flex flex-col justify-between ${
-                              isActive
-                                ? 'border-primary-500 bg-primary-50/80 shadow-md ring-1 ring-primary-500'
-                                : 'border-gray-200 bg-white hover:border-primary-200 hover:bg-gray-50'
-                            }`}
-                          >
-                            <div>
-                              {/* Mini Visual Mockup */}
-                              <div className={`h-12 rounded-xl p-1.5 flex items-center justify-around border transition-all ${
-                                style.id === 'glass'
-                                  ? 'bg-slate-800/80 border-white/20 backdrop-blur-sm'
-                                  : style.id === 'dock'
-                                  ? 'bg-slate-900 border-primary-500/30 rounded-full px-2'
-                                  : style.id === 'minimal'
-                                  ? 'bg-slate-950 border-white/5'
-                                  : style.id === 'classic'
-                                  ? 'bg-slate-900 border-t border-white/10 rounded-none'
-                                  : 'bg-slate-900 border-white/15 rounded-2xl'
-                              }`}>
-                                <div className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${
-                                  isActive
-                                    ? style.id === 'dock'
-                                      ? 'bg-primary-500 text-white shadow-[0_0_8px_rgba(34,197,94,0.6)] scale-110 rounded-full'
-                                      : style.id === 'glass'
-                                      ? 'bg-white/30 text-white'
-                                      : style.id === 'minimal'
-                                      ? 'bg-white/10 text-primary-300'
-                                      : 'bg-primary-500 text-white shadow-sm'
-                                    : 'bg-white/10 text-white/40'
-                                }`}>
-                                  <Home className="h-2.5 w-2.5" />
-                                </div>
-                                <div className="w-5 h-5 rounded-md flex items-center justify-center bg-white/5 text-white/30">
-                                  <Newspaper className="h-2.5 w-2.5" />
-                                </div>
-                                <div className="w-5 h-5 rounded-md flex items-center justify-center bg-white/5 text-white/30">
-                                  <Calendar className="h-2.5 w-2.5" />
-                                </div>
-                              </div>
-
-                              <p className="mt-3 text-xs sm:text-sm font-bold text-gray-900 leading-tight">
-                                {style.label}
-                              </p>
-                              <p className="mt-1 text-[11px] text-gray-500 leading-snug">
-                                {style.description}
-                              </p>
-                            </div>
-
-                            {isActive ? (
-                              <div className="mt-3 pt-2 border-t border-primary-200/60 flex items-center gap-1 text-[11px] font-bold text-primary-700">
-                                <CheckCircle className="h-3.5 w-3.5" />
-                                <span>Aktif</span>
-                              </div>
-                            ) : (
-                              <div className="mt-3 pt-2 text-[11px] font-medium text-gray-400">
-                                Klik untuk memilih
-                              </div>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setActiveTabGroup('tampilan'); setActiveTab('theme'); }}
+                      className="inline-flex items-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 px-4 py-2.5 text-xs font-bold text-white transition-all shadow-sm shrink-0 active:scale-95 cursor-pointer"
+                    >
+                      <Palette className="h-4 w-4" /> Buka Menu Tema & Tampilan
+                    </button>
                   </div>
 
                   <div className="rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-sm">

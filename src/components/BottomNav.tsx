@@ -59,9 +59,12 @@ export default function BottomNav() {
     switch (navStyle) {
       case 'classic':
       case 'minimal':
+      case 'curved':
         return 'w-full';
       case 'dock':
-        return 'px-3 pb-2 pt-1 flex justify-center';
+      case 'pill':
+        return 'px-4 pb-2.5 pt-1 flex justify-center';
+      case 'glow':
       case 'glass':
       case 'floating':
       default:
@@ -79,6 +82,12 @@ export default function BottomNav() {
         return 'relative max-w-sm w-full mx-auto rounded-full bg-slate-900/90 backdrop-blur-2xl border border-primary-500/30 shadow-xl shadow-primary-950/60 px-3 py-1.5';
       case 'glass':
         return 'relative max-w-md mx-auto rounded-2xl bg-white/10 dark:bg-slate-900/50 backdrop-blur-2xl border border-white/25 shadow-2xl px-2 py-1.5';
+      case 'pill':
+        return 'relative max-w-xs w-full mx-auto rounded-full bg-slate-900/95 backdrop-blur-xl border border-white/20 shadow-2xl shadow-black/40 px-3 py-1';
+      case 'curved':
+        return 'relative w-full border-t border-primary-500/30 bg-slate-900/95 backdrop-blur-2xl px-4 py-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] rounded-t-3xl shadow-[0_-8px_25px_rgba(0,0,0,0.5)]';
+      case 'glow':
+        return 'relative max-w-md mx-auto rounded-2xl bg-slate-950/95 backdrop-blur-2xl border-2 border-primary-500/80 shadow-[0_0_20px_rgba(34,197,94,0.35)] px-2 py-1.5';
       case 'floating':
       default:
         return 'relative max-w-md mx-auto rounded-3xl bg-slate-900/90 backdrop-blur-2xl border border-white/15 shadow-2xl shadow-black/50 px-2 py-1.5';
@@ -90,8 +99,14 @@ export default function BottomNav() {
       case 'classic':
       case 'minimal':
         return 'animate-slideUp border-t border-white/10 bg-slate-900/95 backdrop-blur-2xl';
+      case 'curved':
+        return 'animate-slideUp border-t border-primary-500/30 bg-slate-900/95 backdrop-blur-2xl rounded-t-3xl overflow-hidden';
       case 'dock':
         return 'animate-slideUp max-w-sm mx-auto mb-2 rounded-3xl border border-primary-500/30 bg-slate-900/95 backdrop-blur-2xl shadow-2xl overflow-hidden';
+      case 'pill':
+        return 'animate-slideUp max-w-xs mx-auto mb-2 rounded-3xl border border-white/20 bg-slate-900/95 backdrop-blur-2xl shadow-2xl overflow-hidden';
+      case 'glow':
+        return 'animate-slideUp max-w-md mx-auto mb-2 rounded-2xl border-2 border-primary-500/70 bg-slate-950/95 backdrop-blur-2xl shadow-[0_0_25px_rgba(34,197,94,0.3)] overflow-hidden';
       case 'glass':
         return 'animate-slideUp max-w-md mx-auto mb-2 rounded-2xl border border-white/20 bg-slate-900/85 backdrop-blur-2xl shadow-2xl overflow-hidden';
       case 'floating':
@@ -110,6 +125,12 @@ export default function BottomNav() {
         return 'bg-white/20 text-white shadow-[0_0_12px_rgba(255,255,255,0.3)] border border-white/30 -translate-y-1.5';
       case 'classic':
         return 'bg-primary-600 text-white shadow-md shadow-primary-950 -translate-y-1';
+      case 'pill':
+        return 'bg-primary-500 text-white rounded-full scale-105 shadow-md shadow-primary-500/40';
+      case 'curved':
+        return 'bg-primary-500 text-white shadow-lg shadow-primary-500/50 -translate-y-2 ring-4 ring-slate-900';
+      case 'glow':
+        return 'bg-primary-500 text-white shadow-[0_0_18px_rgba(34,197,94,0.85)] -translate-y-1.5 ring-2 ring-primary-300';
       case 'floating':
       default:
         return 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30 -translate-y-2';
@@ -117,7 +138,9 @@ export default function BottomNav() {
   };
 
   const getIconSizeClass = () => {
-    return navStyle === 'minimal' ? 'w-10 h-10 rounded-xl' : 'w-11 h-11 sm:w-12 sm:h-12 rounded-2xl';
+    if (navStyle === 'minimal') return 'w-10 h-10 rounded-xl';
+    if (navStyle === 'pill') return 'w-10 h-10 rounded-full';
+    return 'w-11 h-11 sm:w-12 sm:h-12 rounded-2xl';
   };
 
   return (
