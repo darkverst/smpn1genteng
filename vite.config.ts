@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
-  envPrefix: ['VITE_', 'NEXT_PUBLIC_', 'ma_'],
+  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   plugins: [react(), tailwindcss(), viteSingleFile()],
   resolve: {
     alias: {
