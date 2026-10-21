@@ -6,6 +6,15 @@ import {
 } from '../types';
 import { addSponsorRecord, deleteSponsorRecord, normalizeSponsorsData, updateSponsorRecord } from '../utils/sponsors';
 import {
+  clearAdminSession,
+  createAdminSession,
+  hashPassword,
+  isPasswordHashed,
+  isSessionValid,
+  saveAdminSession,
+  verifyPassword,
+} from '../utils/security';
+import {
   createTailwindThemeScale,
   buildLegacySettingsFromSchoolIdentity,
   createSchoolIdentityFromLegacy,
@@ -33,7 +42,7 @@ const SETTINGS_STORAGE_CACHE_KEY = 'ma_settings_cache_v1';
 interface AppState {
   isSettingsLoaded: boolean;
   isLoggedIn: boolean;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   news: NewsItem[];
   addNews: (item: Omit<NewsItem, 'id'>) => void;
@@ -88,7 +97,7 @@ interface AppState {
   smpbButton: SmpbButtonSettings;
   updateSmpbButton: (data: Partial<SmpbButtonSettings>) => void;
   authSettings: AuthSettings;
-  updateAdminCredentials: (data: { username?: string; password: string }) => void;
+  updateAdminCredentials: (data: { username?: string; password: string }) => Promise<void>;
   updateAuthUiSettings: (data: Partial<Pick<AuthSettings, 'showDemoCredentials'>>) => void;
   teachers: TeacherData[];
   addTeacher: (teacher: Omit<TeacherData, 'id'>) => void;
@@ -196,7 +205,7 @@ function safeCacheAllSettings(settings: Record<string, unknown>) {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('smpn1_auth') === 'true');
+  const [isLoggedIn, setIsLoggedIn] = useState(() => isSessionValid());
   const [news, setNews] = useState<NewsItem[]>([...DEFAULT_NEWS_ITEMS] as NewsItem[]);
   const [agenda, setAgenda] = useState<AgendaItem[]>([...DEFAULT_AGENDA_ITEMS] as AgendaItem[]);
   const [gallery, setGallery] = useState<GalleryItem[]>([...DEFAULT_GALLERY_ITEMS] as GalleryItem[]);
@@ -434,18 +443,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [isSettingsLoaded, persistSetting]);
 
-  const login = (username: string, password: string): boolean => {
-    if (username === authSettings.username && password === authSettings.password) {
-      setIsLoggedIn(true);
-      localStorage.setItem('smpn1_auth', 'true');
-      return true;
+  const login = async (username: string, password: string): Promise<boolean> => {
+    if (!username || !password) return false;
+    if (username.trim() !== authSettings.username.trim()) {
+      return false;
     }
-    return false;
+
+    const { isValid, needsUpgrade } = await verifyPassword(password, authSettings.password);
+    if (!isValid) {
+      return false;
+    }
+
+    const session = createAdminSession(username);
+    saveAdminSession(session);
+    setIsLoggedIn(true);
+
+    // Auto-migrasi: Jika kata sandi lama masih berupa plaintext, otomatis enkripsi ke hash SHA-256
+    if (needsUpgrade) {
+      const hashedPassword = await hashPassword(password);
+      setAuthSettings(prev => {
+        const next: AuthSettings = {
+          ...prev,
+          password: hashedPassword,
+        };
+        persistSetting(SETTINGS_DB_KEYS.auth, next);
+        return next;
+      });
+    }
+
+    return true;
   };
 
   const logout = () => {
     setIsLoggedIn(false);
-    localStorage.removeItem('smpn1_auth');
+    clearAdminSession();
   };
 
   const addNews = (item: Omit<NewsItem, 'id'>) => setNews(prev => {
@@ -724,16 +755,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     persistSetting(SETTINGS_DB_KEYS.smpbButton, next);
     return next;
   });
-  const updateAdminCredentials = ({ username, password }: { username?: string; password: string }) =>
+  const updateAdminCredentials = async ({ username, password }: { username?: string; password: string }) => {
+    const hashedPassword = isPasswordHashed(password) ? password : await hashPassword(password);
     setAuthSettings(prev => {
       const next: AuthSettings = {
         ...prev,
         username: username?.trim() ? username.trim() : prev.username,
-        password,
+        password: hashedPassword,
       };
       persistSetting(SETTINGS_DB_KEYS.auth, next);
       return next;
     });
+  };
   const updateAuthUiSettings = (data: Partial<Pick<AuthSettings, 'showDemoCredentials'>>) =>
     setAuthSettings(prev => {
       const next = { ...prev, ...data };

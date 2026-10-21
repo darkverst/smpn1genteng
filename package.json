@@ -13,7 +13,6 @@
     "storage:clear": "echo 'Script removed: storage operations are handled via Neon database directly'"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
     "@supabase/supabase-js": "^2.117.2",
     "clsx": "2.1.1",
     "lucide-react": "^0.577.0",

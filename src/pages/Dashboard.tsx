@@ -788,7 +788,7 @@ export default function Dashboard() {
     setTimeout(() => setSmpbSaved(false), 2000);
   };
 
-  const saveAdminCredentials = () => {
+  const saveAdminCredentials = async () => {
     const username = credentialsForm.username.trim();
     const password = credentialsForm.password.trim();
     const confirmPassword = credentialsForm.confirmPassword.trim();
@@ -804,7 +804,7 @@ export default function Dashboard() {
       setSecurityError('Konfirmasi password tidak sama.');
       return;
     }
-    updateAdminCredentials({
+    await updateAdminCredentials({
       username: username || authSettings.username,
       password,
     });

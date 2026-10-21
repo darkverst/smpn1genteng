@@ -19,20 +19,23 @@ export default function Login() {
     return <Navigate to="/dashboard" replace />;
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    setTimeout(() => {
-      const success = login(username, password);
+    try {
+      const success = await login(username, password);
       if (success) {
         navigate('/dashboard', { replace: true });
       } else {
         setError('Username atau password salah. Silakan coba lagi.');
       }
+    } catch {
+      setError('Terjadi kendala saat verifikasi autentikasi. Silakan coba lagi.');
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   return (

@@ -16,6 +16,7 @@ import Downloads from './pages/Downloads';
 import Ekstrakurikuler from './pages/Ekstrakurikuler';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 /* Public layout with Navbar + Footer + BottomNav */
 function PublicLayout() {
@@ -58,7 +59,14 @@ function AppRoutes() {
       <Routes>
         {/* Standalone pages — NO Navbar, Footer, or BottomNav */}
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Public pages — wrapped in PublicLayout */}
         <Route element={<PublicLayout />}>
