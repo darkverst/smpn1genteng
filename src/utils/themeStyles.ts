@@ -86,7 +86,7 @@ export function getIconBadgeStyle(
       styleClass = 'rounded-xl shadow-none border-0';
       break;
     case 'outline':
-      styleClass = 'rounded-xl bg-transparent border-2 border-current shadow-none hover:bg-current/10';
+      styleClass = 'rounded-xl !bg-transparent border-2 border-primary-500 !text-primary-600 shadow-none hover:bg-primary-50/50 [background-image:none!important]';
       break;
     case 'duotone':
       styleClass = 'rounded-2xl ring-4 ring-primary-300/40 shadow-[0_0_18px_rgba(34,197,94,0.45)] hover:shadow-[0_0_24px_rgba(34,197,94,0.65)]';

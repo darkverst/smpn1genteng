@@ -23,6 +23,8 @@ import RichTextEditor from '../components/RichTextEditor';
 import { SETTINGS_DB_KEYS } from '../constants/settingsKeys';
 import { DEFAULT_SETTINGS_BY_KEY } from '../constants/defaultSettings';
 import { applyThemePreset, SCHOOL_THEME_PRESETS, BOTTOM_NAV_STYLES, ICON_STYLES, BUTTON_STYLES, CARD_STYLES } from '../utils/schoolIdentity';
+import { getButtonStyle, getCardStyle, getIconBadgeStyle, getIconSvgEffect } from '../utils/themeStyles';
+import { cn } from '../utils/cn';
 import {
   uploadImageWithDetails,
   formatBytes,
@@ -1278,15 +1280,20 @@ export default function Dashboard() {
   const labelCls = "block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5";
 
   return (
-    <div className="page-enter min-h-screen bg-slate-100">
+    <div
+      className="page-enter min-h-screen bg-slate-100 site-admin-layout"
+      data-icon-style={schoolIdentity.iconStyle || 'material'}
+      data-button-style={schoolIdentity.buttonStyle || 'rounded'}
+      data-card-style={schoolIdentity.cardStyle || 'modern'}
+    >
       {/* Mobile Top Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-2 sm:gap-3">
           <Link to="/" className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg lg:hidden">
-            <ChevronLeft className="h-5 w-5 text-gray-600" />
+            <ChevronLeft className={cn("h-5 w-5 text-gray-600", getIconSvgEffect(schoolIdentity.iconStyle))} />
           </Link>
           <Link to="/" className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg hidden lg:flex">
-            <Home className="h-5 w-5 text-gray-600" />
+            <Home className={cn("h-5 w-5 text-gray-600", getIconSvgEffect(schoolIdentity.iconStyle))} />
           </Link>
           <div>
             <h1 className="text-sm sm:text-lg font-bold text-gray-900">Dashboard Admin</h1>
@@ -1294,11 +1301,23 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link to="/" className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-primary-600 hover:bg-primary-50 rounded-lg text-xs sm:text-sm font-medium">
-            <Eye className="h-3.5 w-3.5" /> Lihat Situs
+          <Link
+            to="/"
+            className={cn(
+              "hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-primary-600 bg-primary-50/70 hover:bg-primary-100 text-xs sm:text-sm font-medium ui-btn",
+              getButtonStyle(schoolIdentity.buttonStyle)
+            )}
+          >
+            <Eye className={cn("h-3.5 w-3.5", getIconSvgEffect(schoolIdentity.iconStyle))} /> Lihat Situs
           </Link>
-          <button onClick={handleLogout} className="flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg text-xs sm:text-sm font-medium transition-colors">
-            <LogOut className="h-3.5 w-3.5" /><span className="hidden sm:inline">Keluar</span>
+          <button
+            onClick={handleLogout}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 text-red-600 bg-red-50 hover:bg-red-100 text-xs sm:text-sm font-medium transition-colors ui-btn",
+              getButtonStyle(schoolIdentity.buttonStyle)
+            )}
+          >
+            <LogOut className={cn("h-3.5 w-3.5", getIconSvgEffect(schoolIdentity.iconStyle))} /><span className="hidden sm:inline">Keluar</span>
           </button>
         </div>
       </div>
@@ -1309,7 +1328,7 @@ export default function Dashboard() {
         <div className="lg:hidden bg-white border-b border-gray-200 sticky top-[52px] z-20">
           <button
             onClick={() => setIsMobileAdminMenuOpen((prev) => !prev)}
-            className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+            className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left no-theme-style"
           >
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-gray-500">{activeGroupMeta.label}</p>
@@ -1332,7 +1351,7 @@ export default function Dashboard() {
                         setActiveTabGroup(group.id);
                         toggleGroupCollapse(group.id);
                       }}
-                      className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+                      className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left no-theme-style"
                     >
                       <div>
                         <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500">{group.label}</p>
@@ -1350,11 +1369,23 @@ export default function Dashboard() {
                               setActiveTab(tab.id);
                               setIsMobileAdminMenuOpen(false);
                             }}
-                            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-medium transition-all ${
-                              activeTab === tab.id ? 'bg-primary-500 text-white shadow-sm' : 'bg-white text-gray-600'
-                            }`}
+                            className={cn(
+                              "flex items-center gap-2 px-3 py-2 text-xs font-medium transition-all ui-btn",
+                              getButtonStyle(
+                                schoolIdentity.buttonStyle,
+                                activeTab === tab.id ? 'bg-primary-500 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-100'
+                              )
+                            )}
                           >
-                            <tab.icon className="h-3.5 w-3.5 shrink-0" />
+                            <div className={cn(
+                              "w-6 h-6 flex items-center justify-center shrink-0 ui-icon-badge",
+                              getIconBadgeStyle(
+                                schoolIdentity.iconStyle,
+                                activeTab === tab.id ? "bg-white/20 text-white" : "bg-gray-100 text-gray-600"
+                              )
+                            )}>
+                              <tab.icon className={cn("h-3.5 w-3.5", getIconSvgEffect(schoolIdentity.iconStyle))} />
+                            </div>
                             <span className="truncate text-left">{tab.label}</span>
                           </button>
                         ))}
@@ -1377,7 +1408,7 @@ export default function Dashboard() {
                     setActiveTabGroup(group.id);
                     toggleGroupCollapse(group.id);
                   }}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left hover:bg-gray-50"
+                  className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left hover:bg-gray-50 no-theme-style"
                 >
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">{group.label}</p>
@@ -1394,12 +1425,24 @@ export default function Dashboard() {
                           setActiveTabGroup(group.id);
                           setActiveTab(tab.id);
                         }}
-                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                          activeTab === tab.id ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'
-                        }`}
+                        className={cn(
+                          "w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium transition-all group ui-btn",
+                          getButtonStyle(
+                            schoolIdentity.buttonStyle,
+                            activeTab === tab.id ? 'bg-primary-50 text-primary-700 shadow-sm border border-primary-200/50' : 'text-gray-600 hover:bg-gray-50'
+                          )
+                        )}
                       >
-                        <tab.icon className="h-5 w-5" />
-                        {tab.label}
+                        <div className={cn(
+                          "w-7 h-7 flex items-center justify-center shrink-0 ui-icon-badge transition-all",
+                          getIconBadgeStyle(
+                            schoolIdentity.iconStyle,
+                            activeTab === tab.id ? "bg-primary-500 text-white" : "bg-gray-100 text-gray-500 group-hover:text-gray-700"
+                          )
+                        )}>
+                          <tab.icon className={cn("h-4 w-4", getIconSvgEffect(schoolIdentity.iconStyle))} />
+                        </div>
+                        <span className="truncate">{tab.label}</span>
                       </button>
                     ))}
                   </div>
@@ -1408,10 +1451,13 @@ export default function Dashboard() {
             ))}
           </nav>
           <div className="p-3 border-t border-gray-100 mt-2">
-            <div className="bg-primary-50 rounded-xl p-3">
+            <div className={cn("bg-primary-50 p-3 ui-card", getCardStyle(schoolIdentity.cardStyle))}>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-                  <GraduationCap className="h-4 w-4 text-white" />
+                <div className={cn(
+                  "w-8 h-8 bg-primary-500 flex items-center justify-center text-white shrink-0 ui-icon-badge",
+                  getIconBadgeStyle(schoolIdentity.iconStyle)
+                )}>
+                  <GraduationCap className={cn("h-4 w-4", getIconSvgEffect(schoolIdentity.iconStyle))} />
                 </div>
                 <div>
                   <p className="text-xs font-bold text-primary-900">Admin</p>
@@ -1469,12 +1515,24 @@ export default function Dashboard() {
                   { icon: Trophy, label: 'Ekstrakurikuler', value: extracurricular.length, color: 'from-amber-400 to-amber-600', bg: 'bg-amber-50' },
                   { icon: Eye, label: 'Total Views', value: analyticsData.totalPageViews, color: 'from-purple-400 to-purple-600', bg: 'bg-purple-50' },
                 ].map(stat => (
-                  <div key={stat.label} className={`${stat.bg} rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-gray-100`}>
+                  <div
+                    key={stat.label}
+                    className={cn(
+                      stat.bg,
+                      "p-3 sm:p-5 border border-gray-100 ui-card",
+                      getCardStyle(schoolIdentity.cardStyle)
+                    )}
+                  >
                     <div className="flex items-center justify-between mb-2 sm:mb-3">
-                      <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br ${stat.color} rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm`}>
-                        <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                      <div
+                        className={cn(
+                          `w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br ${stat.color} flex items-center justify-center text-white shadow-sm ui-icon-badge`,
+                          getIconBadgeStyle(schoolIdentity.iconStyle)
+                        )}
+                      >
+                        <stat.icon className={cn("h-4 w-4 sm:h-5 sm:w-5", getIconSvgEffect(schoolIdentity.iconStyle))} />
                       </div>
-                      <TrendingUp className="h-3.5 w-3.5 text-green-500" />
+                      <TrendingUp className={cn("h-3.5 w-3.5 text-green-500", getIconSvgEffect(schoolIdentity.iconStyle))} />
                     </div>
                     <div className="text-xl sm:text-2xl font-extrabold text-gray-900">{stat.value}</div>
                     <div className="text-[11px] sm:text-xs text-gray-500">{stat.label}</div>
@@ -1482,7 +1540,7 @@ export default function Dashboard() {
                 ))}
               </div>
               <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
-                <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
+                <div className={cn("bg-white p-4 sm:p-6 shadow-sm border border-gray-100 ui-card", getCardStyle(schoolIdentity.cardStyle))}>
                   <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <h3 className="font-bold text-gray-900 text-sm sm:text-base">Berita Terbaru</h3>
                     <button onClick={() => setActiveTab('news')} className="text-primary-500 text-xs sm:text-sm font-medium">Lihat Semua</button>
@@ -1496,7 +1554,7 @@ export default function Dashboard() {
                     ))}
                   </div>
                 </div>
-                <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
+                <div className={cn("bg-white p-4 sm:p-6 shadow-sm border border-gray-100 ui-card", getCardStyle(schoolIdentity.cardStyle))}>
                   <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <h3 className="font-bold text-gray-900 text-sm sm:text-base">Agenda Mendatang</h3>
                     <button onClick={() => setActiveTab('agenda')} className="text-primary-500 text-xs sm:text-sm font-medium">Lihat Semua</button>
@@ -1519,21 +1577,38 @@ export default function Dashboard() {
             <div className="animate-fadeIn">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <h2 className="text-lg sm:text-2xl font-extrabold text-gray-900">Kelola Berita</h2>
-                <button onClick={openNewsAdd} className="flex items-center gap-1.5 bg-primary-500 hover:bg-primary-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-md">
-                  <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Tambah</span> Berita
+                <button
+                  onClick={openNewsAdd}
+                  className={cn(
+                    "flex items-center gap-1.5 bg-primary-500 hover:bg-primary-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold shadow-md ui-btn",
+                    getButtonStyle(schoolIdentity.buttonStyle)
+                  )}
+                >
+                  <Plus className={cn("h-4 w-4", getIconSvgEffect(schoolIdentity.iconStyle))} /> <span className="hidden sm:inline">Tambah</span> Berita
                 </button>
               </div>
               {news.length === 0 ? (
-                <div className="bg-white rounded-2xl p-8 sm:p-12 text-center border border-gray-100 shadow-sm">
-                  <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-3 text-primary-600">
-                    <Newspaper className="h-7 w-7" />
+                <div className={cn("bg-white p-8 sm:p-12 text-center border border-gray-100 shadow-sm ui-card", getCardStyle(schoolIdentity.cardStyle))}>
+                  <div
+                    className={cn(
+                      "w-14 h-14 bg-primary-50 flex items-center justify-center mx-auto mb-3 text-primary-600 ui-icon-badge",
+                      getIconBadgeStyle(schoolIdentity.iconStyle)
+                    )}
+                  >
+                    <Newspaper className={cn("h-7 w-7", getIconSvgEffect(schoolIdentity.iconStyle))} />
                   </div>
                   <h3 className="text-base font-bold text-gray-900 mb-1">Belum Ada Berita</h3>
                   <p className="text-xs sm:text-sm text-gray-500 max-w-md mx-auto mb-4">
                     Belum ada artikel atau publikasi berita yang terdaftar. Tambahkan berita pertama madrasah sekarang.
                   </p>
-                  <button onClick={openNewsAdd} className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-md transition-all">
-                    <Plus className="h-4 w-4" /> Tambah Berita Baru
+                  <button
+                    onClick={openNewsAdd}
+                    className={cn(
+                      "inline-flex items-center gap-2 px-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white text-xs sm:text-sm font-semibold shadow-md transition-all ui-btn",
+                      getButtonStyle(schoolIdentity.buttonStyle)
+                    )}
+                  >
+                    <Plus className={cn("h-4 w-4", getIconSvgEffect(schoolIdentity.iconStyle))} /> Tambah Berita Baru
                   </button>
                 </div>
               ) : (
@@ -2197,7 +2272,7 @@ export default function Dashboard() {
                               key={preset.id}
                               type="button"
                               onClick={() => setIdentityForm(applyThemePreset(identityForm, preset.id))}
-                              className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                              className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer no-theme-style ${
                                 isActive
                                   ? 'border-primary-500 bg-primary-50/70 shadow-md ring-2 ring-primary-500'
                                   : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm hover:bg-gray-50/60'
@@ -2307,7 +2382,7 @@ export default function Dashboard() {
                             key={style.id}
                             type="button"
                             onClick={() => setIdentityForm({ ...identityForm, iconStyle: style.id })}
-                            className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                            className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer no-theme-style ${
                               isActive
                                 ? 'border-primary-500 bg-primary-50/80 shadow-md ring-2 ring-primary-500'
                                 : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-xs hover:bg-gray-50/70'
@@ -2397,7 +2472,7 @@ export default function Dashboard() {
                             key={style.id}
                             type="button"
                             onClick={() => setIdentityForm({ ...identityForm, buttonStyle: style.id })}
-                            className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                            className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer no-theme-style ${
                               isActive
                                 ? 'border-primary-500 bg-primary-50/80 shadow-md ring-2 ring-primary-500'
                                 : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-xs hover:bg-gray-50/70'
@@ -2487,7 +2562,7 @@ export default function Dashboard() {
                             key={style.id}
                             type="button"
                             onClick={() => setIdentityForm({ ...identityForm, cardStyle: style.id })}
-                            className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                            className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer no-theme-style ${
                               isActive
                                 ? 'border-primary-500 bg-primary-50/80 shadow-md ring-2 ring-primary-500'
                                 : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-xs hover:bg-gray-50/70'
@@ -2571,7 +2646,7 @@ export default function Dashboard() {
                             key={style.id}
                             type="button"
                             onClick={() => setIdentityForm({ ...identityForm, bottomNavStyle: style.id })}
-                            className={`rounded-2xl border p-3.5 text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                            className={`rounded-2xl border p-3.5 text-left transition-all relative flex flex-col justify-between cursor-pointer no-theme-style ${
                               isActive
                                 ? 'border-primary-500 bg-primary-50/80 shadow-md ring-2 ring-primary-500'
                                 : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-xs hover:bg-gray-50/70'
