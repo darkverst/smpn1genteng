@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, User, Tag, Share2, Newspaper } from 'lucide-react'
 import { useApp } from '../context/AppContext';
 import { NewsCard } from '../components/Cards';
 import { NEWS_CATEGORIES, CATEGORY_COLORS } from '../types';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -97,7 +98,7 @@ function NewsDetail() {
             {item.excerpt}
           </p>
           {isHtmlContent ? (
-            <div className="article-content text-sm sm:text-base" dangerouslySetInnerHTML={{ __html: item.content }} />
+            <div className="article-content text-sm sm:text-base" dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.content) }} />
           ) : (
             <div className="article-content text-sm sm:text-base">
               {item.content.split('\n').map((p, i) => p.trim() && <p key={i}>{p}</p>)}

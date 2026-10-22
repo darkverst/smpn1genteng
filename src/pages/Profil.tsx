@@ -2,6 +2,7 @@ import { Target, Eye, BookOpen, Award, Users, CheckCircle, Star, Heart, Compass,
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 import { getButtonStyle, getCardStyle, getIconBadgeStyle, getIconSvgEffect, getSectionBadgeStyle } from '../utils/themeStyles';
 import { cn } from '../utils/cn';
 
@@ -34,7 +35,7 @@ export default function Profil() {
               <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-4 sm:mb-6">
                 Tentang <span className="text-primary-500">Madrasah Kami</span>
               </h2>
-              <div className="profile-content text-sm sm:text-base" dangerouslySetInnerHTML={{ __html: profileData.about }} />
+              <div className="profile-content text-sm sm:text-base" dangerouslySetInnerHTML={{ __html: sanitizeHtml(profileData.about) }} />
             </div>
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {[
@@ -114,7 +115,7 @@ export default function Profil() {
                   <div className="relative">
                     <div className="absolute -top-3 -left-1 text-primary-200 text-5xl sm:text-7xl font-serif leading-none select-none">"</div>
                     <div className="relative pt-5 sm:pt-7">
-                      <div className="profile-content text-sm sm:text-base text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: profileData.sambutanKepsek }} />
+                      <div className="profile-content text-sm sm:text-base text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeHtml(profileData.sambutanKepsek) }} />
                     </div>
                   </div>
                 </div>

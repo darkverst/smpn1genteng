@@ -3,6 +3,7 @@ import { GraduationCap, MapPin, Phone, Mail, Clock, ExternalLink } from 'lucide-
 import { useApp } from '../context/AppContext';
 import { getGoogleMapsEmbedUrl } from '../types';
 import { getButtonStyle, getIconBadgeStyle } from '../utils/themeStyles';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 export default function Footer() {
   const { schoolIdentity } = useApp();
@@ -136,7 +137,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-center text-[11px] sm:text-sm text-primary-400">
           <p>{copyrightLine}</p>
           {rightLine && (
-            <p className="mt-0.5 sm:mt-0" dangerouslySetInnerHTML={{ __html: rightLine }} />
+            <p className="mt-0.5 sm:mt-0" dangerouslySetInnerHTML={{ __html: sanitizeHtml(rightLine) }} />
           )}
         </div>
       </div>

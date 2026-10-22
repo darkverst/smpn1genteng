@@ -1,11 +1,31 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Instagram, Heart, ExternalLink, Image, Play } from 'lucide-react';
 import { InstagramPost, InstagramSettings, GRADIENTS } from '../types';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 interface InstagramFeedProps {
   settings: InstagramSettings;
   maxPosts?: number;
   compact?: boolean;
+}
+
+const TRUSTED_WIDGET_DOMAINS = [
+  'instagram.com',
+  'cdninstagram.com',
+  'snapwidget.com',
+  'elfsight.com',
+  'behold.so',
+  'tagembed.com',
+  'juicer.io'
+];
+
+function isTrustedScript(src: string): boolean {
+  try {
+    const parsed = new URL(src, window.location.origin);
+    return TRUSTED_WIDGET_DOMAINS.some((domain) => parsed.hostname === domain || parsed.hostname.endsWith('.' + domain));
+  } catch {
+    return false;
+  }
 }
 
 /* Load the Instagram embed script once */
@@ -39,14 +59,14 @@ function injectWidgetCode(container: HTMLDivElement, widgetCode: string) {
   Array.from(template.content.childNodes).forEach((node) => {
     if (node.nodeName.toLowerCase() === 'script') {
       const sourceScript = node as HTMLScriptElement;
-      const script = document.createElement('script');
-
-      Array.from(sourceScript.attributes).forEach((attribute) => {
-        script.setAttribute(attribute.name, attribute.value);
-      });
-
-      script.text = sourceScript.text;
-      container.appendChild(script);
+      // Hanya izinkan script eksternal dari domain widget resmi terpercaya untuk mencegah XSS
+      if (sourceScript.src && isTrustedScript(sourceScript.src)) {
+        const script = document.createElement('script');
+        Array.from(sourceScript.attributes).forEach((attribute) => {
+          script.setAttribute(attribute.name, attribute.value);
+        });
+        container.appendChild(script);
+      }
       return;
     }
 
@@ -161,7 +181,7 @@ function InstagramEmbedCard({ post }: { post: InstagramPost }) {
     return (
       <div ref={containerRef} className="instagram-embed-container rounded-2xl overflow-hidden shadow-sm border border-gray-100">
         <div
-          dangerouslySetInnerHTML={{ __html: post.embedCode }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.embedCode) }}
           className="[&_iframe]:!max-width-full [&_.instagram-media]:!margin-0"
         />
         {!loaded && (

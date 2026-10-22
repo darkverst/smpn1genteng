@@ -8,6 +8,7 @@ import InstagramFeed from '../components/InstagramFeed';
 import SponsorMarquee from '../components/SponsorMarquee';
 import { AgendaItem, GRADIENTS } from '../types';
 import { getButtonStyle, getCardStyle, getIconBadgeStyle, getIconSvgEffect, getSectionBadgeStyle } from '../utils/themeStyles';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 import { cn } from '../utils/cn';
 
 export default function Home() {
@@ -285,7 +286,7 @@ export default function Home() {
                 <div className="absolute -top-4 -left-2 text-primary-200 text-6xl sm:text-8xl font-serif leading-none select-none">"</div>
                 <div className="relative pt-6 sm:pt-8">
                   <div className="profile-content text-sm sm:text-base text-gray-600 leading-relaxed mb-6 sm:mb-8"
-                    dangerouslySetInnerHTML={{ __html: profileData.sambutanKepsek }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(profileData.sambutanKepsek) }}
                   />
                 </div>
               </div>

@@ -186,9 +186,13 @@ function ensureSessionId(): boolean {
 }
 
 function safeWriteCache(key: string, value: unknown) {
+  // SECURITY: Jangan pernah menyimpan kredensial auth (password hash) ke cache publik browser
+  if (key === SETTINGS_DB_KEYS.auth) return;
+
   try {
     const currentRaw = localStorage.getItem(SETTINGS_STORAGE_CACHE_KEY);
     const current = currentRaw ? JSON.parse(currentRaw) : {};
+    delete current[SETTINGS_DB_KEYS.auth];
     current[key] = value;
     const serialized = JSON.stringify(current);
     setItemWithQuotaGuard(SETTINGS_STORAGE_CACHE_KEY, serialized);
@@ -199,7 +203,10 @@ function safeWriteCache(key: string, value: unknown) {
 
 function safeCacheAllSettings(settings: Record<string, unknown>) {
   try {
-    const serialized = JSON.stringify(settings);
+    // SECURITY: Jangan pernah menyertakan kredensial auth ke cache publik browser
+    const sanitized = { ...settings };
+    delete sanitized[SETTINGS_DB_KEYS.auth];
+    const serialized = JSON.stringify(sanitized);
     setItemWithQuotaGuard(SETTINGS_STORAGE_CACHE_KEY, serialized);
   } catch {
     // Ignore quota errors
@@ -354,11 +361,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if ((identityLooksLikeDefault && legacyLooksCustomized) || (!storedIdentity.schoolLogo && resolvedIdentity.schoolLogo)) {
           persistSetting(SETTINGS_DB_KEYS.schoolIdentity, resolvedIdentity);
         }
-        try {
-          localStorage.setItem(SETTINGS_STORAGE_CACHE_KEY, JSON.stringify(settings));
-        } catch {
-          // Ignore quota errors
-        }
+        safeCacheAllSettings(settings);
         window.dispatchEvent(new CustomEvent('db:synced'));
       } catch (error) {
         console.error('[App] Gagal sinkronisasi settings dari database. State lokal default dipakai sementara tanpa menimpa data database.', error);

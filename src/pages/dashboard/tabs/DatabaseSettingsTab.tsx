@@ -446,15 +446,44 @@ export default function DatabaseSettingsTab({ notifySaved: propNotifySaved, addT
         const content = ev.target?.result as string;
         const data = JSON.parse(content);
 
-        // Validate backup file
-        if (!data._meta) {
+        // Validate backup file metadata
+        if (!data._meta || typeof data._meta !== 'object') {
           setRestoreStatus('error');
           setRestoreMessage('File backup tidak valid — tidak memiliki metadata.');
           return;
         }
 
+        // Whitelist kunci yang diizinkan untuk mencegah injeksi key asing/berbahaya
+        const validKeySet = new Set<string>(BACKUP_DATABASE_KEYS.map((item) => item.key));
+        const keysToRestore = Object.keys(data).filter((k) => k !== '_meta' && validKeySet.has(k));
+
+        if (keysToRestore.length === 0) {
+          setRestoreStatus('error');
+          setRestoreMessage('Tidak ada data valid yang dikenali dalam file backup untuk dipulihkan.');
+          return;
+        }
+
+        // Validasi integritas tipe data penting agar tidak merusak antarmuka aplikasi
+        const arrayExpectedKeys = [
+          SETTINGS_DB_KEYS.news,
+          SETTINGS_DB_KEYS.agenda,
+          SETTINGS_DB_KEYS.gallery,
+          SETTINGS_DB_KEYS.slider,
+          SETTINGS_DB_KEYS.extracurricular,
+          SETTINGS_DB_KEYS.teachers,
+          SETTINGS_DB_KEYS.galleryCategories,
+          SETTINGS_DB_KEYS.eskulCategories
+        ] as const;
+
+        for (const key of keysToRestore) {
+          if ((arrayExpectedKeys as readonly string[]).includes(key) && !Array.isArray(data[key])) {
+            setRestoreStatus('error');
+            setRestoreMessage(`Format data untuk "${key}" tidak valid (harus berupa array). Pemulihan dibatalkan demi keamanan data.`);
+            return;
+          }
+        }
+
         let restoredCount = 0;
-        const keysToRestore = Object.keys(data).filter((k) => k !== '_meta');
         const restoreOperations = keysToRestore.map(async (key) => {
           const success = await saveSetting(key, data[key]);
           if (success) restoredCount++;

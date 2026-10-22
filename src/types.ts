@@ -228,8 +228,41 @@ export interface AnalyticsData {
 }
 
 export function extractYoutubeId(url: string): string | null {
-  if (!url) return null;
-  const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+
+  try {
+    const parsed = new URL(trimmed.startsWith('http') ? trimmed : `https://${trimmed}`);
+    const hostname = parsed.hostname.replace(/^www\./, '').replace(/^m\./, '');
+
+    // youtu.be/<id>
+    if (hostname === 'youtu.be') {
+      const id = parsed.pathname.slice(1).split('/')[0];
+      return /^[a-zA-Z0-9_-]{11}$/.test(id) ? id : null;
+    }
+
+    // youtube.com
+    if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
+      // /watch?v=<id>
+      const v = parsed.searchParams.get('v');
+      if (v && /^[a-zA-Z0-9_-]{11}$/.test(v)) {
+        return v;
+      }
+
+      // /embed/<id>, /shorts/<id>, /live/<id>, /v/<id>
+      const pathParts = parsed.pathname.split('/').filter(Boolean);
+      if (pathParts.length >= 2 && ['embed', 'shorts', 'live', 'v'].includes(pathParts[0])) {
+        const id = pathParts[1];
+        if (/^[a-zA-Z0-9_-]{11}$/.test(id)) {
+          return id;
+        }
+      }
+    }
+  } catch {
+    // Fallback to regex jika URL parsing gagal
+  }
+
+  const match = trimmed.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/i);
   return match ? match[1] : null;
 }
 
