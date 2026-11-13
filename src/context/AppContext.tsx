@@ -306,6 +306,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               buttonStyle: storedIdentity.buttonStyle || 'rounded',
               cardStyle: storedIdentity.cardStyle || 'modern',
               bottomNavStyle: storedIdentity.bottomNavStyle || 'floating',
+              heroCurveStyle: storedIdentity.heroCurveStyle || 'wave-double',
               themePreset: storedIdentity.themePreset,
               primaryColor: storedIdentity.primaryColor,
               secondaryColor: storedIdentity.secondaryColor,

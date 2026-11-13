@@ -107,6 +107,14 @@ describe('school identity utils', () => {
     expect(invalid.bottomNavStyle).toBe('floating');
   });
 
+  it('normalisasi heroCurveStyle memvalidasi style yang valid dan fallback jika tidak valid', () => {
+    const valid = normalizeSchoolIdentity({ heroCurveStyle: 'arc-concave' }, initialSchoolIdentitySettings);
+    expect(valid.heroCurveStyle).toBe('arc-concave');
+
+    const invalid = normalizeSchoolIdentity({ heroCurveStyle: 'not-a-curve' }, initialSchoolIdentitySettings);
+    expect(invalid.heroCurveStyle).toBe('wave-double');
+  });
+
   it('normalisasi iconStyle, buttonStyle, dan cardStyle memvalidasi style yang valid dan fallback jika tidak valid', () => {
     const valid = normalizeSchoolIdentity({
       iconStyle: '3d',

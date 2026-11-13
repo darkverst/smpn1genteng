@@ -6,13 +6,17 @@ import { NewsCard, AgendaCard } from '../components/Cards';
 import AgendaDetailModal from '../components/AgendaDetailModal';
 import InstagramFeed from '../components/InstagramFeed';
 import SponsorMarquee from '../components/SponsorMarquee';
-import { AgendaItem, GRADIENTS } from '../types';
+import { AgendaItem, GRADIENTS, HeroCurveStyle } from '../types';
+import HeroCurveDivider from '../components/HeroCurveDivider';
+import { HERO_CURVE_STYLES } from '../utils/schoolIdentity';
 import { getButtonStyle, getCardStyle, getIconBadgeStyle, getIconSvgEffect, getSectionBadgeStyle } from '../utils/themeStyles';
 import { sanitizeHtml } from '../utils/sanitizeHtml';
 import { cn } from '../utils/cn';
 
 export default function Home() {
   const { news, agenda, sliderItems, profileData, statsData, instagramSettings, schoolIdentity } = useApp();
+  const [previewCurveStyle, setPreviewCurveStyle] = useState<HeroCurveStyle | undefined>(undefined);
+  const activeCurveStyle = previewCurveStyle || schoolIdentity.heroCurveStyle || 'wave-double';
   const latestNews = news.slice(0, 3);
   const upcomingAgenda = agenda.slice(0, 3);
   const shouldShowInstagramSection =
@@ -190,16 +194,43 @@ export default function Home() {
           )}
         </div>
 
-        <div className="absolute bottom-[-1px] left-0 right-0 leading-none">
-          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="block w-full">
-            <path d="M0 80V40C240 0 480 0 720 20C960 40 1200 60 1440 40V80H0Z" fill="#f8fafc"/>
-          </svg>
+        <div className="absolute bottom-[-1px] left-0 right-0 leading-none pointer-events-none z-10">
+          <HeroCurveDivider
+            style={activeCurveStyle}
+            primaryColor={schoolIdentity.primaryColor}
+            accentColor={schoolIdentity.accentColor}
+            fillColor="#f8fafc"
+          />
         </div>
       </section>
 
       {/* Stats */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-slate-50">
+      <section className="py-8 sm:py-12 lg:py-16 bg-slate-50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Bilah Pratinjau Cepat Gaya Garis Melengkung Hero */}
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-2 bg-white/80 backdrop-blur-xs p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 shadow-xs text-xs">
+            <span className="font-bold text-gray-700 flex items-center gap-1.5 pl-1">
+              <span className="text-sm">🌊</span>
+              <span>Variasi Garis Melengkung Hero Slide:</span>
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {HERO_CURVE_STYLES.map((curve) => (
+                <button
+                  key={curve.id}
+                  type="button"
+                  onClick={() => setPreviewCurveStyle(curve.id)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer",
+                    activeCurveStyle === curve.id
+                      ? "bg-primary-600 text-white font-bold shadow-xs scale-105"
+                      : "bg-slate-100 hover:bg-slate-200 text-gray-700"
+                  )}
+                >
+                  {curve.label.split(' (')[0]}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {[
               { icon: Users, label: 'Siswa Aktif', value: statsData.siswaAktif, color: 'from-primary-400 to-primary-600' },

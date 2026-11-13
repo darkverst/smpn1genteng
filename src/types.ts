@@ -83,6 +83,7 @@ export interface BrandSettings {
 }
 
 export type BottomNavStyle = 'floating' | 'classic' | 'dock' | 'minimal' | 'glass' | 'pill' | 'curved' | 'glow';
+export type HeroCurveStyle = 'wave-double' | 'wave-smooth' | 'arc-concave' | 'wave-peaks' | 'curve-glow' | 'wave-classic';
 export type IconStyle = 'material' | '3d' | 'flat' | 'outline' | 'duotone';
 export type ButtonStyle = 'rounded' | 'pill' | 'flat' | '3d' | 'glass' | 'glow';
 export type CardStyle = 'modern' | 'flat' | '3d' | 'glass' | 'bordered';
@@ -93,6 +94,7 @@ export interface SchoolIdentitySettings {
   updatedAt: string;
   themePreset: string;
   bottomNavStyle?: BottomNavStyle;
+  heroCurveStyle?: HeroCurveStyle;
   iconStyle?: IconStyle;
   buttonStyle?: ButtonStyle;
   cardStyle?: CardStyle;
@@ -389,6 +391,7 @@ export const initialSchoolIdentitySettings: SchoolIdentitySettings = {
   updatedAt: new Date().toISOString(),
   themePreset: 'forest',
   bottomNavStyle: 'floating',
+  heroCurveStyle: 'wave-double',
   iconStyle: 'material',
   buttonStyle: 'rounded',
   cardStyle: 'modern',

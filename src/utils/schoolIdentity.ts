@@ -5,6 +5,7 @@ import {
   type CardStyle,
   type ContactInfo,
   type FooterCredit,
+  type HeroCurveStyle,
   type IconStyle,
   initialSchoolIdentitySettings,
   type SchoolIdentitySettings,
@@ -198,6 +199,60 @@ export const VALID_BOTTOM_NAV_STYLES: BottomNavStyle[] = [
 function sanitizeBottomNavStyle(value: unknown, fallback: BottomNavStyle = 'floating'): BottomNavStyle {
   return typeof value === 'string' && VALID_BOTTOM_NAV_STYLES.includes(value as BottomNavStyle)
     ? (value as BottomNavStyle)
+    : fallback;
+}
+
+export const HERO_CURVE_STYLES = [
+  {
+    id: 'wave-double' as const,
+    label: 'Gelombang Ganda 3D (Layered Wave)',
+    badge: 'Rekomendasi',
+    description: 'Dua lapis gelombang lembut bertingkat dengan kedalaman bayangan dan opasitas dinamis.',
+  },
+  {
+    id: 'wave-smooth' as const,
+    label: 'Gelombang Asimetris (Smooth Flow)',
+    badge: 'Dinamis',
+    description: 'Lekukan ombak S-curve asimetris elegan yang mengalir berirama dari sudut ke sudut.',
+  },
+  {
+    id: 'arc-concave' as const,
+    label: 'Busur Cekung Elegan (Concave Arc)',
+    badge: 'Fokus & Mewah',
+    description: 'Lengkungan kubah cekung anggun yang memusatkan pandangan ke konten tengah hero slide.',
+  },
+  {
+    id: 'wave-peaks' as const,
+    label: 'Puncak Kembar (Twin Crests)',
+    badge: 'Simetris & Ceria',
+    description: 'Dua puncak lengkungan berirama harmonis khas portal akademik modern berstandar tinggi.',
+  },
+  {
+    id: 'curve-glow' as const,
+    label: 'Garis Pendar Aksen (Accent Crest)',
+    badge: 'Garis Kilau Aksen',
+    description: 'Lengkungan landai dengan garis pembatas bergradasi warna aksen sekolah yang bercahaya.',
+  },
+  {
+    id: 'wave-classic' as const,
+    label: 'Gelombang Klasik (Default Asli)',
+    badge: 'Bentuk Dasar',
+    description: 'Garis lengkung gelombang tunggal standar bawaan awal website.',
+  },
+] as const;
+
+export const VALID_HERO_CURVE_STYLES: HeroCurveStyle[] = [
+  'wave-double',
+  'wave-smooth',
+  'arc-concave',
+  'wave-peaks',
+  'curve-glow',
+  'wave-classic',
+];
+
+export function sanitizeHeroCurveStyle(value: unknown, fallback: HeroCurveStyle = 'wave-double'): HeroCurveStyle {
+  return typeof value === 'string' && VALID_HERO_CURVE_STYLES.includes(value as HeroCurveStyle)
+    ? (value as HeroCurveStyle)
     : fallback;
 }
 
@@ -532,6 +587,7 @@ export function normalizeSchoolIdentity(raw: unknown, fallback: SchoolIdentitySe
     updatedAt: sanitizeIsoDate(source.updatedAt, fallback.updatedAt),
     themePreset: sanitizeString(source.themePreset, fallback.themePreset),
     bottomNavStyle: sanitizeBottomNavStyle(source.bottomNavStyle, fallback.bottomNavStyle || 'floating'),
+    heroCurveStyle: sanitizeHeroCurveStyle(source.heroCurveStyle, fallback.heroCurveStyle || 'wave-double'),
     iconStyle: sanitizeIconStyle(source.iconStyle, fallback.iconStyle || 'material'),
     buttonStyle: sanitizeButtonStyle(source.buttonStyle, fallback.buttonStyle || 'rounded'),
     cardStyle: sanitizeCardStyle(source.cardStyle, fallback.cardStyle || 'modern'),
