@@ -187,6 +187,86 @@ export interface SponsorsData {
   sponsors: Sponsor[];
 }
 
+export interface ExternalLink {
+  id: string;
+  title: string;
+  url: string;
+  description?: string;
+  category: string;
+  badge?: string;
+  icon?: string;
+  openInNewTab: boolean;
+  isActive: boolean;
+  order: number;
+}
+
+export const EXTERNAL_LINK_CATEGORIES = [
+  'Pemerintah & Dinas',
+  'Sub Web Sekolah',
+  'Layanan Sekolah',
+  'Aplikasi Belajar',
+  'Organisasi & Komite',
+  'Lainnya',
+] as const;
+
+export const DEFAULT_EXTERNAL_LINKS: ExternalLink[] = [
+  {
+    id: 'link-1',
+    title: 'Dinas Pendidikan Kab. Banyuwangi',
+    url: 'https://disdik.banyuwangikab.go.id',
+    description: 'Portal resmi Dinas Pendidikan Kabupaten Banyuwangi',
+    category: 'Pemerintah & Dinas',
+    badge: 'Resmi',
+    openInNewTab: true,
+    isActive: true,
+    order: 1,
+  },
+  {
+    id: 'link-2',
+    title: 'Kementerian Pendidikan Dasar & Menengah RI',
+    url: 'https://kemdikbud.go.id',
+    description: 'Portal resmi Kemendikdasmen Republik Indonesia',
+    category: 'Pemerintah & Dinas',
+    badge: 'Pusat',
+    openInNewTab: true,
+    isActive: true,
+    order: 2,
+  },
+  {
+    id: 'link-3',
+    title: 'Portal PPDB Online Jatim',
+    url: 'https://ppdb.jatimprov.go.id',
+    description: 'Penerimaan Peserta Didik Baru Online Provinsi Jawa Timur',
+    category: 'Layanan Sekolah',
+    badge: 'PPDB',
+    openInNewTab: true,
+    isActive: true,
+    order: 3,
+  },
+  {
+    id: 'link-4',
+    title: 'Platform Merdeka Mengajar & Belajar',
+    url: 'https://guru.kemdikbud.go.id',
+    description: 'Platform edukasi digital pendidik dan siswa Indonesia',
+    category: 'Aplikasi Belajar',
+    badge: 'Edukasi',
+    openInNewTab: true,
+    isActive: true,
+    order: 4,
+  },
+  {
+    id: 'link-5',
+    title: 'Perpustakaan Digital Nasional (Perpusnas)',
+    url: 'https://perpusnas.go.id',
+    description: 'Layanan referensi buku dan literatur digital nasional',
+    category: 'Aplikasi Belajar',
+    badge: 'E-Book',
+    openInNewTab: true,
+    isActive: true,
+    order: 5,
+  },
+];
+
 export interface SmpbButtonSettings {
   isActive: boolean;
   label: string;

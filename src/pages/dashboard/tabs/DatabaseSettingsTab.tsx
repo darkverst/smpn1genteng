@@ -56,6 +56,7 @@ const BACKUP_DATABASE_KEYS = [
   { key: SETTINGS_DB_KEYS.instagram, label: 'Instagram', icon: '📸' },
   { key: SETTINGS_DB_KEYS.sponsors, label: 'Sponsor/Mitra', icon: '🤝' },
   { key: SETTINGS_DB_KEYS.smpbButton, label: 'Tombol SMPB', icon: '🎓' },
+  { key: SETTINGS_DB_KEYS.externalLinks, label: 'Tautan Eksternal', icon: '🔗' },
   { key: SETTINGS_DB_KEYS.auth, label: 'Keamanan Admin', icon: '🔐' },
 ] as const;
 
@@ -472,7 +473,8 @@ export default function DatabaseSettingsTab({ notifySaved: propNotifySaved, addT
           SETTINGS_DB_KEYS.extracurricular,
           SETTINGS_DB_KEYS.teachers,
           SETTINGS_DB_KEYS.galleryCategories,
-          SETTINGS_DB_KEYS.eskulCategories
+          SETTINGS_DB_KEYS.eskulCategories,
+          SETTINGS_DB_KEYS.externalLinks
         ] as const;
 
         for (const key of keysToRestore) {

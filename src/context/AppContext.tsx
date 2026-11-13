@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import {
   NewsItem, AgendaItem, GalleryItem, ContactInfo, SliderItem, ProfileData, StatsData, FooterCredit, SEOData, AnalyticsData, DailyView,
-  BrandSettings, DownloadDocument, DownloadDocumentsData, InstagramSettings, InstagramPost, SponsorsData, Sponsor, SmpbButtonSettings, AuthSettings, SchoolIdentitySettings, TeacherData, ExtracurricularItem,
-  initialContactInfo, initialProfileData, initialStatsData, initialBrandSettings, initialDownloadDocumentsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialSmpbButtonSettings, initialAuthSettings, initialSchoolIdentitySettings, initialTeachers
+  BrandSettings, DownloadDocument, DownloadDocumentsData, InstagramSettings, InstagramPost, SponsorsData, Sponsor, SmpbButtonSettings, AuthSettings, SchoolIdentitySettings, TeacherData, ExtracurricularItem, ExternalLink,
+  initialContactInfo, initialProfileData, initialStatsData, initialBrandSettings, initialDownloadDocumentsData, initialFooterCredit, initialSEOData, initialAnalyticsData, initialSmpbButtonSettings, initialAuthSettings, initialSchoolIdentitySettings, initialTeachers, DEFAULT_EXTERNAL_LINKS
 } from '../types';
 import { addSponsorRecord, deleteSponsorRecord, normalizeSponsorsData, updateSponsorRecord } from '../utils/sponsors';
 import {
@@ -117,6 +117,11 @@ interface AppState {
   addEskulCategory: (category: string) => void;
   updateEskulCategory: (oldCategory: string, newCategory: string) => void;
   deleteEskulCategory: (category: string) => void;
+  externalLinks: ExternalLink[];
+  addExternalLink: (link: Omit<ExternalLink, 'id'>) => void;
+  updateExternalLink: (id: string, link: Partial<ExternalLink>) => void;
+  deleteExternalLink: (id: string) => void;
+  reorderExternalLinks: (links: ExternalLink[]) => void;
 }
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -237,6 +242,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [extracurricular, setExtracurricular] = useState<ExtracurricularItem[]>([...DEFAULT_EXTRACURRICULAR_ITEMS]);
   const [galleryCategories, setGalleryCategories] = useState<string[]>([...DEFAULT_GALLERY_CATEGORY_LIST]);
   const [eskulCategories, setEskulCategories] = useState<string[]>([...DEFAULT_ESKUL_CATEGORY_LIST]);
+  const [externalLinks, setExternalLinks] = useState<ExternalLink[]>([...DEFAULT_EXTERNAL_LINKS]);
 
   const persistSetting = useCallback((key: string, value: unknown) => {
     void saveSetting(key, value);
@@ -269,6 +275,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (Array.isArray(cached[SETTINGS_DB_KEYS.teachers])) setTeachers(cached[SETTINGS_DB_KEYS.teachers] as TeacherData[]);
           if (Array.isArray(cached[SETTINGS_DB_KEYS.galleryCategories])) setGalleryCategories(cached[SETTINGS_DB_KEYS.galleryCategories] as string[]);
           if (Array.isArray(cached[SETTINGS_DB_KEYS.eskulCategories])) setEskulCategories(cached[SETTINGS_DB_KEYS.eskulCategories] as string[]);
+          if (Array.isArray(cached[SETTINGS_DB_KEYS.externalLinks])) setExternalLinks(cached[SETTINGS_DB_KEYS.externalLinks] as ExternalLink[]);
           setIsSettingsLoaded(true);
         }
       }
@@ -358,6 +365,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const eskulItems = Array.isArray(settings[SETTINGS_DB_KEYS.extracurricular]) ? (settings[SETTINGS_DB_KEYS.extracurricular] as ExtracurricularItem[]) : [...DEFAULT_EXTRACURRICULAR_ITEMS];
         const allEskulCats = Array.from(new Set([...rawEskulCats, ...eskulItems.map(e => e.category).filter(Boolean)]));
         setEskulCategories(allEskulCats);
+
+        setExternalLinks(Array.isArray(settings[SETTINGS_DB_KEYS.externalLinks]) ? (settings[SETTINGS_DB_KEYS.externalLinks] as ExternalLink[]) : [...DEFAULT_EXTERNAL_LINKS]);
 
         if ((identityLooksLikeDefault && legacyLooksCustomized) || (!storedIdentity.schoolLogo && resolvedIdentity.schoolLogo)) {
           persistSetting(SETTINGS_DB_KEYS.schoolIdentity, resolvedIdentity);
@@ -898,6 +907,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const addExternalLink = (item: Omit<ExternalLink, 'id'>) => {
+    const newLink: ExternalLink = {
+      ...item,
+      id: `ext-link-${Date.now()}`,
+    };
+    const next = [...externalLinks, newLink];
+    setExternalLinks(next);
+    persistSetting(SETTINGS_DB_KEYS.externalLinks, next);
+  };
+
+  const updateExternalLink = (id: string, item: Partial<ExternalLink>) => {
+    const next = externalLinks.map(l => (l.id === id ? { ...l, ...item } : l));
+    setExternalLinks(next);
+    persistSetting(SETTINGS_DB_KEYS.externalLinks, next);
+  };
+
+  const deleteExternalLink = (id: string) => {
+    const next = externalLinks.filter(l => l.id !== id);
+    setExternalLinks(next);
+    persistSetting(SETTINGS_DB_KEYS.externalLinks, next);
+  };
+
+  const reorderExternalLinks = (items: ExternalLink[]) => {
+    setExternalLinks(items);
+    persistSetting(SETTINGS_DB_KEYS.externalLinks, items);
+  };
+
   return (
     <AppContext.Provider value={{
       isSettingsLoaded,
@@ -923,6 +959,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       extracurricular, addExtracurricular, updateExtracurricular, deleteExtracurricular, reorderExtracurricular,
       galleryCategories, addGalleryCategory, updateGalleryCategory, deleteGalleryCategory,
       eskulCategories, addEskulCategory, updateEskulCategory, deleteEskulCategory,
+      externalLinks, addExternalLink, updateExternalLink, deleteExternalLink, reorderExternalLinks,
     }}>
       {children}
     </AppContext.Provider>

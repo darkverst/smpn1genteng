@@ -19,6 +19,7 @@ const Agenda = lazy(() => import('./pages/Agenda'));
 const Galeri = lazy(() => import('./pages/Galeri'));
 const Downloads = lazy(() => import('./pages/Downloads'));
 const Ekstrakurikuler = lazy(() => import('./pages/Ekstrakurikuler'));
+const Tautan = lazy(() => import('./pages/Tautan'));
 const Kontak = lazy(() => import('./pages/Kontak'));
 
 /* Public layout with Navbar + Footer + BottomNav */
@@ -86,6 +87,7 @@ function AppRoutes() {
             <Route path="/agenda" element={<Agenda />} />
             <Route path="/galeri" element={<Galeri />} />
             <Route path="/ekstrakurikuler" element={<Ekstrakurikuler />} />
+            <Route path="/tautan" element={<Tautan />} />
             <Route path="/download" element={<Downloads />} />
             <Route path="/kontak" element={<Kontak />} />
           </Route>

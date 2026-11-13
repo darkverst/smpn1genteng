@@ -17,6 +17,7 @@ import {
   initialSliderItems,
   DEFAULT_GALLERY_CATEGORIES,
   DEFAULT_ESKUL_CATEGORIES,
+  DEFAULT_EXTERNAL_LINKS,
 } from '../types';
 import { SETTINGS_DB_KEYS } from './settingsKeys';
 
@@ -59,6 +60,7 @@ export const DEFAULT_SETTINGS_BY_KEY: Record<string, unknown> = {
   [SETTINGS_DB_KEYS.extracurricular]: DEFAULT_EXTRACURRICULAR_ITEMS,
   [SETTINGS_DB_KEYS.galleryCategories]: DEFAULT_GALLERY_CATEGORY_LIST,
   [SETTINGS_DB_KEYS.eskulCategories]: DEFAULT_ESKUL_CATEGORY_LIST,
+  [SETTINGS_DB_KEYS.externalLinks]: DEFAULT_EXTERNAL_LINKS,
 };
 
 export const REQUIRED_SETTINGS_KEYS = Object.keys(DEFAULT_SETTINGS_BY_KEY);

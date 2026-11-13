@@ -6,10 +6,13 @@ import { getButtonStyle, getIconBadgeStyle } from '../utils/themeStyles';
 import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 export default function Footer() {
-  const { schoolIdentity } = useApp();
+  const { schoolIdentity, externalLinks } = useApp();
   const mapEmbedUrl = getGoogleMapsEmbedUrl(schoolIdentity);
   const headerName = schoolIdentity.schoolShortName || schoolIdentity.schoolName || 'Portal Sekolah';
   const legalName = schoolIdentity.legalName || schoolIdentity.schoolName || 'Sekolah';
+
+  const activeLinks = (externalLinks || []).filter(link => link.isActive);
+  const hasExternalLinks = activeLinks.length > 0;
 
   const copyrightLine = (() => {
     const year = schoolIdentity.showCurrentYear ? `© ${new Date().getFullYear()} ` : '';
@@ -32,7 +35,7 @@ export default function Footer() {
   return (
     <footer className="text-white" style={{ backgroundColor: schoolIdentity.footerBackgroundColor }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 ${hasExternalLinks ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-8 sm:gap-10`}>
           {/* School Info */}
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
@@ -80,6 +83,7 @@ export default function Footer() {
                 { to: '/agenda', label: 'Agenda Sekolah' },
                 { to: '/galeri', label: 'Galeri' },
                 { to: '/ekstrakurikuler', label: 'Ekstrakurikuler' },
+                { to: '/tautan', label: 'Tautan & Portal Terkait' },
                 { to: '/download', label: 'Download Dokumen' },
                 { to: '/kontak', label: 'Hubungi Kami' },
               ].map(link => (
@@ -92,6 +96,44 @@ export default function Footer() {
               ))}
             </ul>
           </div>
+
+          {/* External Links */}
+          {hasExternalLinks && (
+            <div>
+              <h4 className="text-accent-400 font-semibold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4">Tautan Terkait</h4>
+              <ul className="space-y-2">
+                {activeLinks.slice(0, 5).map(link => (
+                  <li key={link.id}>
+                    <a
+                      href={link.url}
+                      target={link.openInNewTab ? '_blank' : '_self'}
+                      rel="noopener noreferrer"
+                      className="text-primary-200 hover:text-white text-xs sm:text-sm transition-colors flex items-center gap-1.5 group"
+                      title={link.description || link.title}
+                    >
+                      <ExternalLink className="h-3 w-3 shrink-0 text-primary-400 group-hover:text-accent-300 transition-colors" />
+                      <span className="truncate">{link.title}</span>
+                      {link.badge && (
+                        <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-primary-800 text-primary-300 font-medium group-hover:bg-accent-500/20 group-hover:text-accent-200 transition-colors shrink-0">
+                          {link.badge}
+                        </span>
+                      )}
+                    </a>
+                  </li>
+                ))}
+                {activeLinks.length > 5 && (
+                  <li className="pt-1">
+                    <Link
+                      to="/tautan"
+                      className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-accent-400 hover:text-accent-300 hover:underline transition-colors"
+                    >
+                      Lihat Semua ({activeLinks.length}) &rarr;
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
 
           {/* Contact */}
           <div>

@@ -7,6 +7,7 @@ import {
 } from '../utils/excelHelper';
 import DatabaseSettingsTab from './dashboard/tabs/DatabaseSettingsTab';
 import SEOAnalyticsTab from './dashboard/tabs/SEOAnalyticsTab';
+import ExternalLinksTab from './dashboard/tabs/ExternalLinksTab';
 import {
   LayoutDashboard, Newspaper, Calendar, Camera, LogOut, Plus, Edit, Trash2, X, Save, Eye, TrendingUp,
   GraduationCap, ImagePlus, Phone, Sliders, FileText, Youtube, ArrowUp, ArrowDown,
@@ -35,7 +36,7 @@ import {
 import { AdminToastContainer, ImageStorageBadge, type Toast } from '../components/AdminToast';
 import { UploadProgressBar, type UploadState } from '../components/UploadProgressBar';
 
-type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'branding' | 'theme' | 'downloads' | 'seo' | 'instagram' | 'sponsors' | 'guru' | 'eskul' | 'security' | 'database';
+type Tab = 'overview' | 'news' | 'agenda' | 'gallery' | 'slider' | 'contact' | 'profile' | 'stats' | 'branding' | 'theme' | 'downloads' | 'seo' | 'instagram' | 'sponsors' | 'guru' | 'eskul' | 'links' | 'security' | 'database';
 type TabGroupId = 'ringkasan' | 'konten' | 'identitas' | 'promosi' | 'sistem';
 
 const emptyEskul: Omit<ExtracurricularItem, 'id'> = {
@@ -1073,6 +1074,7 @@ export default function Dashboard() {
     { id: 'sponsors' as Tab, label: 'Sponsor/Mitra', icon: Link2 },
     { id: 'guru' as Tab, label: 'Data Guru', icon: Users },
     { id: 'eskul' as Tab, label: 'Ekstrakurikuler', icon: Trophy },
+    { id: 'links' as Tab, label: 'Tautan Eksternal', icon: Link2 },
     { id: 'theme' as Tab, label: 'Tema & Tampilan', icon: Palette },
     { id: 'security' as Tab, label: 'Keamanan', icon: Shield },
     { id: 'contact' as Tab, label: 'Tombol SMPB', icon: Phone },
@@ -1090,7 +1092,7 @@ export default function Dashboard() {
       id: 'konten',
       label: 'Konten Utama',
       description: 'Kelola isi website',
-      tabs: tabs.filter((tab) => ['news', 'agenda', 'gallery', 'slider', 'profile', 'downloads', 'guru', 'eskul'].includes(tab.id)),
+      tabs: tabs.filter((tab) => ['news', 'agenda', 'gallery', 'slider', 'profile', 'downloads', 'guru', 'eskul', 'links'].includes(tab.id)),
     },
     {
       id: 'identitas',
@@ -3592,6 +3594,11 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ======= EXTERNAL LINKS ======= */}
+          {activeTab === 'links' && (
+            <ExternalLinksTab notifySaved={notifySaved} addToast={addToast} />
           )}
 
           {/* ======= SECURITY ======= */}

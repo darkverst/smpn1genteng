@@ -20,4 +20,5 @@ export const SETTINGS_DB_KEYS = {
   extracurricular: 'extracurricular_items',
   galleryCategories: 'gallery_categories',
   eskulCategories: 'eskul_categories',
+  externalLinks: 'external_links',
 } as const;

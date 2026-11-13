@@ -12,6 +12,7 @@ const navLinks = [
   { path: '/agenda', label: 'Agenda' },
   { path: '/galeri', label: 'Galeri' },
   { path: '/ekstrakurikuler', label: 'Eskul' },
+  { path: '/tautan', label: 'Tautan' },
   { path: '/download', label: 'Download' },
   { path: '/kontak', label: 'Kontak' },
 ];
