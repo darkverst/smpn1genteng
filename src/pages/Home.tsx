@@ -14,7 +14,7 @@ import { sanitizeHtml } from '../utils/sanitizeHtml';
 import { cn } from '../utils/cn';
 
 export default function Home() {
-  const { news, agenda, sliderItems, profileData, statsData, instagramSettings, schoolIdentity } = useApp();
+  const { news, agenda, sliderItems, profileData, statsData, instagramSettings, schoolIdentity, isLoggedIn } = useApp();
   const [previewCurveStyle, setPreviewCurveStyle] = useState<HeroCurveStyle | undefined>(undefined);
   const activeCurveStyle = previewCurveStyle || schoolIdentity.heroCurveStyle || 'wave-double';
   const latestNews = news.slice(0, 3);
@@ -207,30 +207,32 @@ export default function Home() {
       {/* Stats */}
       <section className="py-8 sm:py-12 lg:py-16 bg-slate-50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Bilah Pratinjau Cepat Gaya Garis Melengkung Hero */}
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-2 bg-white/80 backdrop-blur-xs p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 shadow-xs text-xs">
-            <span className="font-bold text-gray-700 flex items-center gap-1.5 pl-1">
-              <span className="text-sm">🌊</span>
-              <span>Variasi Garis Melengkung Hero Slide:</span>
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {HERO_CURVE_STYLES.map((curve) => (
-                <button
-                  key={curve.id}
-                  type="button"
-                  onClick={() => setPreviewCurveStyle(curve.id)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer",
-                    activeCurveStyle === curve.id
-                      ? "bg-primary-600 text-white font-bold shadow-xs scale-105"
-                      : "bg-slate-100 hover:bg-slate-200 text-gray-700"
-                  )}
-                >
-                  {curve.label.split(' (')[0]}
-                </button>
-              ))}
+          {/* Bilah Pratinjau Cepat Gaya Garis Melengkung Hero (Hanya Muncul Jika Admin Sedang Login) */}
+          {isLoggedIn && (
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-2 bg-white/80 backdrop-blur-xs p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 shadow-xs text-xs">
+              <span className="font-bold text-gray-700 flex items-center gap-1.5 pl-1">
+                <span className="text-sm">🌊</span>
+                <span>Mode Admin - Pratinjau Garis Melengkung:</span>
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {HERO_CURVE_STYLES.map((curve) => (
+                  <button
+                    key={curve.id}
+                    type="button"
+                    onClick={() => setPreviewCurveStyle(curve.id)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer",
+                      activeCurveStyle === curve.id
+                        ? "bg-primary-600 text-white font-bold shadow-xs scale-105"
+                        : "bg-slate-100 hover:bg-slate-200 text-gray-700"
+                    )}
+                  >
+                    {curve.label.split(' (')[0]}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {[
               { icon: Users, label: 'Siswa Aktif', value: statsData.siswaAktif, color: 'from-primary-400 to-primary-600' },

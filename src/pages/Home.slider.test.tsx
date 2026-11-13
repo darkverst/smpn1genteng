@@ -125,4 +125,14 @@ describe('Home Slider Overlay Transparency', () => {
     // Slide-3 title and subtitle should not be rendered on the active slide-1 view
     expect(screen.queryByText('Subtitle ini harus disembunyikan')).not.toBeInTheDocument();
   });
+
+  it('menyembunyikan bilah pemilih cepat garis melengkung jika pengunjung tidak login admin', () => {
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByText(/Mode Admin - Pratinjau Garis Melengkung/i)).not.toBeInTheDocument();
+  });
 });
