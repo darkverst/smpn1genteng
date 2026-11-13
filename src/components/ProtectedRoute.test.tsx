@@ -1,9 +1,18 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import { AppProvider } from '../context/AppContext';
 import { createAdminSession, saveAdminSession, SESSION_STORAGE_KEY } from '../utils/security';
+
+vi.mock('../services/settingsRepository', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../services/settingsRepository')>();
+  return {
+    ...actual,
+    ensureDefaultSettings: vi.fn().mockResolvedValue({}),
+    loadSettings: vi.fn().mockResolvedValue({}),
+  };
+});
 
 function renderWithRouter(initialRoute = '/dashboard') {
   return render(
