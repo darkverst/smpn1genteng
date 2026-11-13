@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Users, Award, BookOpen, GraduationCap, Calendar, Newspaper, ChevronRight, Star, Target, Heart, ChevronLeft } from 'lucide-react';
+import { ArrowRight, Users, Award, BookOpen, GraduationCap, Calendar, Newspaper, ChevronRight, Star, ChevronLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { NewsCard, AgendaCard } from '../components/Cards';
 import AgendaDetailModal from '../components/AgendaDetailModal';
 import InstagramFeed from '../components/InstagramFeed';
 import SponsorMarquee from '../components/SponsorMarquee';
+import SambutanSection from '../components/SambutanSection';
 import { AgendaItem, GRADIENTS, HeroCurveStyle } from '../types';
 import HeroCurveDivider from '../components/HeroCurveDivider';
 import { HERO_CURVE_STYLES } from '../utils/schoolIdentity';
 import { getButtonStyle, getCardStyle, getIconBadgeStyle, getIconSvgEffect, getSectionBadgeStyle } from '../utils/themeStyles';
-import { sanitizeHtml } from '../utils/sanitizeHtml';
 import { cn } from '../utils/cn';
 
 export default function Home() {
@@ -264,96 +264,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Sambutan Kepala Sekolah */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12 animate-fadeInUp">
-            <div className={getSectionBadgeStyle(schoolIdentity.buttonStyle, "inline-flex items-center gap-2 bg-primary-50 px-3 py-1 sm:px-4 sm:py-1.5 text-primary-600 text-xs sm:text-sm font-medium mb-2 sm:mb-3")}>
-              <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", getIconSvgEffect(schoolIdentity.iconStyle))} />
-              Sambutan Kepala Sekolah
-            </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight">
-              Selamat Datang di <span className="text-primary-500">{schoolIdentity.schoolName || 'Sekolah Kami'}</span>
-            </h2>
-          </div>
-
-          <div className="grid lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-12 items-start">
-            {/* Foto Kepala Sekolah - Kolom Kiri */}
-            <div className="lg:col-span-2 animate-fadeInUp delay-100">
-              <div className="relative max-w-xs sm:max-w-sm mx-auto lg:max-w-none">
-                {profileData.fotoKepsek ? (
-                  <div className="relative">
-                    <div className="absolute -inset-2 sm:-inset-3 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl sm:rounded-3xl opacity-20 blur-lg" />
-                    <div className="relative bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl sm:rounded-3xl p-2 sm:p-3">
-                      <img
-                        src={profileData.fotoKepsek}
-                        alt={profileData.namaKepsek}
-                        className="w-full aspect-[3/4] object-cover rounded-xl sm:rounded-2xl shadow-lg"
-                      />
-                    </div>
-                    {/* Nama & Jabatan Overlay */}
-                    <div className="absolute bottom-4 sm:bottom-5 left-4 sm:left-5 right-4 sm:right-5">
-                      <div className="bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xl border border-white/50">
-                        <p className="font-bold text-gray-900 text-sm sm:text-base leading-tight">{profileData.namaKepsek}</p>
-                        <p className="text-primary-500 text-xs sm:text-sm mt-0.5">{profileData.jabatanKepsek}</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl sm:rounded-3xl p-2 sm:p-3">
-                    <div className="w-full aspect-[3/4] bg-gradient-to-br from-primary-300 to-primary-500 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center text-white">
-                      <div className="w-20 h-20 sm:w-28 sm:h-28 bg-white/20 rounded-full flex items-center justify-center mb-3 sm:mb-4 backdrop-blur-sm">
-                        <GraduationCap className="h-10 w-10 sm:h-14 sm:w-14 text-white/90" />
-                      </div>
-                      <p className="font-bold text-base sm:text-lg">{profileData.namaKepsek}</p>
-                      <p className="text-primary-200 text-xs sm:text-sm mt-1">{profileData.jabatanKepsek}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Isi Sambutan - Kolom Kanan */}
-            <div className="lg:col-span-3 animate-fadeInUp delay-200">
-              <div className="relative">
-                <div className="absolute -top-4 -left-2 text-primary-200 text-6xl sm:text-8xl font-serif leading-none select-none">"</div>
-                <div className="relative pt-6 sm:pt-8">
-                  <div className="profile-content text-sm sm:text-base text-gray-600 leading-relaxed mb-6 sm:mb-8"
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(profileData.sambutanKepsek) }}
-                  />
-                </div>
-              </div>
-
-              {/* Info Cards */}
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
-                {[
-                  { icon: Target, title: 'Visi', desc: profileData.visi.substring(0, 60) + '...' },
-                  { icon: BookOpen, title: 'Kurikulum', desc: 'Kurikulum Merdeka berbasis kompetensi.' },
-                  { icon: Award, title: 'Prestasi', desc: `${statsData.prestasi} penghargaan berbagai tingkat.` },
-                  { icon: Users, title: 'Alumni', desc: '10.000+ alumni di seluruh Indonesia.' },
-                ].map((item) => (
-                  <div
-                    key={item.title}
-                    className={cn(
-                      "bg-gradient-to-br from-primary-50 to-primary-100/50 p-3 sm:p-4 border border-primary-100 hover:shadow-md transition-all group ui-card",
-                      getCardStyle(schoolIdentity.cardStyle)
-                    )}
-                  >
-                    <div className={cn(
-                      "w-8 h-8 rounded-lg bg-primary-100 text-primary-700 flex items-center justify-center mb-1.5 sm:mb-2 group-hover:scale-110 transition-transform ui-icon-badge",
-                      getIconBadgeStyle(schoolIdentity.iconStyle)
-                    )}>
-                      <item.icon className={cn("h-4 w-4 sm:h-5 sm:w-5", getIconSvgEffect(schoolIdentity.iconStyle))} />
-                    </div>
-                    <h4 className="font-bold text-gray-900 text-xs sm:text-sm">{item.title}</h4>
-                    <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Sambutan Kepala Sekolah (6 Variasi Tampilan Pilihan) */}
+      <SambutanSection
+        profileData={profileData}
+        statsData={statsData}
+        schoolIdentity={schoolIdentity}
+        isAdmin={isLoggedIn}
+      />
 
       {/* Berita Terbaru */}
       <section className="py-12 sm:py-16 lg:py-20 bg-slate-50">

@@ -6,6 +6,7 @@ import {
   type ContactInfo,
   type FooterCredit,
   type HeroCurveStyle,
+  type SambutanStyle,
   type IconStyle,
   initialSchoolIdentitySettings,
   type SchoolIdentitySettings,
@@ -253,6 +254,60 @@ export const VALID_HERO_CURVE_STYLES: HeroCurveStyle[] = [
 export function sanitizeHeroCurveStyle(value: unknown, fallback: HeroCurveStyle = 'wave-double'): HeroCurveStyle {
   return typeof value === 'string' && VALID_HERO_CURVE_STYLES.includes(value as HeroCurveStyle)
     ? (value as HeroCurveStyle)
+    : fallback;
+}
+
+export const SAMBUTAN_STYLES = [
+  {
+    id: 'modern-card' as const,
+    label: 'Modern Card & Glow',
+    badge: 'Populer & Seimbang',
+    description: 'Tata letak 2 kolom modern dengan kartu foto floating frosted glass, quote serif, dan 4 kartu pilar info.',
+  },
+  {
+    id: 'executive-split' as const,
+    label: 'Executive Split Card',
+    badge: 'Mewah & Berwibawa',
+    description: 'Desain eksekutif formal dengan border aksen elegan, blok kutipan highlight, dan tipografi berkelas.',
+  },
+  {
+    id: 'quote-focus' as const,
+    label: 'Kutipan Terpusat (Quote Focus)',
+    badge: 'Fokus & Minimalis',
+    description: 'Tata letak terpusat dengan quote serif raksasa, avatar melingkar berlis ganda, dan ringkasan pilar terpadu.',
+  },
+  {
+    id: 'framed-academic' as const,
+    label: 'Bingkai Akademik Formal',
+    badge: 'Klasik Prestisius',
+    description: 'Gaya piagam akademik dengan sudut dekoratif, bingkai foto berlis ganda, dan lencana jabatan resmi.',
+  },
+  {
+    id: 'glass-float' as const,
+    label: 'Glassmorphism & Floating Elements',
+    badge: 'Ultra Modern',
+    description: 'Efek kaca transparan (backdrop-blur) dengan pendaran warna aurora dan kartu pilar melayang.',
+  },
+  {
+    id: 'overlap-banner' as const,
+    label: 'Banner Asimetris 3D (Overlap)',
+    badge: 'Dinamis Kontemporer',
+    description: 'Foto kepala sekolah memotong batas banner gradasi primer, menghadirkan ilusi kedalaman 3D yang berani.',
+  },
+] as const;
+
+export const VALID_SAMBUTAN_STYLES: SambutanStyle[] = [
+  'modern-card',
+  'executive-split',
+  'quote-focus',
+  'framed-academic',
+  'glass-float',
+  'overlap-banner',
+];
+
+export function sanitizeSambutanStyle(value: unknown, fallback: SambutanStyle = 'modern-card'): SambutanStyle {
+  return typeof value === 'string' && VALID_SAMBUTAN_STYLES.includes(value as SambutanStyle)
+    ? (value as SambutanStyle)
     : fallback;
 }
 
@@ -588,6 +643,7 @@ export function normalizeSchoolIdentity(raw: unknown, fallback: SchoolIdentitySe
     themePreset: sanitizeString(source.themePreset, fallback.themePreset),
     bottomNavStyle: sanitizeBottomNavStyle(source.bottomNavStyle, fallback.bottomNavStyle || 'floating'),
     heroCurveStyle: sanitizeHeroCurveStyle(source.heroCurveStyle, fallback.heroCurveStyle || 'wave-double'),
+    sambutanStyle: sanitizeSambutanStyle(source.sambutanStyle, fallback.sambutanStyle || 'modern-card'),
     iconStyle: sanitizeIconStyle(source.iconStyle, fallback.iconStyle || 'material'),
     buttonStyle: sanitizeButtonStyle(source.buttonStyle, fallback.buttonStyle || 'rounded'),
     cardStyle: sanitizeCardStyle(source.cardStyle, fallback.cardStyle || 'modern'),

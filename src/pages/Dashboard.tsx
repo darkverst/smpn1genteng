@@ -26,7 +26,7 @@ import {
   initialSliderItems
 } from '../types';
 import RichTextEditor from '../components/RichTextEditor';
-import { applyThemePreset, SCHOOL_THEME_PRESETS, BOTTOM_NAV_STYLES, ICON_STYLES, BUTTON_STYLES, CARD_STYLES, HERO_CURVE_STYLES } from '../utils/schoolIdentity';
+import { applyThemePreset, SCHOOL_THEME_PRESETS, BOTTOM_NAV_STYLES, ICON_STYLES, BUTTON_STYLES, CARD_STYLES, HERO_CURVE_STYLES, SAMBUTAN_STYLES } from '../utils/schoolIdentity';
 import { getButtonStyle, getCardStyle, getIconBadgeStyle, getIconSvgEffect } from '../utils/themeStyles';
 import { cn } from '../utils/cn';
 import {
@@ -2644,6 +2644,67 @@ export default function Dashboard() {
                               <div className="mt-3 pt-2 border-t border-primary-200/60 flex items-center gap-1 text-[11px] font-bold text-primary-700">
                                 <CheckCircle className="h-3.5 w-3.5" />
                                 <span>Lekukan Aktif</span>
+                              </div>
+                            ) : (
+                              <div className="mt-3 pt-2 text-[11px] font-medium text-gray-400">
+                                Klik untuk memilih
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Gaya Tampilan Sambutan Kepala Sekolah (6 Pilihan) */}
+                  <div className="space-y-3 rounded-2xl border border-gray-100 bg-white p-4 sm:p-6 shadow-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                          <Heart className="h-5 w-5 text-primary-600" />
+                          Gaya Tampilan Sambutan Kepala Sekolah (6 Pilihan Desain)
+                        </h3>
+                        <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                          Pilih model tata letak bagian sambutan kepala sekolah di beranda depan: Modern Card & Glow, Executive Split Card, Kutipan Terpusat, Bingkai Akademik Formal, Glassmorphism & Floating Cards, atau Banner Asimetris 3D (Overlap).
+                        </p>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-400 self-start sm:self-auto bg-gray-100 px-2.5 py-1 rounded-full">
+                        {SAMBUTAN_STYLES.length} Pilihan Desain
+                      </span>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 pt-1">
+                      {SAMBUTAN_STYLES.map((style) => {
+                        const isActive = (identityForm.sambutanStyle || 'modern-card') === style.id;
+                        return (
+                          <button
+                            key={style.id}
+                            type="button"
+                            onClick={() => setIdentityForm({ ...identityForm, sambutanStyle: style.id })}
+                            className={`rounded-2xl border p-4 text-left transition-all relative flex flex-col justify-between cursor-pointer no-theme-style ${
+                              isActive
+                                ? 'border-primary-500 bg-primary-50/80 shadow-md ring-2 ring-primary-500'
+                                : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-xs hover:bg-gray-50/70'
+                            }`}
+                          >
+                            <div>
+                              <div className="flex items-center justify-between gap-1 mb-1.5">
+                                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-tight">
+                                  {style.label}
+                                </p>
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                                  {style.badge}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-gray-500 leading-snug">
+                                {style.description}
+                              </p>
+                            </div>
+
+                            {isActive ? (
+                              <div className="mt-3 pt-2 border-t border-primary-200/60 flex items-center gap-1 text-[11px] font-bold text-primary-700">
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                <span>Tampilan Aktif</span>
                               </div>
                             ) : (
                               <div className="mt-3 pt-2 text-[11px] font-medium text-gray-400">

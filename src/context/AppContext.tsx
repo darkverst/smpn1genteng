@@ -314,6 +314,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               cardStyle: storedIdentity.cardStyle || 'modern',
               bottomNavStyle: storedIdentity.bottomNavStyle || 'floating',
               heroCurveStyle: storedIdentity.heroCurveStyle || 'wave-double',
+              sambutanStyle: storedIdentity.sambutanStyle || 'modern-card',
               themePreset: storedIdentity.themePreset,
               primaryColor: storedIdentity.primaryColor,
               secondaryColor: storedIdentity.secondaryColor,
